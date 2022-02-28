@@ -24,7 +24,24 @@ assign rs1 = inst[19:15];
 assign rs2 = inst[24:20];
 assign rd  = inst[11:7];
 
-assign is_addi = (opcode=={OP-IMM, 2'b11} && funct3==ADDI);
-assign is_add  = (opcode=={OP, 2'b11} && funct3==ADD);
+assign is_addi = (opcode=={`OP-IMM, 2'b11}) && (funct3==`ADDI);
+assign is_add  = (opcode=={`OP, 2'b11}) && (funct3==`ADD);
+
+always_comb begin
+    if (is_add) begin
+        inst_format = `R_TYPE;
+    end else if (is_addi) begin
+        inst_format = `I_TYPE;
+    end /*else if () begin
+        inst_format = `S_TYPE;
+    end else if () begin
+        inst_format = `B_TYPE;
+    end else if () begin
+        inst_format = `U_TYPE;
+    end else if () begin
+        inst_format = `J_TYPE;
+    end 
+    */
+end
 
 endmodule
