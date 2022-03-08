@@ -1,4 +1,4 @@
-`include "defs.v"
+`include "defs.sv"
 `include "opcodes.v"
 `include "funct3s.v"
 

@@ -1,4 +1,4 @@
-`include "defs.v"
+`include "defs.sv"
 
 // Immediate decoder
 
