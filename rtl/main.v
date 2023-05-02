@@ -1,6 +1,8 @@
 `define ILEN         32
 `define XLEN         32
 
+`define IMEM_ENTRY 4096
+
 /* Instruction format                              */
 /* {funct7, rs2, rs1, funct3, rd, opcode} (R-Type) */
 `define FUNCT7_WIDTH  7
@@ -17,7 +19,7 @@ module m_proc (
     output wire [31:0] w_rslt
 );
 
-    reg [31:0] r_pc = 0;
+    reg [`XLEN-1:0] r_pc = 0;
 
     always @(posedge w_clk) begin
         if (!w_rstn) begin
@@ -72,5 +74,28 @@ module m_instparse (
     assign w_funct3 = w_inst[12+:`FUNCT3_WIDTH];
     assign w_rd     = w_inst[ 7+:`RD_WIDTH];
     assign w_opcode = w_inst[ 0+:`OPCODE_WIDTH];
+
+endmodule
+
+module m_asyncrom #(
+    parameter DATA_WIDTH =   32;
+    parameter ENTRIES    = 4096;
+) (
+    input wire w_clk,
+    input wire [$clog2(ENTRIES)-1:0] w_addr,
+    
+    output wire [DATA_WIDTH-1:0] w_dout
+);
+
+    reg [DATA_WIDTH-1:0] cm_ram [0:ENTRIES-1];
+    assign w_dout = cm_ram[w_addr];
+
+    initial begin
+        cm_ram[0]={7'd0, 5'd0, 5'd0, 3'd0, 5'd0, 7'b0110011}; // add  x0, x0, x0
+        cm_ram[1]={12'h008,    5'd0, 3'd7, 5'd4, 7'b0010011}; // addi x4, x0,  8
+        cm_ram[2]={12'hffe,    5'd0, 3'd7, 5'd5, 7'b0010011}; // addi x5, x0, -2
+        cm_ram[3]={7'd0, 5'd5, 5'd4, 3'd0, 5'd6, 7'b0110011}; // add  x6, x4, x5
+        cm_ram[4]={7'd0, 5'd0, 5'd0, 3'd0, 5'd0, 7'b0110011}; // add  x0, x0, x0
+    end
 
 endmodule
