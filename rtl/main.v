@@ -26,7 +26,7 @@ module m_proc (
             r_pc <= r_pc + 4;
         end
     end
-    
+
 endmodule
 
 module m_immgen (
@@ -52,7 +52,7 @@ module m_immgen (
     assign w_B_imm = {{(`XLEN-12){w_inst_31}}, w_inst__7,    w_inst_30_25, w_inst_11__8, 1'b0};
     assign w_U_imm = {{(`XLEN-31){w_inst_31}}, w_inst_30_25, w_inst_24_21, w_inst_20,    w_inst_19_12, 12'h000};
     assign w_J_imm = {{(`XLEN-20){w_inst_31}}, w_inst_19_12, w_inst_20,    w_inst_30_25, w_inst_24_21, 1'b0};
-    
+
 endmodule
 
 module m_instparse (
@@ -72,5 +72,5 @@ module m_instparse (
     assign w_funct3 = w_inst[12+:`FUNCT3_WIDTH];
     assign w_rd     = w_inst[ 7+:`RD_WIDTH];
     assign w_opcode = w_inst[ 0+:`OPCODE_WIDTH];
-    
+
 endmodule
