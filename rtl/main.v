@@ -54,3 +54,23 @@ module m_immgen (
     assign w_J_imm = {{(`XLEN-20){w_inst_31}}, w_inst_19_12, w_inst_20,    w_inst_30_25, w_inst_24_21, 1'b0};
     
 endmodule
+
+module m_instparse (
+    input wire [`ILEN-1:0] w_inst,
+
+    output wire [`FUNCT7_WIDTH-1:0] w_funct7,
+    output wire [`RS2_WIDTH-1:0]    w_rs2,
+    output wire [`RS1_WIDTH-1:0]    w_rs1,
+    output wire [`FUNCT3_WIDTH-1:0] w_funct3,
+    output wire [`RD_WIDTH-1:0]     w_rd,
+    output wire [`OPCODE_WIDTH-1:0] w_opcode
+);
+
+    assign w_funct7 = w_inst[25+:`FUNCT7_WIDTH];
+    assign w_rs2    = w_inst[20+:`RS2_WIDTH];
+    assign w_rs1    = w_inst[15+:`RS1_WIDTH];
+    assign w_funct3 = w_inst[12+:`FUNCT3_WIDTH];
+    assign w_rd     = w_inst[ 7+:`RD_WIDTH];
+    assign w_opcode = w_inst[ 0+:`OPCODE_WIDTH];
+    
+endmodule
