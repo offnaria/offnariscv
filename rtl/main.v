@@ -1,11 +1,11 @@
-`define INSTR_WIDTH_ 32
+`define INSTR_WIDTH  32
 `define FUNCT7_WIDTH  7
-`define RS2_WIDTH___  5
-`define RS1_WIDTH___  5
+`define RS2_WIDTH     5
+`define RS1_WIDTH     5
 `define FUNCT3_WIDTH  3
-`define RD_WIDTH____  5
+`define RD_WIDTH      5
 `define OPCODE_WIDTH  7
-`define XLEN________ 32
+`define XLEN         32
 
 module m_proc (
     input wire w_clk,
