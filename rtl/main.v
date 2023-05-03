@@ -122,5 +122,34 @@ module m_regfile #(
             r_rf[w_rd] <= w_din;
         end
     end
+
+endmodule
+
+module m_alu (
+    input wire [`XLEN-1:0] w_in1,
+    input wire [`XLEN-1:0] w_in2,
     
+    output wire [`XLEN-1:0] w_ADD_rslt,
+    output wire [`XLEN-1:0] w_SUB_rslt,
+    output wire [`XLEN-1:0] w_SLL_rslt,
+    output wire [`XLEN-1:0] w_SLT_rslt,
+    output wire [`XLEN-1:0] w_SLTU_rslt,
+    output wire [`XLEN-1:0] w_XOR_rslt,
+    output wire [`XLEN-1:0] w_SRL_rslt,
+    output wire [`XLEN-1:0] w_SRA_rslt,
+    output wire [`XLEN-1:0] w_OR_rslt,
+    output wire [`XLEN-1:0] w_AND_rslt
+);
+
+    assign w_ADD_rslt  = w_in1 + w_in2;
+    assign w_SUB_rslt  = w_in1 - w_in2;
+    assign w_SLL_rslt  = w_in1 << w_in2;
+    assign w_SLT_rslt  = $signed(w_in1) < $signed(w_in2);
+    assign w_SLTU_rslt = w_in1 < w_in2;
+    assign w_XOR_rslt  = w_in1 ^ w_in2;
+    assign w_SRL_rslt  = w_in1 >> w_in2;
+    assign w_SRA_rslt  = $signed(w_in1) >>> w_in2;
+    assign w_OR_rslt   = w_in1 | w_in2;
+    assign w_AND_rslt  = w_in1 & w_in2;
+
 endmodule
