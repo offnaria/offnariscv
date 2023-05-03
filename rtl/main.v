@@ -78,10 +78,9 @@ module m_instparse (
 endmodule
 
 module m_asyncrom #(
-    parameter DATA_WIDTH =   32;
-    parameter ENTRIES    = 4096;
+    parameter DATA_WIDTH =   32,
+    parameter ENTRIES    = 4096
 ) (
-    input wire w_clk,
     input wire [$clog2(ENTRIES)-1:0] w_addr,
     
     output wire [DATA_WIDTH-1:0] w_dout
@@ -98,4 +97,30 @@ module m_asyncrom #(
         cm_ram[4]={7'd0, 5'd0, 5'd0, 3'd0, 5'd0, 7'b0110011}; // add  x0, x0, x0
     end
 
+endmodule
+
+module m_regfile #(
+    parameter ENTRIES    = 32
+) (
+    input wire w_clk,
+    input wire [`RS1_WIDTH-1:0] w_rs1,
+    input wire [`RS2_WIDTH-1:0] w_rs2,
+    input wire [`RD_WIDTH-1:0]  w_rd,
+    input wire                  w_we,
+    input wire [`XLEN-1:0]      w_din,
+
+    output wire [`XLEN-1:0]     w_rrs1,
+    output wire [`XLEN-1:0]     w_rrs2
+);
+
+    reg [`XLEN-1:0] r_rf [0:ENTRIES-1];
+    assign w_rrs1 = r_rf[w_rs1]; // Note: x0 == 0 must be guaranteed outside of this module.
+    assign w_rrs2 = r_rf[w_rs2];
+
+    always @(posedge w_clk) begin
+        if (w_we) begin
+            r_rf[w_rd] <= w_din;
+        end
+    end
+    
 endmodule
