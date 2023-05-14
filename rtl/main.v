@@ -144,8 +144,8 @@ module m_alu (
     assign w_ADD_rslt  = w_in1 + w_in2;
     assign w_SUB_rslt  = w_in1 - w_in2;
     assign w_SLL_rslt  = w_in1 << w_in2;
-    assign w_SLT_rslt  = $signed(w_in1) < $signed(w_in2);
-    assign w_SLTU_rslt = w_in1 < w_in2;
+    assign w_SLT_rslt  = {31'b0, $signed(w_in1) < $signed(w_in2)};
+    assign w_SLTU_rslt = {31'b0, w_in1 < w_in2};
     assign w_XOR_rslt  = w_in1 ^ w_in2;
     assign w_SRL_rslt  = w_in1 >> w_in2;
     assign w_SRA_rslt  = $signed(w_in1) >>> w_in2;
