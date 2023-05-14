@@ -200,3 +200,26 @@ module m_typegen (
     assign w_is_Jtype = (w_opcode5==JAL);
 
 endmodule
+
+module m_onehotsel #(
+    parameter N = 1,
+    parameter DATA_WIDTH = 32
+) (
+    input wire [0+:N]            w_sel,
+    input wire [0+:DATA_WIDTH*N] w_din,
+
+    output wire [0+:DATA_WIDTH] w_dout
+);
+
+    wire [0+:DATA_WIDTH] w_temp [0+:N];
+    genvar i;
+    generate
+        for (i = 0; i < N; i = i + 1) begin
+            if (i == 0) assign w_temp[i] = (w_sel[i]) ? w_din[DATA_WIDTH*i+:DATA_WIDTH] : 0;
+            else        assign w_temp[i] = w_temp[i-1] | ((w_sel[i]) ? w_din[DATA_WIDTH*i+:DATA_WIDTH] : 0);
+        end
+    endgenerate
+
+    assign w_dout = w_temp[N-1];
+    
+endmodule
