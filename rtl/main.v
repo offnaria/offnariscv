@@ -153,3 +153,50 @@ module m_alu (
     assign w_AND_rslt  = w_in1 & w_in2;
 
 endmodule
+
+module m_typegen (
+    input wire [`OPCODE_WIDTH-3:0] w_opcode5,
+
+    output wire w_is_Itype,
+    output wire w_is_Stype,
+    output wire w_is_Btype,
+    output wire w_is_Utype,
+    output wire w_is_Jtype
+);
+
+    localparam LOAD      = 5'b00000;
+    localparam LOAD_FP   = 5'b00001;
+    localparam custom_0  = 5'b00010;
+    localparam MISC_MEM  = 5'b00011;
+    localparam OP_IMM    = 5'b00100;
+    localparam AUIPC     = 5'b00101;
+    localparam OP_IMM_32 = 5'b00110;
+    localparam STORE     = 5'b01000;
+    localparam STORE_FP  = 5'b01001;
+    localparam custom_1  = 5'b01010;
+    localparam AMO       = 5'b01011;
+    localparam OP        = 5'b01100;
+    localparam LUI       = 5'b01101;
+    localparam OP_32     = 5'b01110;
+    localparam MADD      = 5'b10000;
+    localparam MSUB      = 5'b10001;
+    localparam NMSUB     = 5'b10010;
+    localparam NMADD     = 5'b10011;
+    localparam OP_FP     = 5'b10100;
+//    localparam reserved  = 5'b10101;
+    localparam custom_2  = 5'b10110;
+    localparam BRANCH    = 5'b11000;
+    localparam JALR      = 5'b11001;
+//    localparam reserved  = 5'b11010;
+    localparam JAL       = 5'b11011;
+    localparam SYSTEM    = 5'b11100;
+//    localparam reserved  = 5'b11101;
+    localparam custom_3  = 5'b11110;
+
+    assign w_is_Itype = (w_opcode5==LOAD) | (w_opcode5==MISC_MEM) | (w_opcode5==OP_IMM) | (w_opcode5==JALR) | (w_opcode5==SYSTEM);
+    assign w_is_Stype = (w_opcode5==STORE);
+    assign w_is_Btype = (w_opcode5==BRANCH);
+    assign w_is_Utype = (w_opcode5==AUIPC) | (w_opcode5==LUI);
+    assign w_is_Jtype = (w_opcode5==JAL);
+
+endmodule
