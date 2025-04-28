@@ -51,6 +51,22 @@ cd offnariscv
 pwd # /root/offnariscv
 ```
 
+Build the project in `build` subdirectory.
+
+```bash
+mkdir build
+cd build
+cmake -GNinja ..
+ninja
+```
+
+Or you can simply execute `make` command.
+
+```bash
+make
+cd build
+```
+
 NOTE: You can remove the container and the image by executing following commands.
 
 ```bash
