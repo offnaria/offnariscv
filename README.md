@@ -2,6 +2,36 @@
 
 This is the ~~n-th~~ first RISC-V processor designed and implemented by offNaria.
 
+## Features
+
+- CPU core
+    - [ ] RV32I Base Integer Instruction Set, Version 2.1
+    - [ ] "M" Standard Extension for Integer Multiplication and Division, Version 2.0
+    - [ ] "A" Standard Extension for Atomic Instructions, Version 2.1
+    - [ ] "Zicsr", Control and Status Register (CSR) Instructions, Version 2.0
+    - [ ] "Zifencei" Instruction-Fetch Fence, Version 2.0
+    - [ ] "Zicntr" Standard Extension for Base Counters and Timers
+    - [ ] "Zihpm" Standard Extension for Hardware Performance Counters
+- Memory system
+    - Cache
+        - Basics
+            - [ ] L1 Instruction cache
+            - [ ] L1 Data cache
+            - [ ] L2
+        - Coherency
+            - [ ] SI protocol
+            - [ ] MSI protocol
+            - [ ] MESI protocol
+            - [ ] MOESI protocol
+    - Virtual memory
+        - [ ] Sv32 page walker
+        - [ ] L1I TLB
+        - [ ] L1D TLB
+- SoC integration
+    - [ ] Porting to LiteX
+    - [ ] Implementing CLINT
+    - [ ] Implementing PLIC
+
 ## Prerequisites
 
 > [!NOTE]
