@@ -25,12 +25,19 @@ This is the ~~n-th~~ first RISC-V processor designed and implemented by offNaria
             - [ ] MOESI protocol
     - Virtual memory
         - [ ] Sv32 page walker
+            - [ ] Svade extension, v1.0
+            - [ ] Svadu extension, v1.0
         - [ ] L1I TLB
         - [ ] L1D TLB
 - SoC integration
     - [ ] Porting to LiteX
     - [ ] Implementing CLINT
     - [ ] Implementing PLIC
+- Verification and evaluation
+    - [x] Verilator
+        - [x] CMake
+    - [ ] [Spike](https://github.com/riscv-software-src/riscv-isa-sim)
+    - [ ] [Konata](https://github.com/shioyadan/Konata)
 
 ## Prerequisites
 
