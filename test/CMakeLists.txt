@@ -7,8 +7,13 @@ add_subdirectory(ifu)
 add_subdirectory(lsu)
 
 add_executable(offnariscv_core_test offnariscv_core_test.cpp)
-verilate(offnariscv_core_test SOURCES offnariscv_core_wrap.sv
-  ../src/ace_if.sv
-  ../src/ifu/ifu.sv
-  ../src/lsu/lsu.sv
-  ../src/offnariscv_core.sv)
+verilate(offnariscv_core_test
+  SOURCES
+    ../src/offnariscv_pkg.sv
+    ../src/ace_if.sv
+    ../src/ifu/ifu.sv
+    ../src/lsu/lsu.sv
+    ../src/offnariscv_core.sv
+    offnariscv_core_wrap.sv
+  TOP_MODULE
+    offnariscv_core_wrap)

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-`include "../../src/offnariscv_pkg.sv"
-
-module ifu_ace_wrap
+module ifu_wrap
   import offnariscv_pkg::*;
 (
   input clk,

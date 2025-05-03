@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-`include "../src/offnariscv_pkg.sv"
-
 module offnariscv_core_wrap
   import offnariscv_pkg::*;
 (
