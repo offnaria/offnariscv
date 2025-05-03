@@ -2,9 +2,7 @@
 
 module lsu
   import offnariscv_pkg::*;
-#(
-  parameters
-) (
+(
   input clk,
   input rst_n,
 
