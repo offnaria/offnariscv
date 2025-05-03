@@ -4,17 +4,17 @@ interface ace_if;
   import offnariscv_pkg::*;
 
   // AW channel signals
-  logic awid;     // ToDo
-  logic [ACE_ADDR_WIDTH-1:0] awaddr;
-  logic awlen;    // ToDo
-  logic awsize;   // ToDo
-  logic awburst;  // ToDo
-  logic awlock;   // ToDo
-  logic awcache;  // ToDo
-  logic awprot;   // ToDo
-  logic awqos;    // ToDo
-  logic awregion; // ToDo
-  logic awuser;   // ToDo
+  logic [ACE_XID_WIDTH-1:0] awid;
+  logic [ACE_AXADDR_WIDTH-1:0] awaddr;
+  logic [ACE_AXLEN_WIDTH-1:0] awlen;
+  logic [ACE_AXSIZE_WIDTH-1:0] awsize;
+  logic [ACE_AXBURST_WIDTH-1:0] awburst;
+  logic awlock;
+  logic [ACE_AXCACHE_WIDTH-1:0] awcache;
+  logic [ACE_AXPROT_WIDTH-1:0] awprot;
+  logic [ACE_AXQOS_WIDTH-1:0] awqos;
+  logic [ACE_AXREGION_WIDTH-1:0] awregion;
+  logic [ACE_XUSER_WIDTH-1:0] awuser;
   logic awvalid;
   logic awready;
   logic [ACE_AWSNOOP_WIDTH-1:0] awsnoop; // ACE
@@ -22,32 +22,32 @@ interface ace_if;
   logic [ACE_BAR_WIDTH-1:0] awbar;       // ACE
 
   // W channel signals
-  logic [ACE_DATA_WIDTH-1:0] wdata;
-  logic [ACE_DATA_WIDTH/8-1:0] wstrb;
-  logic wlast;  // ToDo
-  logic wuser;  // ToDo
+  logic [ACE_XDATA_WIDTH-1:0] wdata;
+  logic [ACE_XDATA_WIDTH/8-1:0] wstrb;
+  logic wlast;
+  logic [ACE_XUSER_WIDTH-1:0] wuser;
   logic wvalid;
   logic wready;
 
   // B channel signals
-  logic bid;    // ToDo
+  logic [ACE_XID_WIDTH-1:0] bid;
   logic [ACE_BRESP_WIDTH-1:0] bresp;
-  logic buser;  // ToDo
+  logic [ACE_XUSER_WIDTH-1:0] buser;
   logic bvalid;
   logic bready;
 
   // AR channel signals
-  logic arid;     // ToDo
-  logic [ACE_ADDR_WIDTH-1:0] araddr;
-  logic arlen;    // ToDo
-  logic arsize;   // ToDo
-  logic arburst;  // ToDo
-  logic arlock;   // ToDo
-  logic arcache;  // ToDo
-  logic arprot;   // ToDo
-  logic arqos;    // ToDo
-  logic arregion; // ToDo
-  logic aruser;   // ToDo
+  logic [ACE_XID_WIDTH-1:0] arid;
+  logic [ACE_AXADDR_WIDTH-1:0] araddr;
+  logic [ACE_AXLEN_WIDTH-1:0] arlen;
+  logic [ACE_AXSIZE_WIDTH-1:0] arsize;
+  logic [ACE_AXBURST_WIDTH-1:0] arburst;
+  logic arlock;
+  logic [ACE_AXCACHE_WIDTH-1:0] arcache;
+  logic [ACE_AXPROT_WIDTH-1:0] arprot;
+  logic [ACE_AXQOS_WIDTH-1:0] arqos;
+  logic [ACE_AXREGION_WIDTH-1:0] arregion;
+  logic [ACE_XUSER_WIDTH-1:0] aruser;
   logic arvalid;
   logic arready;
   logic [ACE_ARSNOOP_WIDTH-1:0] arsnoop;  // ACE
@@ -55,11 +55,11 @@ interface ace_if;
   logic [ACE_BAR_WIDTH-1:0] arbar;       // ACE
 
   // R channel signals
-  logic rid;    // ToDo
-  logic [ACE_DATA_WIDTH-1:0] rdata;
+  logic [ACE_XID_WIDTH-1:0] rid;
+  logic [ACE_XDATA_WIDTH-1:0] rdata;
   logic [ACE_RRESP_WIDTH-1:0] rresp; // ACE
-  logic rlast;  // ToDo
-  logic ruser;  // ToDo
+  logic rlast;
+  logic [ACE_XUSER_WIDTH-1:0] ruser;
   logic rvalid;
   logic rready;
 
@@ -79,7 +79,7 @@ interface ace_if;
   logic cdvalid;
   logic cdready;
   logic [ACE_CDDATA_WIDTH-1:0] cddata;
-  logic cdlast; // ToDo
+  logic cdlast;
 
   // Additional signals
   logic rack;
