@@ -2,9 +2,7 @@
 
 module offnariscv_core
   import offnariscv_pkg::*;
-#(
-  parameters
-) (
+(
   input clk,
   input rst_n,
 
