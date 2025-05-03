@@ -22,7 +22,6 @@ interface ace_if;
   logic [ACE_BAR_WIDTH-1:0] awbar;       // ACE
 
   // W channel signals
-  logic wid;    // ToDo
   logic [ACE_DATA_WIDTH-1:0] wdata;
   logic [ACE_DATA_WIDTH/8-1:0] wstrb;
   logic wlast;  // ToDo
@@ -87,7 +86,7 @@ interface ace_if;
   logic wack;
 
   modport m (output awid, awaddr, awlen, awsize, awburst, awlock, awcache, awprot, awqos, awregion, awuser, awvalid, input awready, output awsnoop, awdomain, awbar,
-              output wid, wdata, wstrb, wlast, wuser, wvalid, input wready,
+              output wdata, wstrb, wlast, wuser, wvalid, input wready,
               input bid, bresp, buser, bvalid, output bready,
               output arid, araddr, arlen, arsize, arburst, arlock, arcache, arprot, arqos, arregion, aruser, arvalid, input arready, output arsnoop, ardomain, arbar,
               input rid, rdata, rresp, rlast, ruser, rvalid, output rready,
@@ -97,7 +96,7 @@ interface ace_if;
               output rack, wack);
 
   modport s (input awid, awaddr, awlen, awsize, awburst, awlock, awcache, awprot, awqos, awregion, awuser, awvalid, output awready, input awsnoop, awdomain, awbar,
-              input wid, wdata, wstrb, wlast, wuser, wvalid, output wready,
+              input wdata, wstrb, wlast, wuser, wvalid, output wready,
               output bid, bresp, buser, bvalid, input bready,
               input arid, araddr, arlen, arsize, arburst, arlock, arcache, arprot, arqos, arregion, aruser, arvalid, output arready, input arsnoop, ardomain, arbar,
               output rid, rdata, rresp, rlast, ruser, rvalid, input rready,
