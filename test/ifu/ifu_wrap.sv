@@ -2,7 +2,7 @@
 
 `include "../../src/offnariscv_pkg.sv"
 
-module ifu_wrap
+module ifu_ace_wrap
   import offnariscv_pkg::*;
 (
   input clk,
@@ -91,94 +91,94 @@ module ifu_wrap
   output wack
 );
 
-  ace_if ifu_if ();
+  ace_if ifu_ace_if ();
 
   // AW channel signals
-  assign awid = ifu_if.awid;
-  assign awaddr = ifu_if.awaddr;
-  assign awlen = ifu_if.awlen;
-  assign awsize = ifu_if.awsize;
-  assign awburst = ifu_if.awburst;
-  assign awlock = ifu_if.awlock;
-  assign awcache = ifu_if.awcache;
-  assign awprot = ifu_if.awprot;
-  assign awqos = ifu_if.awqos;
-  assign awregion = ifu_if.awregion;
-  assign awuser = ifu_if.awuser;
-  assign awvalid = ifu_if.awvalid;
-  assign ifu_if.awready = awready;
-  assign awsnoop = ifu_if.awsnoop;
-  assign awdomain = ifu_if.awdomain;
-  assign awbar = ifu_if.awbar;
+  assign awid = ifu_ace_if.awid;
+  assign awaddr = ifu_ace_if.awaddr;
+  assign awlen = ifu_ace_if.awlen;
+  assign awsize = ifu_ace_if.awsize;
+  assign awburst = ifu_ace_if.awburst;
+  assign awlock = ifu_ace_if.awlock;
+  assign awcache = ifu_ace_if.awcache;
+  assign awprot = ifu_ace_if.awprot;
+  assign awqos = ifu_ace_if.awqos;
+  assign awregion = ifu_ace_if.awregion;
+  assign awuser = ifu_ace_if.awuser;
+  assign awvalid = ifu_ace_if.awvalid;
+  assign ifu_ace_if.awready = awready;
+  assign awsnoop = ifu_ace_if.awsnoop;
+  assign awdomain = ifu_ace_if.awdomain;
+  assign awbar = ifu_ace_if.awbar;
 
   // W channel signals
-  assign wdata = ifu_if.wdata;
-  assign wstrb = ifu_if.wstrb;
-  assign wlast = ifu_if.wlast;
-  assign wuser = ifu_if.wuser;
-  assign wvalid = ifu_if.wvalid;
-  assign ifu_if.wready = wready;
+  assign wdata = ifu_ace_if.wdata;
+  assign wstrb = ifu_ace_if.wstrb;
+  assign wlast = ifu_ace_if.wlast;
+  assign wuser = ifu_ace_if.wuser;
+  assign wvalid = ifu_ace_if.wvalid;
+  assign ifu_ace_if.wready = wready;
 
   // B channel signals
-  assign ifu_if.bid = bid;
-  assign ifu_if.bresp = bresp;
-  assign ifu_if.buser = buser;
-  assign ifu_if.bvalid = bvalid;
-  assign bready = ifu_if.bready;
+  assign ifu_ace_if.bid = bid;
+  assign ifu_ace_if.bresp = bresp;
+  assign ifu_ace_if.buser = buser;
+  assign ifu_ace_if.bvalid = bvalid;
+  assign bready = ifu_ace_if.bready;
 
   // AR channel signals
-  assign arid = ifu_if.arid;
-  assign araddr = ifu_if.araddr;
-  assign arlen = ifu_if.arlen;
-  assign arsize = ifu_if.arsize;
-  assign arburst = ifu_if.arburst;
-  assign arlock = ifu_if.arlock;
-  assign arcache = ifu_if.arcache;
-  assign arprot = ifu_if.arprot;
-  assign arqos = ifu_if.arqos;
-  assign arregion = ifu_if.arregion;
-  assign aruser = ifu_if.aruser;
-  assign arvalid = ifu_if.arvalid;
-  assign ifu_if.arready = arready;
-  assign arsnoop = ifu_if.arsnoop;
-  assign ardomain = ifu_if.ardomain;
-  assign arbar = ifu_if.arbar;
+  assign arid = ifu_ace_if.arid;
+  assign araddr = ifu_ace_if.araddr;
+  assign arlen = ifu_ace_if.arlen;
+  assign arsize = ifu_ace_if.arsize;
+  assign arburst = ifu_ace_if.arburst;
+  assign arlock = ifu_ace_if.arlock;
+  assign arcache = ifu_ace_if.arcache;
+  assign arprot = ifu_ace_if.arprot;
+  assign arqos = ifu_ace_if.arqos;
+  assign arregion = ifu_ace_if.arregion;
+  assign aruser = ifu_ace_if.aruser;
+  assign arvalid = ifu_ace_if.arvalid;
+  assign ifu_ace_if.arready = arready;
+  assign arsnoop = ifu_ace_if.arsnoop;
+  assign ardomain = ifu_ace_if.ardomain;
+  assign arbar = ifu_ace_if.arbar;
 
   // R channel signals
-  assign ifu_if.rid = rid;
-  assign ifu_if.rdata = rdata;
-  assign ifu_if.rresp = rresp;
-  assign ifu_if.rlast = rlast;
-  assign ifu_if.ruser = ruser;
-  assign ifu_if.rvalid = rvalid;
-  assign rready = ifu_if.rready;
+  assign ifu_ace_if.rid = rid;
+  assign ifu_ace_if.rdata = rdata;
+  assign ifu_ace_if.rresp = rresp;
+  assign ifu_ace_if.rlast = rlast;
+  assign ifu_ace_if.ruser = ruser;
+  assign ifu_ace_if.rvalid = rvalid;
+  assign rready = ifu_ace_if.rready;
 
   // AC channel signals
-  assign ifu_if.acvalid = acvalid;
-  assign acready = ifu_if.acready;
-  assign ifu_if.acaddr = acaddr;
-  assign ifu_if.acsnoop = acsnoop;
-  assign ifu_if.acprot = acprot;
+  assign ifu_ace_if.acvalid = acvalid;
+  assign acready = ifu_ace_if.acready;
+  assign ifu_ace_if.acaddr = acaddr;
+  assign ifu_ace_if.acsnoop = acsnoop;
+  assign ifu_ace_if.acprot = acprot;
 
   // CR channel signals
-  assign crvalid = ifu_if.crvalid;
-  assign ifu_if.crready = crready;
-  assign crresp = ifu_if.crresp;
+  assign crvalid = ifu_ace_if.crvalid;
+  assign ifu_ace_if.crready = crready;
+  assign crresp = ifu_ace_if.crresp;
 
   // CD channel signals
-  assign cdvalid = ifu_if.cdvalid;
-  assign ifu_if.cdready = cdready;
-  assign cddata = ifu_if.cddata;
-  assign cdlast = ifu_if.cdlast;
+  assign cdvalid = ifu_ace_if.cdvalid;
+  assign ifu_ace_if.cdready = cdready;
+  assign cddata = ifu_ace_if.cddata;
+  assign cdlast = ifu_ace_if.cdlast;
 
   // Additional signals
-  assign rack = ifu_if.rack;
-  assign wack = ifu_if.wack;
+  assign rack = ifu_ace_if.rack;
+  assign wack = ifu_ace_if.wack;
 
   ifu ifu_inst (
     .clk(clk),
     .rst_n(rst_n),
-    .ifu_if(ifu_if)
+    .ifu_ace_if(ifu_ace_if)
   );
 
 endmodule

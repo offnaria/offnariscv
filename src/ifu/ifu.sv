@@ -6,7 +6,7 @@ module ifu
   input clk,
   input rst_n,
 
-  ace_if.m ifu_if
+  ace_if.m ifu_ace_if
 );
 
 endmodule

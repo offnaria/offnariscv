@@ -2,7 +2,7 @@
 
 `include "../../src/offnariscv_pkg.sv"
 
-module lsu_wrap
+module lsu_ace_wrap
   import offnariscv_pkg::*;
 (
   input clk,
@@ -91,94 +91,94 @@ module lsu_wrap
   output wack
 );
 
-  ace_if lsu_if ();
+  ace_if lsu_ace_if ();
 
   // AW channel signals
-  assign awid = lsu_if.awid;
-  assign awaddr = lsu_if.awaddr;
-  assign awlen = lsu_if.awlen;
-  assign awsize = lsu_if.awsize;
-  assign awburst = lsu_if.awburst;
-  assign awlock = lsu_if.awlock;
-  assign awcache = lsu_if.awcache;
-  assign awprot = lsu_if.awprot;
-  assign awqos = lsu_if.awqos;
-  assign awregion = lsu_if.awregion;
-  assign awuser = lsu_if.awuser;
-  assign awvalid = lsu_if.awvalid;
-  assign lsu_if.awready = awready;
-  assign awsnoop = lsu_if.awsnoop;
-  assign awdomain = lsu_if.awdomain;
-  assign awbar = lsu_if.awbar;
+  assign awid = lsu_ace_if.awid;
+  assign awaddr = lsu_ace_if.awaddr;
+  assign awlen = lsu_ace_if.awlen;
+  assign awsize = lsu_ace_if.awsize;
+  assign awburst = lsu_ace_if.awburst;
+  assign awlock = lsu_ace_if.awlock;
+  assign awcache = lsu_ace_if.awcache;
+  assign awprot = lsu_ace_if.awprot;
+  assign awqos = lsu_ace_if.awqos;
+  assign awregion = lsu_ace_if.awregion;
+  assign awuser = lsu_ace_if.awuser;
+  assign awvalid = lsu_ace_if.awvalid;
+  assign lsu_ace_if.awready = awready;
+  assign awsnoop = lsu_ace_if.awsnoop;
+  assign awdomain = lsu_ace_if.awdomain;
+  assign awbar = lsu_ace_if.awbar;
 
   // W channel signals
-  assign wdata = lsu_if.wdata;
-  assign wstrb = lsu_if.wstrb;
-  assign wlast = lsu_if.wlast;
-  assign wuser = lsu_if.wuser;
-  assign wvalid = lsu_if.wvalid;
-  assign lsu_if.wready = wready;
+  assign wdata = lsu_ace_if.wdata;
+  assign wstrb = lsu_ace_if.wstrb;
+  assign wlast = lsu_ace_if.wlast;
+  assign wuser = lsu_ace_if.wuser;
+  assign wvalid = lsu_ace_if.wvalid;
+  assign lsu_ace_if.wready = wready;
 
   // B channel signals
-  assign lsu_if.bid = bid;
-  assign lsu_if.bresp = bresp;
-  assign lsu_if.buser = buser;
-  assign lsu_if.bvalid = bvalid;
-  assign bready = lsu_if.bready;
+  assign lsu_ace_if.bid = bid;
+  assign lsu_ace_if.bresp = bresp;
+  assign lsu_ace_if.buser = buser;
+  assign lsu_ace_if.bvalid = bvalid;
+  assign bready = lsu_ace_if.bready;
 
   // AR channel signals
-  assign arid = lsu_if.arid;
-  assign araddr = lsu_if.araddr;
-  assign arlen = lsu_if.arlen;
-  assign arsize = lsu_if.arsize;
-  assign arburst = lsu_if.arburst;
-  assign arlock = lsu_if.arlock;
-  assign arcache = lsu_if.arcache;
-  assign arprot = lsu_if.arprot;
-  assign arqos = lsu_if.arqos;
-  assign arregion = lsu_if.arregion;
-  assign aruser = lsu_if.aruser;
-  assign arvalid = lsu_if.arvalid;
-  assign lsu_if.arready = arready;
-  assign arsnoop = lsu_if.arsnoop;
-  assign ardomain = lsu_if.ardomain;
-  assign arbar = lsu_if.arbar;
+  assign arid = lsu_ace_if.arid;
+  assign araddr = lsu_ace_if.araddr;
+  assign arlen = lsu_ace_if.arlen;
+  assign arsize = lsu_ace_if.arsize;
+  assign arburst = lsu_ace_if.arburst;
+  assign arlock = lsu_ace_if.arlock;
+  assign arcache = lsu_ace_if.arcache;
+  assign arprot = lsu_ace_if.arprot;
+  assign arqos = lsu_ace_if.arqos;
+  assign arregion = lsu_ace_if.arregion;
+  assign aruser = lsu_ace_if.aruser;
+  assign arvalid = lsu_ace_if.arvalid;
+  assign lsu_ace_if.arready = arready;
+  assign arsnoop = lsu_ace_if.arsnoop;
+  assign ardomain = lsu_ace_if.ardomain;
+  assign arbar = lsu_ace_if.arbar;
 
   // R channel signals
-  assign lsu_if.rid = rid;
-  assign lsu_if.rdata = rdata;
-  assign lsu_if.rresp = rresp;
-  assign lsu_if.rlast = rlast;
-  assign lsu_if.ruser = ruser;
-  assign lsu_if.rvalid = rvalid;
-  assign rready = lsu_if.rready;
+  assign lsu_ace_if.rid = rid;
+  assign lsu_ace_if.rdata = rdata;
+  assign lsu_ace_if.rresp = rresp;
+  assign lsu_ace_if.rlast = rlast;
+  assign lsu_ace_if.ruser = ruser;
+  assign lsu_ace_if.rvalid = rvalid;
+  assign rready = lsu_ace_if.rready;
 
   // AC channel signals
-  assign lsu_if.acvalid = acvalid;
-  assign acready = lsu_if.acready;
-  assign lsu_if.acaddr = acaddr;
-  assign lsu_if.acsnoop = acsnoop;
-  assign lsu_if.acprot = acprot;
+  assign lsu_ace_if.acvalid = acvalid;
+  assign acready = lsu_ace_if.acready;
+  assign lsu_ace_if.acaddr = acaddr;
+  assign lsu_ace_if.acsnoop = acsnoop;
+  assign lsu_ace_if.acprot = acprot;
 
   // CR channel signals
-  assign crvalid = lsu_if.crvalid;
-  assign lsu_if.crready = crready;
-  assign crresp = lsu_if.crresp;
+  assign crvalid = lsu_ace_if.crvalid;
+  assign lsu_ace_if.crready = crready;
+  assign crresp = lsu_ace_if.crresp;
 
   // CD channel signals
-  assign cdvalid = lsu_if.cdvalid;
-  assign lsu_if.cdready = cdready;
-  assign cddata = lsu_if.cddata;
-  assign cdlast = lsu_if.cdlast;
+  assign cdvalid = lsu_ace_if.cdvalid;
+  assign lsu_ace_if.cdready = cdready;
+  assign cddata = lsu_ace_if.cddata;
+  assign cdlast = lsu_ace_if.cdlast;
 
   // Additional signals
-  assign rack = lsu_if.rack;
-  assign wack = lsu_if.wack;
+  assign rack = lsu_ace_if.rack;
+  assign wack = lsu_ace_if.wack;
 
   lsu lsu_inst (
     .clk(clk),
     .rst_n(rst_n),
-    .lsu_if(lsu_if)
+    .lsu_ace_if(lsu_ace_if)
   );
 
 endmodule

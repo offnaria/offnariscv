@@ -6,7 +6,7 @@ module lsu
   input clk,
   input rst_n,
 
-  ace_if.m lsu_if
+  ace_if.m lsu_ace_if
 );
 
 endmodule
