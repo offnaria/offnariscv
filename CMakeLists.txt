@@ -10,3 +10,4 @@ set(CMAKE_EXE_LINKER_FLAGS "-fuse-ld=mold")
 set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 
 add_subdirectory(test)
+add_subdirectory(ext)
