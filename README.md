@@ -57,11 +57,13 @@ sudo sh get-docker.sh
 
 ## Getting started
 
-Clone the repository and enther the directory.
+Clone the repository **recursively** and enther the directory.
+Don't forget `--recursive`!!!!
 
 ```bash
-git clone git@github.com:offnaria/offnariscv.git
+git clone --recursive git@github.com:offnaria/offnariscv.git # Don't forget --recursive!!!!
 cd offnariscv
+# git submodule update --init --recursive # Do this, if you forgot --recursive at cloning the repo.
 ```
 
 Set up the Docker container.
