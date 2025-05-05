@@ -13,6 +13,7 @@ RUN apt install -y libfl2 libfl-dev  zlib1g zlib1g-dev
 RUN apt install -y ccache mold libgoogle-perftools-dev numactl
 RUN apt install -y autoconf flex bison
 RUN apt install -y cmake ninja-build
+RUN apt install -y device-tree-compiler
 
 RUN git clone https://github.com/verilator/verilator
 RUN cd verilator && \
@@ -30,13 +31,12 @@ RUN apt install -y automake autotools-dev curl python3-pip python3-tomli \
     gperf libtool patchutils bc libexpat-dev libglib2.0-dev libslirp-dev
 
 ENV ARCH=rv32ima_zicsr_zifencei_zicntr
-ENV RISCV=/opt/${ARCH}
+ENV RISCV=/opt/riscv
+ENV PATH=$PATH:${RISCV}/bin
 
 RUN git clone https://github.com/riscv/riscv-gnu-toolchain
 RUN cd riscv-gnu-toolchain && \
     git pull && \
     git checkout 2025.05.01 && \
-    ./configure --prefix=${RISCV} --with-arch=${ARCH} --with-abi=ilp32 && \
+    ./configure --prefix=${RISCV} --with-arch=riscv --with-abi=ilp32 && \
     make -j`nproc`
-
-ENV PATH=$PATH:${RISCV}/bin
