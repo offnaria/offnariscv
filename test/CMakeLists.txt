@@ -17,3 +17,4 @@ verilate(offnariscv_core_test
     offnariscv_core_wrap.sv
   TOP_MODULE
     offnariscv_core_wrap)
+target_link_libraries(offnariscv_core_test PRIVATE Catch2::Catch2WithMain)

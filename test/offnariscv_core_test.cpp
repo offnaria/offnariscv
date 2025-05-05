@@ -2,7 +2,10 @@
 
 #include <print>
 
-int main() {
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("hello_world") {
     std::print("Hello, World!\n");
-    return 0;
+    REQUIRE(1 == 1);
+    REQUIRE(1 == 0);
 }
