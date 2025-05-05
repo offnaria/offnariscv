@@ -1,3 +1,6 @@
 [submodule "ext/riscv-tests/riscv-tests"]
 	path = ext/riscv-tests/riscv-tests
 	url = https://github.com/riscv-software-src/riscv-tests.git
+[submodule "ext/riscv-isa-sim/riscv-isa-sim"]
+	path = ext/riscv-isa-sim/riscv-isa-sim
+	url = https://github.com/riscv-software-src/riscv-isa-sim.git
