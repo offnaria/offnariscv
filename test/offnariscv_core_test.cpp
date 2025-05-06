@@ -62,4 +62,36 @@ TEST_CASE("riscv-tests/isa/rv32si-p") {
                        "rv32si-p-sbreak", "rv32si-p-scall", "rv32si-p-wfi");
   REQUIRE(runner(test) == 0);
 }
+
+TEST_CASE("riscv-tests/isa/rv32ui-v") {
+  auto test = GENERATE(
+      "rv32ui-v-simple", "rv32ui-v-add", "rv32ui-v-addi", "rv32ui-v-and",
+      "rv32ui-v-andi", "rv32ui-v-auipc", "rv32ui-v-beq", "rv32ui-v-bge",
+      "rv32ui-v-bgeu", "rv32ui-v-blt", "rv32ui-v-bltu", "rv32ui-v-bne",
+      "rv32ui-v-fence_i", "rv32ui-v-jal", "rv32ui-v-jalr", "rv32ui-v-lb",
+      "rv32ui-v-lbu", "rv32ui-v-ld_st", "rv32ui-v-lh", "rv32ui-v-lhu",
+      "rv32ui-v-lui", "rv32ui-v-lw", "rv32ui-v-ma_data", "rv32ui-v-or",
+      "rv32ui-v-ori", "rv32ui-v-sb", "rv32ui-v-sh", "rv32ui-v-sll",
+      "rv32ui-v-slli", "rv32ui-v-slt", "rv32ui-v-slti", "rv32ui-v-sltiu",
+      "rv32ui-v-sltu", "rv32ui-v-sra", "rv32ui-v-srai", "rv32ui-v-srl",
+      "rv32ui-v-srli", "rv32ui-v-st_ld", "rv32ui-v-sub", "rv32ui-v-sw",
+      "rv32ui-v-xor", "rv32ui-v-xori");
+  REQUIRE(runner(test) == 0);
+}
+
+TEST_CASE("riscv-tests/isa/rv32um-v") {
+  auto test = GENERATE("rv32um-v-div", "rv32um-v-divu", "rv32um-v-mul",
+                       "rv32um-v-mulh", "rv32um-v-mulhsu", "rv32um-v-mulhu",
+                       "rv32um-v-rem", "rv32um-v-remu");
+  REQUIRE(runner(test) == 0);
+}
+
+TEST_CASE("riscv-tests/isa/rv32ua-v") {
+  auto test =
+      GENERATE("rv32ua-v-amoadd_w", "rv32ua-v-amoand_w", "rv32ua-v-amomax_w",
+               "rv32ua-v-amomaxu_w", "rv32ua-v-amomin_w", "rv32ua-v-amominu_w",
+               "rv32ua-v-amoor_w", "rv32ua-v-amoswap_w", "rv32ua-v-amoxor_w",
+               "rv32ua-v-lrsc");
+  REQUIRE(runner(test) == 0);
+}
 */
