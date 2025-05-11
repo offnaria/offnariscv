@@ -2,14 +2,69 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <cstdio>
+#include <memory>
 #include <print>
 #include <string>
+#include <vector>
 
-int runner(const std::string &test) {
+#include "cachesim.h"
+#include "cfg.h"
+#include "config.h"
+#include "extension.h"
+#include "sim.h"
+
+sim_t* s;
+
+void init_spike() {
+  bool debug = false;
+  bool halted = false;
+  bool histogram = false;
+  bool log = false;
+  bool UNUSED socket = false;
+  bool dump_dts = false;
+  bool dtb_enabled = true;
+  const char* kernel = NULL;
+  reg_t kernel_offset, kernel_size;
+  std::vector<device_factory_sargs_t> plugin_device_factories;
+  std::unique_ptr<icache_sim_t> ic;
+  std::unique_ptr<dcache_sim_t> dc;
+  std::unique_ptr<cache_sim_t> l2;
+  bool log_cache = false;
+  bool log_commits = false;
+  const char* log_path = nullptr;
+  std::vector<std::function<extension_t*()>> extensions;
+  const char* initrd = NULL;
+  const char* dtb_file = NULL;
+  uint16_t rbb_port = 0;
+  bool use_rbb = false;
+  unsigned dmi_rti = 0;
+  reg_t blocksz = 64;
+  std::optional<unsigned long long> instructions;
+  debug_module_config_t dm_config;
+  cfg_arg_t<size_t> nprocs(1);
+
+  cfg_t cfg;
+
+  FILE* cmd_file = NULL;
+  std::vector<std::string> htif_args;
+  std::vector<std::pair<reg_t, abstract_mem_t*>> mems;
+
+  s = new sim_t(&cfg, halted, mems, plugin_device_factories, htif_args,
+                dm_config, log_path, dtb_enabled, dtb_file, socket, cmd_file,
+                instructions);
+}
+
+void cleanup_spike() { delete s; }
+
+int runner(const std::string& test) {
   std::print(
       "-----------------------------------------------------------------"
       "--------------\n");
   std::print("{}\n", test);
+  init_spike();
+  // TODO
+  cleanup_spike();
   return 0;
 }
 
