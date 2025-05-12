@@ -36,7 +36,7 @@ This is the ~~n-th~~ first RISC-V processor designed and implemented by offNaria
 - Verification and evaluation
     - [x] Verilator
         - [x] CMake
-    - [ ] [Spike](https://github.com/riscv-software-src/riscv-isa-sim)
+    - [x] [Spike](https://github.com/riscv-software-src/riscv-isa-sim)
     - [ ] [Konata](https://github.com/shioyadan/Konata)
     - [ ] GitHub Actions
 
