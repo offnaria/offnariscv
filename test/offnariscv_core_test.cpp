@@ -3,6 +3,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <cstdio>
+#include <filesystem>
+#include <format>
 #include <memory>
 #include <print>
 #include <string>
@@ -12,11 +14,13 @@
 #include "cfg.h"
 #include "config.h"
 #include "extension.h"
+#include "platform.h"
 #include "sim.h"
 
 sim_t* s;
+std::vector<std::pair<reg_t, abstract_mem_t*>> mems;
 
-void init_spike() {
+void init_spike(const std::string& test) {
   bool debug = false;
   bool halted = false;
   bool histogram = false;
@@ -45,27 +49,45 @@ void init_spike() {
   cfg_arg_t<size_t> nprocs(1);
 
   cfg_t cfg;
+  cfg.isa = "rv32ima_zicsr_zifencei_zicntr";
+  cfg.misaligned = true;
 
   FILE* cmd_file = NULL;
-  std::vector<std::string> htif_args;
-  std::vector<std::pair<reg_t, abstract_mem_t*>> mems;
+
+  auto test_path = std::filesystem::current_path() /
+                   "ext/riscv-tests/riscv-tests/isa" / test;
+  REQUIRE(std::filesystem::exists(test_path));
+  std::print("Test path: {}\n", test_path.string());
+  std::vector<std::string> htif_args = {test_path};
+
+  mems.reserve(cfg.mem_layout.size());
+  for (const auto& c : cfg.mem_layout) {
+    mems.push_back(std::make_pair(c.get_base(), new mem_t(c.get_size())));
+  }
 
   s = new sim_t(&cfg, halted, mems, plugin_device_factories, htif_args,
                 dm_config, log_path, dtb_enabled, dtb_file, socket, cmd_file,
                 instructions);
+
+  s->set_debug(debug);
+  s->configure_log(log, log_commits);
+  s->set_histogram(histogram);
 }
 
-void cleanup_spike() { delete s; }
+void cleanup_spike() {
+  mems.clear();
+  delete s;
+}
 
 int runner(const std::string& test) {
   std::print(
       "-----------------------------------------------------------------"
       "--------------\n");
   std::print("{}\n", test);
-  init_spike();
-  // TODO
+  init_spike(test);
+  auto return_code = s->run();
   cleanup_spike();
-  return 0;
+  return return_code;
 }
 
 TEST_CASE("riscv-tests/isa/rv32ui-p") {
