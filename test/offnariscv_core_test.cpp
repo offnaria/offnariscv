@@ -50,7 +50,7 @@ void init_spike(const std::string& test) {
 
   cfg_t cfg;
   cfg.isa = "rv32ima_zicsr_zifencei_zicntr";
-  cfg.misaligned = true;
+  // cfg.misaligned = true;
 
   FILE* cmd_file = NULL;
 
@@ -97,12 +97,13 @@ TEST_CASE("riscv-tests/isa/rv32ui-p") {
       "rv32ui-p-bgeu", "rv32ui-p-blt", "rv32ui-p-bltu", "rv32ui-p-bne",
       "rv32ui-p-fence_i", "rv32ui-p-jal", "rv32ui-p-jalr", "rv32ui-p-lb",
       "rv32ui-p-lbu", "rv32ui-p-ld_st", "rv32ui-p-lh", "rv32ui-p-lhu",
-      "rv32ui-p-lui", "rv32ui-p-lw", "rv32ui-p-ma_data", "rv32ui-p-or",
-      "rv32ui-p-ori", "rv32ui-p-sb", "rv32ui-p-sh", "rv32ui-p-sll",
-      "rv32ui-p-slli", "rv32ui-p-slt", "rv32ui-p-slti", "rv32ui-p-sltiu",
-      "rv32ui-p-sltu", "rv32ui-p-sra", "rv32ui-p-srai", "rv32ui-p-srl",
-      "rv32ui-p-srli", "rv32ui-p-st_ld", "rv32ui-p-sub", "rv32ui-p-sw",
-      "rv32ui-p-xor", "rv32ui-p-xori");
+      "rv32ui-p-lui", "rv32ui-p-lw", "rv32ui-p-or", "rv32ui-p-ori",
+      "rv32ui-p-sb", "rv32ui-p-sh", "rv32ui-p-sll", "rv32ui-p-slli",
+      "rv32ui-p-slt", "rv32ui-p-slti", "rv32ui-p-sltiu", "rv32ui-p-sltu",
+      "rv32ui-p-sra", "rv32ui-p-srai", "rv32ui-p-srl", "rv32ui-p-srli",
+      "rv32ui-p-st_ld", "rv32ui-p-sub", "rv32ui-p-sw", "rv32ui-p-xor",
+      "rv32ui-p-xori"  //, "rv32ui-p-ma_data"
+  );
   REQUIRE(runner(test) == 0);
 }
 
