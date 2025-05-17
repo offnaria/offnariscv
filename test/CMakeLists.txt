@@ -6,7 +6,7 @@ find_package(verilator)
 add_subdirectory(ifu)
 add_subdirectory(lsu)
 
-add_executable(offnariscv_core_test offnariscv_core_test.cpp)
+add_executable(offnariscv_core_test offnariscv_core_test.cpp SimSpike.cpp)
 add_dependencies(offnariscv_core_test riscv-isa-sim)
 verilate(offnariscv_core_test
   SOURCES

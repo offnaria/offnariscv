@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "SimSpike.hpp"
 #include "cachesim.h"
 #include "cfg.h"
 #include "config.h"
@@ -17,7 +18,7 @@
 #include "platform.h"
 #include "sim.h"
 
-sim_t* s;
+SimSpike* s;
 std::vector<std::pair<reg_t, abstract_mem_t*>> mems;
 
 void init_spike(const std::string& test) {
@@ -65,9 +66,9 @@ void init_spike(const std::string& test) {
     mems.push_back(std::make_pair(c.get_base(), new mem_t(c.get_size())));
   }
 
-  s = new sim_t(&cfg, halted, mems, plugin_device_factories, htif_args,
-                dm_config, log_path, dtb_enabled, dtb_file, socket, cmd_file,
-                instructions);
+  s = new SimSpike(&cfg, halted, mems, plugin_device_factories, htif_args,
+                   dm_config, log_path, dtb_enabled, dtb_file, socket, cmd_file,
+                   instructions);
 
   s->set_debug(debug);
   s->configure_log(log, log_commits);
