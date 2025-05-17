@@ -16,3 +16,8 @@ ${BUILD_DIR}:
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+.PHONY: docker-start
+docker-start:
+	@docker start i_offnariscv
+	@docker attach i_offnariscv

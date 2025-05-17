@@ -36,7 +36,7 @@ This is the ~~n-th~~ first RISC-V processor designed and implemented by offNaria
 - Verification and evaluation
     - [x] Verilator
         - [x] CMake
-    - [ ] [Spike](https://github.com/riscv-software-src/riscv-isa-sim)
+    - [x] [Spike](https://github.com/riscv-software-src/riscv-isa-sim)
     - [ ] [Konata](https://github.com/shioyadan/Konata)
     - [ ] GitHub Actions
 
@@ -77,10 +77,12 @@ sudo docker exec -it i_offnariscv bash
 ```
 
 Or if the container exists, start it and then attach.
+I also provide a make rule to execute it.
 
 ```bash
 sudo docker start i_offnariscv
 sudo docker attach i_offnariscv
+# sudo make docker-start # This command executes two commands above.
 ```
 
 Now you're in the docker container.
