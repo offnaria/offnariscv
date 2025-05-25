@@ -2,6 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <cstdint>
 #include <cstdio>
 #include <filesystem>
 #include <format>
@@ -36,8 +37,8 @@ void init_spike(const std::string& test) {
   std::unique_ptr<dcache_sim_t> dc;
   std::unique_ptr<cache_sim_t> l2;
   bool log_cache = false;
-  bool log_commits = false;
-  const char* log_path = nullptr;
+  bool log_commits = true;
+  const char* log_path = "/dev/null";
   std::vector<std::function<extension_t*()>> extensions;
   const char* initrd = NULL;
   const char* dtb_file = NULL;
@@ -73,6 +74,60 @@ void init_spike(const std::string& test) {
   s->set_debug(debug);
   s->configure_log(log, log_commits);
   s->set_histogram(histogram);
+
+  s->start_htif();
+}
+
+extern const char* csr_name(int which);
+
+int run_spike() {
+  auto core = s->get_core(0);
+  core->reset();
+  auto prev_pc = core->get_state()->pc;
+
+  for (int i = 0; i < 1000; ++i) {
+    auto state = core->get_state();
+    std::print("{:#010x}", (unsigned)prev_pc);
+    for (const auto& item : state->log_reg_write) {
+      if (item.first == 0) continue;
+
+      int rd = item.first >> 4;
+      // char prefix = (item.first & 0xf) == 0 ? 'x' : 'c';
+      if ((item.first & 0xf) == 0) {
+        std::print(" x{: <2} {:#010x}", rd, *(uint32_t*)(&item.second.v));
+      } else {
+        std::print(" c{}_{} {:#010x}", rd, csr_name(rd),
+                   *(uint32_t*)(&item.second.v));
+      }
+    }
+    for (const auto& item : state->log_mem_read) {
+      std::print(" mem {:#010x}", std::get<0>(item));
+    }
+    for (const auto& item : state->log_mem_write) {
+      std::print(" mem {:#010x}", *(uint32_t*)(&std::get<0>(item)));
+      switch (std::get<2>(item) << 3) {
+        case 8:
+          std::print(" {:#04x}", *(uint8_t*)(&std::get<1>(item)));
+          break;
+        case 16:
+          std::print(" {:#06x}", *(uint16_t*)(&std::get<1>(item)));
+          break;
+        case 32:
+          std::print(" {:#010x}", *(uint32_t*)(&std::get<1>(item)));
+          break;
+        case 64:
+          std::print(" {:#018x}", *(uint64_t*)(&std::get<1>(item)));
+          break;
+        default:
+          std::print(" {:#010x}", *(uint32_t*)(&std::get<1>(item)));
+      }
+    }
+    std::print("\n");
+    prev_pc = state->pc;
+    core->step(1);
+  }
+
+  return 0;
 }
 
 void cleanup_spike() {
@@ -86,7 +141,7 @@ int runner(const std::string& test) {
       "--------------\n");
   std::print("{}\n", test);
   init_spike(test);
-  auto return_code = s->run();
+  auto return_code = run_spike();
   cleanup_spike();
   return return_code;
 }
