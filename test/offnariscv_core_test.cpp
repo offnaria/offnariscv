@@ -19,6 +19,8 @@
 #include "platform.h"
 #include "sim.h"
 
+constexpr int MAX_STEPS = 10000;
+
 SimSpike* s;
 std::vector<std::pair<reg_t, abstract_mem_t*>> mems;
 
@@ -85,14 +87,13 @@ int run_spike() {
   core->reset();
   auto prev_pc = core->get_state()->pc;
 
-  for (int i = 0; i < 1000; ++i) {
+  for (int i = 0; i < MAX_STEPS; ++i) {
     auto state = core->get_state();
     std::print("{:#010x}", (unsigned)prev_pc);
     for (const auto& item : state->log_reg_write) {
       if (item.first == 0) continue;
 
       int rd = item.first >> 4;
-      // char prefix = (item.first & 0xf) == 0 ? 'x' : 'c';
       if ((item.first & 0xf) == 0) {
         std::print(" x{: <2} {:#010x}", rd, *(uint32_t*)(&item.second.v));
       } else {
@@ -120,6 +121,12 @@ int run_spike() {
           break;
         default:
           std::print(" {:#010x}", *(uint32_t*)(&std::get<1>(item)));
+      }
+      auto tohost_addr = s->get_tohost_addr();
+      if ((tohost_addr != 0) &&
+          (*(uint32_t*)(&std::get<0>(item)) == tohost_addr)) {
+        std::print(" (tohost)\n");
+        return *(uint32_t*)(&std::get<1>(item));  // Exit on tohost write
       }
     }
     std::print("\n");
@@ -160,7 +167,7 @@ TEST_CASE("riscv-tests/isa/rv32ui-p") {
       "rv32ui-p-st_ld", "rv32ui-p-sub", "rv32ui-p-sw", "rv32ui-p-xor",
       "rv32ui-p-xori"  //, "rv32ui-p-ma_data"
   );
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 /*
@@ -168,7 +175,7 @@ TEST_CASE("riscv-tests/isa/rv32um-p") {
   auto test = GENERATE("rv32um-p-div", "rv32um-p-divu", "rv32um-p-mul",
                        "rv32um-p-mulh", "rv32um-p-mulhsu", "rv32um-p-mulhu",
                        "rv32um-p-rem", "rv32um-p-remu");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32ua-p") {
@@ -177,7 +184,7 @@ TEST_CASE("riscv-tests/isa/rv32ua-p") {
                "rv32ua-p-amomaxu_w", "rv32ua-p-amomin_w", "rv32ua-p-amominu_w",
                "rv32ua-p-amoor_w", "rv32ua-p-amoswap_w", "rv32ua-p-amoxor_w",
                "rv32ua-p-lrsc");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32mi-p") {
@@ -188,13 +195,13 @@ TEST_CASE("riscv-tests/isa/rv32mi-p") {
                "rv32mi-p-ma_fetch", "rv32mi-p-mcsr", "rv32mi-p-pmpaddr",
                "rv32mi-p-sbreak", "rv32mi-p-scall", "rv32mi-p-sh-misaligned",
                "rv32mi-p-shamt", "rv32mi-p-sw-misaligned", "rv32mi-p-zicntr");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32si-p") {
   auto test = GENERATE("rv32si-p-csr", "rv32si-p-dirty", "rv32si-p-ma_fetch",
                        "rv32si-p-sbreak", "rv32si-p-scall", "rv32si-p-wfi");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32ui-v") {
@@ -210,14 +217,14 @@ TEST_CASE("riscv-tests/isa/rv32ui-v") {
       "rv32ui-v-sltu", "rv32ui-v-sra", "rv32ui-v-srai", "rv32ui-v-srl",
       "rv32ui-v-srli", "rv32ui-v-st_ld", "rv32ui-v-sub", "rv32ui-v-sw",
       "rv32ui-v-xor", "rv32ui-v-xori");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32um-v") {
   auto test = GENERATE("rv32um-v-div", "rv32um-v-divu", "rv32um-v-mul",
                        "rv32um-v-mulh", "rv32um-v-mulhsu", "rv32um-v-mulhu",
                        "rv32um-v-rem", "rv32um-v-remu");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32ua-v") {
@@ -226,6 +233,6 @@ TEST_CASE("riscv-tests/isa/rv32ua-v") {
                "rv32ua-v-amomaxu_w", "rv32ua-v-amomin_w", "rv32ua-v-amominu_w",
                "rv32ua-v-amoor_w", "rv32ua-v-amoswap_w", "rv32ua-v-amoxor_w",
                "rv32ua-v-lrsc");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 */
