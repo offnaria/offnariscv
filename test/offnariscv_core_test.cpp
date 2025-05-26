@@ -105,28 +105,30 @@ int run_spike() {
       std::print(" mem {:#010x}", std::get<0>(item));
     }
     for (const auto& item : state->log_mem_write) {
-      std::print(" mem {:#010x}", *(uint32_t*)(&std::get<0>(item)));
-      switch (std::get<2>(item) << 3) {
+      auto* addr = &std::get<0>(item);
+      auto* value = &std::get<1>(item);
+      auto size = std::get<2>(item);
+      std::print(" mem {:#010x}", *(uint32_t*)(addr));
+      switch (size << 3) {
         case 8:
-          std::print(" {:#04x}", *(uint8_t*)(&std::get<1>(item)));
+          std::print(" {:#04x}", *(uint8_t*)(value));
           break;
         case 16:
-          std::print(" {:#06x}", *(uint16_t*)(&std::get<1>(item)));
+          std::print(" {:#06x}", *(uint16_t*)(value));
           break;
         case 32:
-          std::print(" {:#010x}", *(uint32_t*)(&std::get<1>(item)));
+          std::print(" {:#010x}", *(uint32_t*)(value));
           break;
         case 64:
-          std::print(" {:#018x}", *(uint64_t*)(&std::get<1>(item)));
+          std::print(" {:#018x}", *(uint64_t*)(value));
           break;
         default:
-          std::print(" {:#010x}", *(uint32_t*)(&std::get<1>(item)));
+          std::print(" {:#010x}", *(uint32_t*)(value));
       }
       auto tohost_addr = s->get_tohost_addr();
-      if ((tohost_addr != 0) &&
-          (*(uint32_t*)(&std::get<0>(item)) == tohost_addr)) {
+      if ((tohost_addr != 0) && (*(uint32_t*)(addr) == tohost_addr)) {
         std::print(" (tohost)\n");
-        return *(uint32_t*)(&std::get<1>(item));  // Exit on tohost write
+        return *(uint32_t*)(value);  // Exit on tohost write
       }
     }
     std::print("\n");
