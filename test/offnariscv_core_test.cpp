@@ -2,6 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <cstdint>
 #include <cstdio>
 #include <filesystem>
 #include <format>
@@ -10,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "SimSpike.hpp"
 #include "cachesim.h"
 #include "cfg.h"
 #include "config.h"
@@ -17,7 +19,9 @@
 #include "platform.h"
 #include "sim.h"
 
-sim_t* s;
+constexpr int MAX_STEPS = 10000;
+
+SimSpike* s;
 std::vector<std::pair<reg_t, abstract_mem_t*>> mems;
 
 void init_spike(const std::string& test) {
@@ -35,8 +39,8 @@ void init_spike(const std::string& test) {
   std::unique_ptr<dcache_sim_t> dc;
   std::unique_ptr<cache_sim_t> l2;
   bool log_cache = false;
-  bool log_commits = false;
-  const char* log_path = nullptr;
+  bool log_commits = true;
+  const char* log_path = "/dev/null";
   std::vector<std::function<extension_t*()>> extensions;
   const char* initrd = NULL;
   const char* dtb_file = NULL;
@@ -65,13 +69,74 @@ void init_spike(const std::string& test) {
     mems.push_back(std::make_pair(c.get_base(), new mem_t(c.get_size())));
   }
 
-  s = new sim_t(&cfg, halted, mems, plugin_device_factories, htif_args,
-                dm_config, log_path, dtb_enabled, dtb_file, socket, cmd_file,
-                instructions);
+  s = new SimSpike(&cfg, halted, mems, plugin_device_factories, htif_args,
+                   dm_config, log_path, dtb_enabled, dtb_file, socket, cmd_file,
+                   instructions);
 
   s->set_debug(debug);
   s->configure_log(log, log_commits);
   s->set_histogram(histogram);
+
+  s->start_htif();
+}
+
+extern const char* csr_name(int which);
+
+int run_spike() {
+  auto core = s->get_core(0);
+  core->reset();
+  auto prev_pc = core->get_state()->pc;
+
+  for (int i = 0; i < MAX_STEPS; ++i) {
+    auto state = core->get_state();
+    std::print("{:#010x}", (unsigned)prev_pc);
+    for (const auto& item : state->log_reg_write) {
+      if (item.first == 0) continue;
+
+      int rd = item.first >> 4;
+      if ((item.first & 0xf) == 0) {
+        std::print(" x{: <2} {:#010x}", rd, *(uint32_t*)(&item.second.v));
+      } else {
+        std::print(" c{}_{} {:#010x}", rd, csr_name(rd),
+                   *(uint32_t*)(&item.second.v));
+      }
+    }
+    for (const auto& item : state->log_mem_read) {
+      std::print(" mem {:#010x}", std::get<0>(item));
+    }
+    for (const auto& item : state->log_mem_write) {
+      auto* addr = &std::get<0>(item);
+      auto* value = &std::get<1>(item);
+      auto size = std::get<2>(item);
+      std::print(" mem {:#010x}", *(uint32_t*)(addr));
+      switch (size << 3) {
+        case 8:
+          std::print(" {:#04x}", *(uint8_t*)(value));
+          break;
+        case 16:
+          std::print(" {:#06x}", *(uint16_t*)(value));
+          break;
+        case 32:
+          std::print(" {:#010x}", *(uint32_t*)(value));
+          break;
+        case 64:
+          std::print(" {:#018x}", *(uint64_t*)(value));
+          break;
+        default:
+          std::print(" {:#010x}", *(uint32_t*)(value));
+      }
+      auto tohost_addr = s->get_tohost_addr();
+      if ((tohost_addr != 0) && (*(uint32_t*)(addr) == tohost_addr)) {
+        std::print(" (tohost)\n");
+        return *(uint32_t*)(value);  // Exit on tohost write
+      }
+    }
+    std::print("\n");
+    prev_pc = state->pc;
+    core->step(1);
+  }
+
+  return 0;
 }
 
 void cleanup_spike() {
@@ -85,7 +150,7 @@ int runner(const std::string& test) {
       "--------------\n");
   std::print("{}\n", test);
   init_spike(test);
-  auto return_code = s->run();
+  auto return_code = run_spike();
   cleanup_spike();
   return return_code;
 }
@@ -104,7 +169,7 @@ TEST_CASE("riscv-tests/isa/rv32ui-p") {
       "rv32ui-p-st_ld", "rv32ui-p-sub", "rv32ui-p-sw", "rv32ui-p-xor",
       "rv32ui-p-xori"  //, "rv32ui-p-ma_data"
   );
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 /*
@@ -112,7 +177,7 @@ TEST_CASE("riscv-tests/isa/rv32um-p") {
   auto test = GENERATE("rv32um-p-div", "rv32um-p-divu", "rv32um-p-mul",
                        "rv32um-p-mulh", "rv32um-p-mulhsu", "rv32um-p-mulhu",
                        "rv32um-p-rem", "rv32um-p-remu");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32ua-p") {
@@ -121,7 +186,7 @@ TEST_CASE("riscv-tests/isa/rv32ua-p") {
                "rv32ua-p-amomaxu_w", "rv32ua-p-amomin_w", "rv32ua-p-amominu_w",
                "rv32ua-p-amoor_w", "rv32ua-p-amoswap_w", "rv32ua-p-amoxor_w",
                "rv32ua-p-lrsc");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32mi-p") {
@@ -132,13 +197,13 @@ TEST_CASE("riscv-tests/isa/rv32mi-p") {
                "rv32mi-p-ma_fetch", "rv32mi-p-mcsr", "rv32mi-p-pmpaddr",
                "rv32mi-p-sbreak", "rv32mi-p-scall", "rv32mi-p-sh-misaligned",
                "rv32mi-p-shamt", "rv32mi-p-sw-misaligned", "rv32mi-p-zicntr");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32si-p") {
   auto test = GENERATE("rv32si-p-csr", "rv32si-p-dirty", "rv32si-p-ma_fetch",
                        "rv32si-p-sbreak", "rv32si-p-scall", "rv32si-p-wfi");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32ui-v") {
@@ -154,14 +219,14 @@ TEST_CASE("riscv-tests/isa/rv32ui-v") {
       "rv32ui-v-sltu", "rv32ui-v-sra", "rv32ui-v-srai", "rv32ui-v-srl",
       "rv32ui-v-srli", "rv32ui-v-st_ld", "rv32ui-v-sub", "rv32ui-v-sw",
       "rv32ui-v-xor", "rv32ui-v-xori");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32um-v") {
   auto test = GENERATE("rv32um-v-div", "rv32um-v-divu", "rv32um-v-mul",
                        "rv32um-v-mulh", "rv32um-v-mulhsu", "rv32um-v-mulhu",
                        "rv32um-v-rem", "rv32um-v-remu");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 
 TEST_CASE("riscv-tests/isa/rv32ua-v") {
@@ -170,6 +235,6 @@ TEST_CASE("riscv-tests/isa/rv32ua-v") {
                "rv32ua-v-amomaxu_w", "rv32ua-v-amomin_w", "rv32ua-v-amominu_w",
                "rv32ua-v-amoor_w", "rv32ua-v-amoswap_w", "rv32ua-v-amoxor_w",
                "rv32ua-v-lrsc");
-  REQUIRE(runner(test) == 0);
+  REQUIRE(runner(test) == 1);
 }
 */
