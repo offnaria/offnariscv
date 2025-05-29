@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: MIT
 
+include(CTest)
+include(${CMAKE_SOURCE_DIR}/ext/Catch2/extras/Catch.cmake)
+
 add_executable(main main.cpp)
 
 find_package(verilator)
@@ -32,3 +35,4 @@ target_link_libraries(offnariscv_core_test
     ${CMAKE_BINARY_DIR}/ext/riscv-isa-sim/riscv-isa-sim/libsoftfloat.a
     ${CMAKE_BINARY_DIR}/ext/riscv-isa-sim/riscv-isa-sim/libspike_dasm.a
     ${CMAKE_BINARY_DIR}/ext/riscv-isa-sim/riscv-isa-sim/libspike_main.a)
+catch_discover_tests(offnariscv_core_test)

@@ -58,10 +58,11 @@ void init_spike(const std::string& test) {
 
   FILE* cmd_file = NULL;
 
-  auto test_path = std::filesystem::current_path() /
-                   "ext/riscv-tests/riscv-tests/isa" / test;
-  REQUIRE(std::filesystem::exists(test_path));
+  auto my_parent_path =
+      std::filesystem::read_symlink("/proc/self/exe").parent_path();
+  auto test_path = my_parent_path / "../ext/riscv-tests/riscv-tests/isa" / test;
   std::print("Test path: {}\n", test_path.string());
+  REQUIRE(std::filesystem::exists(test_path));
   std::vector<std::string> htif_args = {test_path};
 
   mems.reserve(cfg.mem_layout.size());
@@ -88,6 +89,7 @@ int run_spike() {
   auto prev_pc = core->get_state()->pc;
 
   for (int i = 0; i < MAX_STEPS; ++i) {
+    // if (!offnariscv_commit) continue;
     auto state = core->get_state();
     std::print("{:#010x}", (unsigned)prev_pc);
     for (const auto& item : state->log_reg_write) {
