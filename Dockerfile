@@ -38,5 +38,5 @@ RUN git clone https://github.com/riscv/riscv-gnu-toolchain
 RUN cd riscv-gnu-toolchain && \
     git pull && \
     git checkout 2025.05.01 && \
-    ./configure --prefix=${RISCV} --with-arch=riscv --with-abi=ilp32 && \
+    ./configure --prefix=${RISCV} --with-arch=${ARCH} --with-abi=ilp32 && \
     make -j`nproc`
