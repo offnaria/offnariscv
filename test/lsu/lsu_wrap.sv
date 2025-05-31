@@ -2,7 +2,10 @@
 
 module lsu_wrap
   import offnariscv_pkg::*;
-(
+# (
+  parameter ACE_XDATA_WIDTH = 256,
+  parameter ACE_AXADDR_WIDTH = 32
+) (
   input clk,
   input rst_n,
 
@@ -69,7 +72,7 @@ module lsu_wrap
   // AC channel signals
   input  lsu_ace_acvalid,
   output lsu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] lsu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] lsu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] lsu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] lsu_ace_acprot,
 
@@ -81,7 +84,7 @@ module lsu_wrap
   // CD channel signals
   output lsu_ace_cdvalid,
   input  lsu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] lsu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] lsu_ace_cddata,
   output lsu_ace_cdlast,
 
   // Additional signals

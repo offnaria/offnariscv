@@ -2,7 +2,10 @@
 
 module offnariscv_core_wrap
   import offnariscv_pkg::*;
-(
+# (
+  parameter ACE_XDATA_WIDTH = 256,
+  parameter ACE_AXADDR_WIDTH = 32  
+) (
   input clk,
   input rst_n,
 
@@ -59,7 +62,7 @@ module offnariscv_core_wrap
   output ifu_ace_rready,
   input  ifu_ace_acvalid,
   output ifu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] ifu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] ifu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] ifu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] ifu_ace_acprot,
   output ifu_ace_crvalid,
@@ -67,7 +70,7 @@ module offnariscv_core_wrap
   output [ACE_CRRESP_WIDTH-1:0] ifu_ace_crresp,
   output ifu_ace_cdvalid,
   input  ifu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] ifu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] ifu_ace_cddata,
   output ifu_ace_cdlast,
   output ifu_ace_rack,
   output ifu_ace_wack,
@@ -125,7 +128,7 @@ module offnariscv_core_wrap
   output lsu_ace_rready,
   input  lsu_ace_acvalid,
   output lsu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] lsu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] lsu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] lsu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] lsu_ace_acprot,
   output lsu_ace_crvalid,
@@ -133,7 +136,7 @@ module offnariscv_core_wrap
   output [ACE_CRRESP_WIDTH-1:0] lsu_ace_crresp,
   output lsu_ace_cdvalid,
   input  lsu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] lsu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] lsu_ace_cddata,
   output lsu_ace_cdlast,
   output lsu_ace_rack,
   output lsu_ace_wack

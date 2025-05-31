@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-interface ace_if;
+interface ace_if
   import offnariscv_pkg::*;
 # (
   parameter ACE_XDATA_WIDTH = 256,
