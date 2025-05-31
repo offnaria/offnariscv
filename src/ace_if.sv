@@ -2,7 +2,10 @@
 
 interface ace_if;
   import offnariscv_pkg::*;
-
+# (
+  parameter ACE_XDATA_WIDTH = 256,
+  parameter ACE_AXADDR_WIDTH = 32
+);
   // AW channel signals
   logic [ACE_XID_WIDTH-1:0] awid;
   logic [ACE_AXADDR_WIDTH-1:0] awaddr;
@@ -66,7 +69,7 @@ interface ace_if;
   // AC channel signals
   logic acvalid;
   logic acready;
-  logic [ACE_ACADDR_WIDTH-1:0] acaddr;
+  logic [ACE_AXADDR_WIDTH-1:0] acaddr;
   logic [ACE_ACSNOOP_WIDTH-1:0] acsnoop;
   logic [ACE_ACPROT_WIDTH-1:0] acprot;
 
@@ -78,7 +81,7 @@ interface ace_if;
   // CD channel signals
   logic cdvalid;
   logic cdready;
-  logic [ACE_CDDATA_WIDTH-1:0] cddata;
+  logic [ACE_XDATA_WIDTH-1:0] cddata;
   logic cdlast;
 
   // Additional signals
