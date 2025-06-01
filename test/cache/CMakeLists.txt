@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 add_executable(cache_si_test cache_si_test.cpp)
+target_include_directories(cache_si_test PRIVATE ${CMAKE_SOURCE_DIR}/test)
 verilate(cache_si_test
   SOURCES
     ../../src/offnariscv_pkg.sv
@@ -12,3 +13,4 @@ verilate(cache_si_test
   PREFIX
     Vcache_si)
 target_link_libraries(cache_si_test PRIVATE Catch2::Catch2WithMain)
+catch_discover_tests(cache_si_test)
