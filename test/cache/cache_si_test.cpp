@@ -22,7 +22,7 @@ static void init_dut(Dut<Vcache_si>& dut) {
   dut.reset();
 }
 
-TEST_CASE("cache_si_miss") {
+TEST_CASE("cache_si_initial_miss") {
   Dut<Vcache_si> dut;
   init_dut(dut);
 
@@ -63,7 +63,7 @@ TEST_CASE("cache_si_refill_hit") {
   }
 }
 
-TEST_CASE("cache_si_hit_overwrite_miss") {
+TEST_CASE("cache_si_conflict_miss") {
   Dut<Vcache_si> dut;
   init_dut(dut);
 
