@@ -28,10 +28,6 @@ module axis_skid_buffer_wrap # (
   assign mif_tdata = axis_mif.tdata;
   assign axis_mif.tready = mif_tready;
 
-  axis_skid_buffer #(
-    .TDATA_WIDTH(TDATA_WIDTH)
-  ) slice (
-    .*
-  );
+  axis_skid_buffer axis_skid_buffer (.*);
 
 endmodule

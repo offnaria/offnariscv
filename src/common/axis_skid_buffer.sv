@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 // Skid buffer for AXI Stream interface
-module axis_skid_buffer #(
-  parameter TDATA_WIDTH = 32
-) (
+module axis_skid_buffer (
   input logic clk,
   input logic rst_n,
   
@@ -12,6 +10,15 @@ module axis_skid_buffer #(
 
   input logic invalidate // TODO
 );
+
+  // Define local parameters
+  localparam TDATA_WIDTH = axis_mif.TDATA_WIDTH;
+
+  // Assert conditions
+  initial begin
+    assert (TDATA_WIDTH > 0) else $fatal("TDATA_WIDTH must be greater than 0");
+    assert (TDATA_WIDTH == axis_sif.TDATA_WIDTH) else $fatal("TDATA_WIDTH must match between manager and subordinate interfaces");
+  end
 
   // Declare registers
   logic tvalid;

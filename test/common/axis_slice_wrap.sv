@@ -28,10 +28,6 @@ module axis_slice_wrap # (
   assign mif_tdata = axis_mif.tdata;
   assign axis_mif.tready = mif_tready;
 
-  axis_slice #(
-    .TDATA_WIDTH(TDATA_WIDTH)
-  ) slice (
-    .*
-  );
+  axis_slice axis_slice (.*);
 
 endmodule
