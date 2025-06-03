@@ -23,12 +23,13 @@ TEST_CASE("axis_slice_ready") {
 
   std::print("----- Wait for ready signal to be asserted\n");
   REQUIRE(dut->mif_tvalid == 0);
-  for (int i = 0; i < 8; ++i) {
-    // Wait for the ready signal to be asserted, since its reset value is 0
-    std::print("i={}: sif_tready={}\n", i, dut->sif_tready);
-    if (dut->sif_tready == 1) break;
-    dut.step();
-  }
+  // tready will be 1, if tvalid is 0
+  // for (int i = 0; i < 8; ++i) {
+  //   // Wait for the ready signal to be asserted, since its reset value is 0
+  //   std::print("i={}: sif_tready={}\n", i, dut->sif_tready);
+  //   if (dut->sif_tready == 1) break;
+  //   dut.step();
+  // }
   REQUIRE(dut->sif_tready == 1);
 }
 
