@@ -6,6 +6,7 @@ include(${CMAKE_SOURCE_DIR}/ext/Catch2/extras/Catch.cmake)
 add_executable(main main.cpp)
 
 find_package(verilator)
+add_subdirectory(common)
 add_subdirectory(ifu)
 add_subdirectory(lsu)
 
