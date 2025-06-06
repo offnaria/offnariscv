@@ -64,6 +64,7 @@ module axis_sync_fifo_core #(
   logic tready_q, tready_d;
   logic [ADDR_WIDTH:0] wptr_q, wptr_d;
   logic [ADDR_WIDTH:0] rptr_q, rptr_d;
+  logic empty_q, empty_d;
 
   // Declare wires
   logic full, next_full;
@@ -79,7 +80,7 @@ module axis_sync_fifo_core #(
 
   // Wire assignments
   assign next_full = (wptr_d[ADDR_WIDTH] ^ rptr_d[ADDR_WIDTH]) && (wptr_d[ADDR_WIDTH-1:0] == rptr_d[ADDR_WIDTH-1:0]);
-  assign empty = (wptr_q == rptr_q);
+  assign empty_d = (wptr_d == rptr_d);
 
   assign tready_d = !next_full;
   assign s_handshake = axis_sif.tvalid && tready_q;
@@ -102,7 +103,7 @@ module axis_sync_fifo_core #(
 
     if (tvalid_q) begin 
       if (mif_tready) begin
-        if (empty) begin
+        if (empty_q) begin
           tvalid_d = axis_sif.tvalid;
           tdata_d = axis_sif.tdata;
         end else begin
@@ -111,13 +112,13 @@ module axis_sync_fifo_core #(
           rptr_d = rptr_q + ADDR_WIDTH'(1);
         end
       end
-      if ((!mif_tready || !empty) && s_handshake) begin // If empty, incoming data will be stored in tvalid_q
+      if ((!mif_tready || !empty_q) && s_handshake) begin // If empty, incoming data will be stored in tvalid_q
         wvalid_ram = 1'b1;
         wptr_d = wptr_q + ADDR_WIDTH'(1);
       end
     end else begin
-      tvalid_d = axis_sif.tvalid;
-      if (axis_sif.tvalid) begin // TODO: Remove this condition if not needed
+      if (s_handshake) begin
+        tvalid_d = 1'b1;
         tdata_d = axis_sif.tdata;
       end
     end
@@ -131,12 +132,14 @@ module axis_sync_fifo_core #(
       tvalid_q <= '0;
       tdata_q <= '0;
       tready_q <= '0;
+      empty_q <= '0;
     end else begin
       wptr_q <= wptr_d;
       rptr_q <= rptr_d;
       tvalid_q <= tvalid_d;
       tdata_q <= tdata_d;
       tready_q <= tready_d;
+      empty_q <= empty_d;
     end
   end
 
