@@ -45,3 +45,16 @@ verilate(axis_sync_fifo_test
     Vaxis_sync_fifo)
 target_link_libraries(axis_sync_fifo_test PRIVATE Catch2::Catch2WithMain)
 catch_discover_tests(axis_sync_fifo_test)
+
+add_executable(ram_sync_test ram_sync_test.cpp)
+target_include_directories(ram_sync_test PRIVATE ${CMAKE_SOURCE_DIR}/test)
+verilate(ram_sync_test
+  SOURCES
+    ../../src/common/ram_sync.sv
+    ram_sync_wrap.sv
+  TOP_MODULE
+    ram_sync_wrap
+  PREFIX
+    Vram_sync)
+target_link_libraries(ram_sync_test PRIVATE Catch2::Catch2WithMain)
+catch_discover_tests(ram_sync_test)
