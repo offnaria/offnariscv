@@ -4,6 +4,7 @@ add_executable(pcgen_test pcgen_test.cpp)
 target_include_directories(pcgen_test PRIVATE ${CMAKE_SOURCE_DIR}/test)
 verilate(pcgen_test
   SOURCES
+    ../../src/riscv_pkg.sv
     ../../src/offnariscv_pkg.sv
     ../../src/common/axis_if.sv
     ../../src/pcgen/pcgen.sv

@@ -4,6 +4,7 @@
 `define OFFNARISCV_PKG
 
 package offnariscv_pkg;
+  import riscv_pkg::*;
   localparam XLEN = 32;
   localparam ACE_AXADDR_WIDTH = 32;
   localparam ACE_XDATA_WIDTH = 32;
@@ -34,6 +35,25 @@ package offnariscv_pkg;
     ACE_RESP_SLVERR = 2'b10,
     ACE_RESP_DECERR = 2'b11
   } ace_resp_e;
+
+  typedef union packed {
+    interrupt_codes_e int_code;
+    exception_codes_e exc_code;
+  } int_exc_code_u;
+
+  localparam INST_ID_WIDTH = 64;
+
+  typedef struct packed {
+`ifndef SYNTHESIS
+    logic [INST_ID_WIDTH-1:0] id;
+`endif
+    logic [XLEN-1:0] pc;
+    logic [XLEN-1:0] untaken_pc; // For branch prediction
+    logic [XLEN-1:0] inst;
+    logic int_exc_valid;
+    int_exc_code_u int_exc_code;
+  } ifid_tdata_t;
+
 endpackage
 
 `endif
