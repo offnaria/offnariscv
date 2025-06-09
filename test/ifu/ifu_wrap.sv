@@ -86,10 +86,35 @@ module ifu_wrap
 
   // Additional signals
   output ifu_ace_rack,
-  output ifu_ace_wack
+  output ifu_ace_wack,
+
+  // From/To Program Counter Generator
+  input logic [XLEN-1:0] next_pc_tdata,
+  input logic next_pc_tvalid,
+  output logic next_pc_tready,
+
+  output logic [XLEN-1:0] current_pc_tdata,
+  output logic current_pc_tvalid,
+  input logic current_pc_tready,
+
+  // To Decoder
+  output logic [63:0] ifid_tdata_id,
+  output logic [XLEN-1:0] ifid_tdata_pc,
+  output logic [XLEN-1:0] ifid_tdata_untaken_pc,
+  output logic [XLEN-1:0] ifid_tdata_inst,
+  output logic inst_tvalid,
+  input logic inst_tready,
+
+  input logic invalidate
 );
 
   ace_if ifu_ace_if ();
+
+  axis_if #(.TDATA_WIDTH(XLEN)) next_pc_axis_if ();
+  axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) inst_axis_if ();
+
+  ifid_tdata_t ifid_tdata;
 
   // AW channel signals
   assign ifu_ace_awid = ifu_ace_if.awid;
@@ -173,10 +198,19 @@ module ifu_wrap
   assign ifu_ace_rack = ifu_ace_if.rack;
   assign ifu_ace_wack = ifu_ace_if.wack;
 
-  ifu ifu_inst (
-    .clk(clk),
-    .rst_n(rst_n),
-    .ifu_ace_if(ifu_ace_if)
-  );
+  // From/To Program Counter Generator
+  assign next_pc_axis_if.tdata = next_pc_tdata;
+  assign next_pc_axis_if.tvalid = next_pc_tvalid;
+  assign next_pc_tready = next_pc_axis_if.tready;
+
+  assign current_pc_tdata = current_pc_axis_if.tdata;
+  assign current_pc_tvalid = current_pc_axis_if.tvalid;
+  assign current_pc_axis_if.tready = current_pc_tready;
+
+  assign ifid_tdata = inst_axis_if.tdata;
+  assign inst_tvalid = inst_axis_if.tvalid;
+  assign inst_axis_if.tready = inst_tready;
+
+  ifu ifu_inst (.*);
 
 endmodule
