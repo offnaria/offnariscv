@@ -146,6 +146,11 @@ module ifu_wrap
   assign inst_tvalid = inst_axis_if.tvalid;
   assign inst_axis_if.tready = inst_tready;
 
+  assign ifid_tdata_id = ifid_tdata.id;
+  assign ifid_tdata_pc = ifid_tdata.pc;
+  assign ifid_tdata_untaken_pc = ifid_tdata.untaken_pc;
+  assign ifid_tdata_inst = ifid_tdata.inst;
+
   ifu ifu_inst (.*);
 
 endmodule

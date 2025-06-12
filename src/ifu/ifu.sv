@@ -23,19 +23,20 @@ module ifu
 );
 
   // Define local parameters
-  localparam BLOCK_SIZE = ACE_XDATA_WIDTH;
+  localparam ADDR_WIDTH = ifu_ace_if.ACE_AXADDR_WIDTH;
+  localparam BLOCK_SIZE = ifu_ace_if.ACE_XDATA_WIDTH;
+  localparam BLOCK_OFFSET_WIDTH = $clog2(BLOCK_SIZE / XLEN);
 
   // Assert conditions
   initial begin
-    assert (ACE_AXADDR_WIDTH == XLEN) else $fatal("ifu_ace_if.ACE_AXADDR_WIDTH must be equal to XLEN for now");
+    assert (ADDR_WIDTH == XLEN) else $fatal("ifu_ace_if.ADDR_WIDTH must be equal to XLEN for now");
     assert (next_pc_axis_if.TDATA_WIDTH == XLEN) else $fatal("next_pc_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (current_pc_axis_if.TDATA_WIDTH == XLEN) else $fatal("current_pc_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (inst_axis_if.TDATA_WIDTH == $bits(ifid_tdata_t)) else $fatal("inst_axis_if.TDATA_WIDTH must match ifid_tdata_t");
   end
 
   // Define types
-  typedef enum logic [2:0] {
-    INIT,
+  typedef enum logic [1:0] {
     IDLE,
     PTW,
     LOAD,
@@ -57,9 +58,10 @@ module ifu
 `endif
 
   // Declare wires
+  logic [((BLOCK_OFFSET_WIDTH>0)?BLOCK_OFFSET_WIDTH-1:0):0] block_offset;
   ifid_tdata_t ifid_tdata;
   logic icache_hit;
-  logic [XLEN-1:0] icache_data;
+  logic [BLOCK_SIZE-1:0] icache_data;
   logic itlb_hit;
 
   // Wire assignments
@@ -74,6 +76,7 @@ module ifu
   assign ifid_tdata.inst = inst_d;
   assign ifid_pipe_reg_if.tdata = ifid_tdata;
 
+  assign block_offset = (BLOCK_OFFSET_WIDTH>0) ? pc_q[$clog2(XLEN/8)+BLOCK_OFFSET_WIDTH-32'(BLOCK_OFFSET_WIDTH>0):$clog2(XLEN/8)] : '0;
   assign icache_hit = 1'b0; // TODO
   assign icache_data = '0; // TODO
   assign itlb_hit = 1'b1; // TODO
@@ -94,17 +97,12 @@ module ifu
     ifid_pipe_reg_if.tvalid = 1'b0;
 
     case (state_q)
-      INIT: begin
-        // Load the first instruction
-        arvalid_d = 1'b1;
-        rready_d = 1'b1;
-        state_d = LOAD;
-      end
       IDLE: begin
         if (itlb_hit) begin
           if (icache_hit) begin
             ifid_pipe_reg_if.tvalid = 1'b1;
-            inst_d = icache_data;
+            inst_d = icache_data[block_offset*XLEN +: XLEN];
+            // TODO: icache_data will be available in the next cycle
             if (ifid_pipe_reg_if.tready) begin
               state_d = IDLE;
             end else begin
@@ -128,7 +126,7 @@ module ifu
         end
         if (ifu_ace_if.rvalid) begin
           rready_d = 1'b0;
-          inst_d = ifu_ace_if.rdata;
+          inst_d = ifu_ace_if.rdata[block_offset*XLEN +: XLEN];
           rresp_d = ifu_ace_if.rresp;
         end
         if (!rready_d) begin // rvalid must be asserted after arready
@@ -155,9 +153,9 @@ module ifu
   always_ff @(posedge clk) begin
     if (rst) begin
       pc_q <= XLEN'(RESET_VECTOR);
-      state_q <= INIT;
-      arvalid_q <= '0;
-      rready_q <= '0;
+      state_q <= LOAD; // Start in LOAD state to fetch the first instruction
+      arvalid_q <= 1'b1; // NOTE
+      rready_q <= 1'b1; // NOTE
       inst_q <= '0;
       rresp_q <= '0;
 `ifndef SYNTHESIS
