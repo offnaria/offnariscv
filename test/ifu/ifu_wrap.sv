@@ -2,7 +2,10 @@
 
 module ifu_wrap
   import offnariscv_pkg::*;
-(
+# (
+  localparam ACE_XDATA_WIDTH = 256,
+  localparam ACE_AXADDR_WIDTH = 32
+) (
   input clk,
   input rst,
 
@@ -36,7 +39,7 @@ module ifu_wrap
   // AC channel signals
   input  ifu_ace_acvalid,
   output ifu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] ifu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] ifu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] ifu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] ifu_ace_acprot,
 
@@ -48,7 +51,7 @@ module ifu_wrap
   // CD channel signals
   output ifu_ace_cdvalid,
   input  ifu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] ifu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] ifu_ace_cddata,
   output ifu_ace_cdlast,
 
   // Additional signals
