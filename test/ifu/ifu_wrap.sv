@@ -77,7 +77,7 @@ module ifu_wrap
   input logic invalidate
 );
 
-  ace_if ifu_ace_if ();
+  ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) ifu_ace_if ();
 
   axis_if #(.TDATA_WIDTH(XLEN)) next_pc_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();

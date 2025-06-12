@@ -92,7 +92,7 @@ module lsu_wrap
   output lsu_ace_wack
 );
 
-  ace_if lsu_ace_if ();
+  ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) lsu_ace_if ();
 
   // AW channel signals
   assign lsu_ace_awid = lsu_ace_if.awid;
