@@ -6,8 +6,7 @@
 package offnariscv_pkg;
   import riscv_pkg::*;
   localparam XLEN = 32;
-  localparam ACE_AXADDR_WIDTH = 32;
-  localparam ACE_XDATA_WIDTH = 32;
+
   localparam ACE_XID_WIDTH = 1;
   localparam ACE_AXLEN_WIDTH = 8;
   localparam ACE_AXSIZE_WIDTH = 3;
@@ -23,11 +22,9 @@ package offnariscv_pkg;
   localparam ACE_AWSNOOP_WIDTH = 3;
   localparam ACE_DOMAIN_WIDTH = 2;
   localparam ACE_BAR_WIDTH = 4;
-  localparam ACE_ACADDR_WIDTH = ACE_AXADDR_WIDTH;
   localparam ACE_ACSNOOP_WIDTH = ACE_ARSNOOP_WIDTH;
   localparam ACE_ACPROT_WIDTH = ACE_AXPROT_WIDTH;
   localparam ACE_CRRESP_WIDTH = 5;
-  localparam ACE_CDDATA_WIDTH = ACE_XDATA_WIDTH;
 
   typedef enum logic [ACE_BRESP_WIDTH-1:0] {
     ACE_RESP_OKAY = 2'b00,
