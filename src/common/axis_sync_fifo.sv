@@ -125,7 +125,7 @@ module axis_sync_fifo_core #(
   end
 
   // Update registers
-  always_ff @(posedge clk or negedge rst_n) begin
+  always_ff @(posedge clk) begin
     if (!rst_n) begin
       wptr_q <= '0;
       rptr_q <= '0;

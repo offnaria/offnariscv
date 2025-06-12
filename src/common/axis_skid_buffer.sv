@@ -39,7 +39,7 @@ module axis_skid_buffer (
   assign axis_sif.tready = tready;
 
   // Update registers
-  always_ff @(posedge clk or negedge rst_n) begin
+  always_ff @(posedge clk) begin
     if (!rst_n) begin
       tvalid <= '0;
       tready <= '0;

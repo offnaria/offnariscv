@@ -30,7 +30,7 @@ module axis_slice (
   assign axis_sif.tready = !tvalid || axis_mif.tready;
 
   // Update registers
-  always_ff @(posedge clk or negedge rst_n) begin
+  always_ff @(posedge clk) begin
     if (!rst_n) begin
       tvalid <= '0;
       tdata <= '0;
