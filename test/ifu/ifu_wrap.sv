@@ -4,7 +4,7 @@ module ifu_wrap
   import offnariscv_pkg::*;
 (
   input clk,
-  input rst_n,
+  input rst,
 
   // AW channel signals
   output [ACE_XID_WIDTH-1:0] ifu_ace_awid,

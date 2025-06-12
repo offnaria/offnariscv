@@ -7,7 +7,7 @@ module ifu
   parameter RESET_VECTOR = 0
 ) (
   input clk,
-  input rst_n,
+  input rst,
 
   // To lower level memory
   ace_if.m ifu_ace_if,
@@ -153,7 +153,7 @@ module ifu
 
   // Update registers
   always_ff @(posedge clk) begin
-    if (!rst_n) begin
+    if (rst) begin
       pc_q <= XLEN'(RESET_VECTOR);
       state_q <= INIT;
       arvalid_q <= '0;
@@ -178,7 +178,7 @@ module ifu
 
   axis_skid_buffer ifid_pipe_reg (
     .clk(clk),
-    .rst_n(rst_n),
+    .rst(rst),
     .axis_mif(inst_axis_if),
     .axis_sif(ifid_pipe_reg_if),
     .invalidate(invalidate)

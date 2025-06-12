@@ -4,7 +4,7 @@ module lsu_wrap
   import offnariscv_pkg::*;
 (
   input clk,
-  input rst_n,
+  input rst,
 
   // AW channel signals
   output [ACE_XID_WIDTH-1:0] lsu_ace_awid,
@@ -175,7 +175,7 @@ module lsu_wrap
 
   lsu lsu_inst (
     .clk(clk),
-    .rst_n(rst_n),
+    .rst(rst),
     .lsu_ace_if(lsu_ace_if)
   );
 

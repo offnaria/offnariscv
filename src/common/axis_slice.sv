@@ -3,7 +3,7 @@
 // Register slice for AXI Stream interface
 module axis_slice (
   input logic clk,
-  input logic rst_n,
+  input logic rst,
   
   axis_if.m axis_mif, // Manager
   axis_if.s axis_sif, // Subordinate
@@ -31,7 +31,7 @@ module axis_slice (
 
   // Update registers
   always_ff @(posedge clk) begin
-    if (!rst_n) begin
+    if (rst) begin
       tvalid <= '0;
       tdata <= '0;
     end else begin

@@ -24,8 +24,8 @@ public:
         }
     }
     void reset(int n = 10) {
-        dut_wrap->rst_n = 0;
+        dut_wrap->rst = 1;
         step(n);
-        dut_wrap->rst_n = 1;
+        dut_wrap->rst = 0;
     }
 };

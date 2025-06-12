@@ -4,7 +4,7 @@ module offnariscv_core
   import offnariscv_pkg::*;
 (
   input clk,
-  input rst_n,
+  input rst,
 
   ace_if.m ifu_ace_if,
   ace_if.m lsu_ace_if
@@ -12,13 +12,13 @@ module offnariscv_core
 
   ifu ifu_inst (
     .clk(clk),
-    .rst_n(rst_n),
+    .rst(rst),
     .ifu_ace_if(ifu_ace_if)
   );
 
   lsu lsu_inst (
     .clk(clk),
-    .rst_n(rst_n),
+    .rst(rst),
     .lsu_ace_if(lsu_ace_if)
   );
 

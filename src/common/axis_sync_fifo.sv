@@ -5,7 +5,7 @@ module axis_sync_fifo #(
   parameter DEPTH = 4
 ) (
   input logic clk,
-  input logic rst_n,
+  input logic rst,
   
   axis_if.m axis_mif, // Manager
   axis_if.s axis_sif, // Subordinate
@@ -39,7 +39,7 @@ module axis_sync_fifo_core #(
   parameter DEPTH = 5 // 2**n + 1
 ) (
   input logic clk,
-  input logic rst_n,
+  input logic rst,
   
   axis_if.m axis_mif, // Manager
   axis_if.s axis_sif, // Subordinate
@@ -126,7 +126,7 @@ module axis_sync_fifo_core #(
 
   // Update registers
   always_ff @(posedge clk) begin
-    if (!rst_n) begin
+    if (rst) begin
       wptr_q <= '0;
       rptr_q <= '0;
       tvalid_q <= '0;
@@ -148,7 +148,7 @@ module axis_sync_fifo_core #(
     .ADDR_WIDTH(ADDR_WIDTH)
   ) ram_async_inst (
     .clk(clk),
-    .rst_n(rst_n),
+    .rst(rst),
     .wdata(wdata_ram),
     .waddr(waddr_ram),
     .wvalid(wvalid_ram),

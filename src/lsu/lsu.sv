@@ -4,7 +4,7 @@ module lsu
   import offnariscv_pkg::*;
 (
   input clk,
-  input rst_n,
+  input rst,
 
   ace_if.m lsu_ace_if
 );

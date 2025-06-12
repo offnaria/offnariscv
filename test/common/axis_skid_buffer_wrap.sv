@@ -4,7 +4,7 @@ module axis_skid_buffer_wrap # (
   localparam TDATA_WIDTH = 32
 ) (
   input logic clk,
-  input logic rst_n,
+  input logic rst,
 
   input logic sif_tvalid,
   input logic [TDATA_WIDTH-1:0] sif_tdata,

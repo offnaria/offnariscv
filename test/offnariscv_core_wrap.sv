@@ -4,7 +4,7 @@ module offnariscv_core_wrap
   import offnariscv_pkg::*;
 (
   input clk,
-  input rst_n,
+  input rst,
 
   // ifu
   output [ACE_XID_WIDTH-1:0] ifu_ace_awid,
@@ -274,7 +274,7 @@ module offnariscv_core_wrap
 
   offnariscv_core offnariscv_core_inst (
     .clk(clk),
-    .rst_n(rst_n),
+    .rst(rst),
     .ifu_ace_if(ifu_ace_if),
     .lsu_ace_if(lsu_ace_if)
   );

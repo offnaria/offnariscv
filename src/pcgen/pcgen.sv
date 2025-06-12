@@ -5,7 +5,7 @@ module pcgen
   import offnariscv_pkg::*;
 (
   input clk,
-  input rst_n,
+  input rst,
 
   // From/To Instruction Fetch Unit
   axis_if.m next_pc_axis_if,

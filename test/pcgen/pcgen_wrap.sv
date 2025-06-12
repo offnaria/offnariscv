@@ -4,7 +4,7 @@ module pcgen_wrap
   import offnariscv_pkg::*;
 (
   input clk,
-  input rst_n,
+  input rst,
 
   output logic [XLEN-1:0] next_pc_tdata,
   output logic next_pc_tvalid,
