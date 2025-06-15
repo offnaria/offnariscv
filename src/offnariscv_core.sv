@@ -8,8 +8,7 @@ module offnariscv_core
   input clk,
   input rst,
 
-  ace_if.m ifu_ace_if,
-  ace_if.m lsu_ace_if
+  ace_if.m core_ace_if
 );
 
   // Declare interfaces
@@ -36,7 +35,7 @@ module offnariscv_core
   ) ifu_inst (
     .clk(clk),
     .rst(rst),
-    .ifu_ace_if(ifu_ace_if),
+    .ifu_ace_if(core_ace_if),
     .next_pc_axis_if(next_pc_axis_if),
     .current_pc_axis_if(current_pc_axis_if),
     .inst_axis_if(ifid_axis_if),

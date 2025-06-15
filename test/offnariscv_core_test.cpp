@@ -10,22 +10,22 @@
 #include "Voffnariscv_core.h"
 
 static void init_dut(Dut<Voffnariscv_core>& dut) {
-  dut->ifu_ace_arready = 0;
-  dut->ifu_ace_rid = 0;
+  dut->core_ace_arready = 0;
+  dut->core_ace_rid = 0;
   for (int i = 0; i < 8; ++i) {
     // Assuming the block size is 256 bits (8 * 32 bits)
-    dut->ifu_ace_rdata[i] = 0;
+    dut->core_ace_rdata[i] = 0;
   }
-  dut->ifu_ace_rresp = 0;
-  dut->ifu_ace_rlast = 0;
-  dut->ifu_ace_ruser = 0;
-  dut->ifu_ace_rvalid = 0;
-  dut->ifu_ace_acvalid = 0;
-  dut->ifu_ace_acaddr = 0;
-  dut->ifu_ace_acsnoop = 0;
-  dut->ifu_ace_acprot = 0;
-  dut->ifu_ace_crready = 0;
-  dut->ifu_ace_cdready = 0;
+  dut->core_ace_rresp = 0;
+  dut->core_ace_rlast = 0;
+  dut->core_ace_ruser = 0;
+  dut->core_ace_rvalid = 0;
+  dut->core_ace_acvalid = 0;
+  dut->core_ace_acaddr = 0;
+  dut->core_ace_acsnoop = 0;
+  dut->core_ace_acprot = 0;
+  dut->core_ace_crready = 0;
+  dut->core_ace_cdready = 0;
 
   dut.reset();
 }
