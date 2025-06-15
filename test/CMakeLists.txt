@@ -11,19 +11,26 @@ add_subdirectory(ifu)
 add_subdirectory(lsu)
 add_subdirectory(pcgen)
 
-# add_executable(offnariscv_core_test offnariscv_core_test.cpp SimSpike.cpp)
-# add_dependencies(offnariscv_core_test riscv-isa-sim)
-# verilate(offnariscv_core_test
-#   SOURCES
-#     ../src/offnariscv_pkg.sv
-#     ../src/ace_if.sv
-#     ../src/ifu/ifu.sv
-#     ../src/lsu/lsu.sv
-#     ../src/offnariscv_core.sv
-#     offnariscv_core_wrap.sv
-#   TOP_MODULE
-#     offnariscv_core_wrap)
-# target_link_libraries(offnariscv_core_test PRIVATE Catch2::Catch2WithMain)
+add_executable(offnariscv_core_test offnariscv_core_test.cpp)
+target_include_directories(offnariscv_core_test PRIVATE ${CMAKE_SOURCE_DIR}/test)
+verilate(offnariscv_core_test
+  SOURCES
+    ../src/riscv_pkg.sv
+    ../src/offnariscv_pkg.sv
+    ../src/ace_if.sv
+    ../src/common/axis_if.sv
+    ../src/common/axis_skid_buffer.sv
+    ../src/pcgen/pcgen.sv
+    ../src/ifu/ifu.sv
+    # ../src/lsu/lsu.sv
+    ../src/offnariscv_core.sv
+    offnariscv_core_wrap.sv
+  TOP_MODULE
+    offnariscv_core_wrap
+  PREFIX
+    Voffnariscv_core)
+target_link_libraries(offnariscv_core_test PRIVATE Catch2::Catch2WithMain)
+catch_discover_tests(offnariscv_core_test)
 # target_include_directories(offnariscv_core_test PRIVATE
 #   ../ext/riscv-isa-sim/riscv-isa-sim
 #   ../ext/riscv-isa-sim/riscv-isa-sim/riscv
@@ -37,4 +44,3 @@ add_subdirectory(pcgen)
 #     ${CMAKE_BINARY_DIR}/ext/riscv-isa-sim/riscv-isa-sim/libsoftfloat.a
 #     ${CMAKE_BINARY_DIR}/ext/riscv-isa-sim/riscv-isa-sim/libspike_dasm.a
 #     ${CMAKE_BINARY_DIR}/ext/riscv-isa-sim/riscv-isa-sim/libspike_main.a)
-# catch_discover_tests(offnariscv_core_test)

@@ -2,38 +2,14 @@
 
 module offnariscv_core_wrap
   import offnariscv_pkg::*;
-(
+# (
+  localparam ACE_XDATA_WIDTH = 256,
+  localparam ACE_AXADDR_WIDTH = 32
+) (
   input clk,
   input rst,
 
   // ifu
-  output [ACE_XID_WIDTH-1:0] ifu_ace_awid,
-  output [ACE_AXADDR_WIDTH-1:0] ifu_ace_awaddr,
-  output [ACE_AXLEN_WIDTH-1:0] ifu_ace_awlen,
-  output [ACE_AXSIZE_WIDTH-1:0] ifu_ace_awsize,
-  output [ACE_AXBURST_WIDTH-1:0] ifu_ace_awburst,
-  output ifu_ace_awlock,
-  output [ACE_AXCACHE_WIDTH-1:0] ifu_ace_awcache,
-  output [ACE_AXPROT_WIDTH-1:0] ifu_ace_awprot,
-  output [ACE_AXQOS_WIDTH-1:0] ifu_ace_awqos,
-  output [ACE_AXREGION_WIDTH-1:0] ifu_ace_awregion,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_awuser,
-  output ifu_ace_awvalid,
-  input  ifu_ace_awready,
-  output [ACE_AWSNOOP_WIDTH-1:0] ifu_ace_awsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] ifu_ace_awdomain,
-  output [ACE_BAR_WIDTH-1:0] ifu_ace_awbar,
-  output [ACE_XDATA_WIDTH-1:0] ifu_ace_wdata,
-  output [ACE_XDATA_WIDTH/8-1:0] ifu_ace_wstrb,
-  output ifu_ace_wlast,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_wuser,
-  output ifu_ace_wvalid,
-  input  ifu_ace_wready,
-  input  [ACE_XID_WIDTH-1:0] ifu_ace_bid,
-  input  [ACE_BRESP_WIDTH-1:0] ifu_ace_bresp,
-  input  [ACE_XUSER_WIDTH-1:0] ifu_ace_buser,
-  input  ifu_ace_bvalid,
-  output ifu_ace_bready,
   output [ACE_XID_WIDTH-1:0] ifu_ace_arid,
   output [ACE_AXADDR_WIDTH-1:0] ifu_ace_araddr,
   output [ACE_AXLEN_WIDTH-1:0] ifu_ace_arlen,
@@ -59,7 +35,7 @@ module offnariscv_core_wrap
   output ifu_ace_rready,
   input  ifu_ace_acvalid,
   output ifu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] ifu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] ifu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] ifu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] ifu_ace_acprot,
   output ifu_ace_crvalid,
@@ -67,7 +43,7 @@ module offnariscv_core_wrap
   output [ACE_CRRESP_WIDTH-1:0] ifu_ace_crresp,
   output ifu_ace_cdvalid,
   input  ifu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] ifu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] ifu_ace_cddata,
   output ifu_ace_cdlast,
   output ifu_ace_rack,
   output ifu_ace_wack,
@@ -125,7 +101,7 @@ module offnariscv_core_wrap
   output lsu_ace_rready,
   input  lsu_ace_acvalid,
   output lsu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] lsu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] lsu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] lsu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] lsu_ace_acprot,
   output lsu_ace_crvalid,
@@ -133,7 +109,7 @@ module offnariscv_core_wrap
   output [ACE_CRRESP_WIDTH-1:0] lsu_ace_crresp,
   output lsu_ace_cdvalid,
   input  lsu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] lsu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] lsu_ace_cddata,
   output lsu_ace_cdlast,
   output lsu_ace_rack,
   output lsu_ace_wack
@@ -142,33 +118,6 @@ module offnariscv_core_wrap
   ace_if ifu_ace_if ();
   ace_if lsu_ace_if ();
 
-  assign ifu_ace_awid = ifu_ace_if.awid;
-  assign ifu_ace_awaddr = ifu_ace_if.awaddr;
-  assign ifu_ace_awlen = ifu_ace_if.awlen;
-  assign ifu_ace_awsize = ifu_ace_if.awsize;
-  assign ifu_ace_awburst = ifu_ace_if.awburst;
-  assign ifu_ace_awlock = ifu_ace_if.awlock;
-  assign ifu_ace_awcache = ifu_ace_if.awcache;
-  assign ifu_ace_awprot = ifu_ace_if.awprot;
-  assign ifu_ace_awqos = ifu_ace_if.awqos;
-  assign ifu_ace_awregion = ifu_ace_if.awregion;
-  assign ifu_ace_awuser = ifu_ace_if.awuser;
-  assign ifu_ace_awvalid = ifu_ace_if.awvalid;
-  assign ifu_ace_if.awready = ifu_ace_awready;
-  assign ifu_ace_awsnoop = ifu_ace_if.awsnoop;
-  assign ifu_ace_awdomain = ifu_ace_if.awdomain;
-  assign ifu_ace_awbar = ifu_ace_if.awbar;
-  assign ifu_ace_wdata = ifu_ace_if.wdata;
-  assign ifu_ace_wstrb = ifu_ace_if.wstrb;
-  assign ifu_ace_wlast = ifu_ace_if.wlast;
-  assign ifu_ace_wuser = ifu_ace_if.wuser;
-  assign ifu_ace_wvalid = ifu_ace_if.wvalid;
-  assign ifu_ace_if.wready = ifu_ace_wready;
-  assign ifu_ace_if.bid = ifu_ace_bid;
-  assign ifu_ace_if.bresp = ifu_ace_bresp;
-  assign ifu_ace_if.buser = ifu_ace_buser;
-  assign ifu_ace_if.bvalid = ifu_ace_bvalid;
-  assign ifu_ace_bready = ifu_ace_if.bready;
   assign ifu_ace_arid = ifu_ace_if.arid;
   assign ifu_ace_araddr = ifu_ace_if.araddr;
   assign ifu_ace_arlen = ifu_ace_if.arlen;
@@ -272,7 +221,9 @@ module offnariscv_core_wrap
   assign lsu_ace_rack = lsu_ace_if.rack;
   assign lsu_ace_wack = lsu_ace_if.wack;
 
-  offnariscv_core offnariscv_core_inst (
+  offnariscv_core #(
+    .RESET_VECTOR(0)
+  ) offnariscv_core_inst (
     .clk(clk),
     .rst(rst),
     .ifu_ace_if(ifu_ace_if),
