@@ -30,6 +30,7 @@ verilate(offnariscv_core_test
   PREFIX
     Voffnariscv_core)
 target_link_libraries(offnariscv_core_test PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(offnariscv_core_test PRIVATE elfio)
 catch_discover_tests(offnariscv_core_test)
 # target_include_directories(offnariscv_core_test PRIVATE
 #   ../ext/riscv-isa-sim/riscv-isa-sim
