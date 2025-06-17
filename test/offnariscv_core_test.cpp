@@ -82,10 +82,10 @@ Tester::Tester(const std::string& test) {
       auto ppn = addr & PAGE_NUMBER_MASK;
       memory.emplace(
           ppn, std::vector<std::uint8_t>(p, std::min(p + PAGE_SIZE, end_data)));
-      // if (p + PAGE_SIZE - 1 > end_addr) {
-      //   // Fill the last page with zeros if it is not fully filled
-      //   memory[ppn].resize(PAGE_SIZE, 0);
-      // }
+      if (p + PAGE_SIZE != end_data) {
+        // Fill the last page with zeros if it is not fully filled
+        memory[ppn].resize(PAGE_SIZE);
+      }
     }
   }
   REQUIRE(!memory.empty());
@@ -97,6 +97,15 @@ Tester::Tester(const std::string& test) {
              0xb7, 0x00, 0x00, 0x80,  // lui x1, 0x80000000
              0x67, 0x80, 0x00, 0x00,  // jalr x0, 0(x1); Jump to text_init
          }));
+
+  // // Dump memory
+  // for (const auto& [ppn, data] : memory) {
+  //   std::print("Memory at {:#010x}:\n", ppn);
+  //   for (int i = 0; i < data.size(); i += 4) {
+  //     std::print("{} {:#010x}\n", i,
+  //                *reinterpret_cast<const uint32_t*>(&data[i]));
+  //   }
+  // }
 
   init_dut();
 }
