@@ -19,6 +19,9 @@ constexpr int PAGE_SIZE = 4096;
 constexpr int PAGE_OFFSET_MASK = PAGE_SIZE - 1;
 constexpr int PAGE_NUMBER_MASK = ~PAGE_OFFSET_MASK;
 
+constexpr int BLOCK_BYTES = 32;  // Assuming each block is 32 bytes (256 bits)
+constexpr int BLOCK_MASK = ~(BLOCK_BYTES - 1);
+
 class Tester {
   Dut<Voffnariscv_core> dut;
   std::unordered_map<std::uint32_t, std::vector<std::uint8_t>> memory;
@@ -27,6 +30,7 @@ class Tester {
 
  public:
   Tester(const std::string& test);
+  void step_wrap();
 };
 
 void Tester::init_dut() {
@@ -92,11 +96,18 @@ Tester::Tester(const std::string& test) {
   REQUIRE(!memory.contains(0));
   REQUIRE(text_init == 0x80000000);  // Assuming text_init is at this address
 
-  memory.emplace(
-      0, std::vector<std::uint8_t>({
-             0xb7, 0x00, 0x00, 0x80,  // lui x1, 0x80000000
-             0x67, 0x80, 0x00, 0x00,  // jalr x0, 0(x1); Jump to text_init
-         }));
+  memory.emplace(0, std::vector<std::uint8_t>(PAGE_SIZE));
+  auto& init_data = memory[0];
+  // lui x1, 0x80000000
+  init_data[0] = 0xb7;
+  init_data[1] = 0x00;
+  init_data[2] = 0x00;
+  init_data[3] = 0x80;
+  // jalr x0, 0(x1); Jump to text_init
+  init_data[4] = 0x67;
+  init_data[5] = 0x80;
+  init_data[6] = 0x00;
+  init_data[7] = 0x00;
 
   // // Dump memory
   // for (const auto& [ppn, data] : memory) {
@@ -110,8 +121,43 @@ Tester::Tester(const std::string& test) {
   init_dut();
 }
 
+void Tester::step_wrap() {
+  // NOTE: This method might not work, if there is a load/store queue
+  auto rready = dut->core_ace_rready;
+  dut->core_ace_arready = 1;
+  if (dut->core_ace_arvalid) {
+    auto araddr = dut->core_ace_araddr;
+    dut->core_ace_rvalid = 1;
+    auto ppn = araddr & PAGE_NUMBER_MASK;
+    if (memory.contains(ppn)) {
+      std::print("araddr: {:#010x}\n", araddr);
+      std::print("rdata:");
+      auto offset =
+          araddr & PAGE_OFFSET_MASK & BLOCK_MASK;  // e.g. araddr[11:6]
+      for (int i = 0; i < BLOCK_BYTES; i += 4) {
+        dut->core_ace_rdata[i] =
+            *reinterpret_cast<const uint32_t*>(&memory[ppn][offset + i]);
+        std::print(" {:#010x}", dut->core_ace_rdata[i]);
+      }
+      std::print("\n");
+      dut->core_ace_rresp = 0;  // OKAY
+    } else {
+      std::print("Read from uninitialized memory at {:#010x}\n", araddr);
+      dut->core_ace_rresp = 2;  // SLVERR
+    }
+  }
+
+  dut.step();
+
+  if (rready) {
+    dut->core_ace_rvalid = 0;
+  }
+}
+
 static int run_simulation(Tester& tester) {
-  std::print("hoge\n");
+  for (int i = 0; i < 100; ++i) {
+    tester.step_wrap();
+  }
   return 1;
 }
 
