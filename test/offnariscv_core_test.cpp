@@ -134,9 +134,9 @@ void Tester::step_wrap() {
       std::print("rdata:");
       auto offset =
           araddr & PAGE_OFFSET_MASK & BLOCK_MASK;  // e.g. araddr[11:6]
-      for (int i = 0; i < BLOCK_BYTES; i += 4) {
+      for (int i = 0; i < BLOCK_BYTES / 4; ++i) {
         dut->core_ace_rdata[i] =
-            *reinterpret_cast<const uint32_t*>(&memory[ppn][offset + i]);
+            *reinterpret_cast<const uint32_t*>(&memory[ppn][offset + 4 * i]);
         std::print(" {:#010x}", dut->core_ace_rdata[i]);
       }
       std::print("\n");
