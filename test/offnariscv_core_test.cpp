@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <elfio/elfio.hpp>
 #include <filesystem>
+#include <fstream>
 #include <print>
 #include <string>
 #include <unordered_map>
@@ -25,12 +26,14 @@ constexpr int BLOCK_MASK = ~(BLOCK_BYTES - 1);
 class Tester {
   Dut<Voffnariscv_core> dut;
   std::unordered_map<std::uint32_t, std::vector<std::uint8_t>> memory;
+  bool kanata_log_enabled;
+  std::ofstream kanata_log;
 
   void init_dut();
 
  public:
   Tester(const std::string& test);
-  void step_wrap();
+  void step();
 };
 
 void Tester::init_dut() {
@@ -118,10 +121,22 @@ Tester::Tester(const std::string& test) {
   //   }
   // }
 
+  // Set up Kanata log
+  kanata_log_enabled = true;  // Change this to false to disable Kanata logging
+  if (kanata_log_enabled) {
+    kanata_log.open(test + ".kanata.log");
+    REQUIRE(kanata_log.is_open());
+    std::print(kanata_log,
+               "Kanata\t0004\n"
+               "C=\t0\n"
+               "I\t0\t0\t0\n"
+               "S\t0\t0\tF\n");
+  }
+
   init_dut();
 }
 
-void Tester::step_wrap() {
+void Tester::step() {
   // NOTE: This method might not work, if there is a load/store queue
   auto rready = dut->core_ace_rready;
   dut->core_ace_arready = 1;
@@ -147,7 +162,25 @@ void Tester::step_wrap() {
     }
   }
 
-  dut.step();
+  dut->clk = 0;
+  dut->eval();
+
+  // To observe the internal state of the DUT, we should do it between negedge
+  // evaluation and posedge evaluation
+
+  //  Update Kanata log
+  if (kanata_log_enabled) {
+    const char* kanata_log_buf;
+    svSetScope(svGetScopeFromName("TOP.offnariscv_core_wrap"));
+    dut->kanata_log_dut(&kanata_log_buf);
+    std::print(kanata_log,
+               "{}"
+               "C\t1\n",
+               kanata_log_buf);
+  }
+
+  dut->clk = 1;
+  dut->eval();
 
   if (rready) {
     dut->core_ace_rvalid = 0;
@@ -156,7 +189,7 @@ void Tester::step_wrap() {
 
 static int run_simulation(Tester& tester) {
   for (int i = 0; i < 100; ++i) {
-    tester.step_wrap();
+    tester.step();
   }
   return 1;
 }

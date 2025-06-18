@@ -150,4 +150,21 @@ module offnariscv_core_wrap
     .core_ace_if(core_ace_if)
   );
 
+  export "DPI-C" task kanata_log_dut;
+  task kanata_log_dut;
+    output string log_file;
+    string s0, s1;
+    if (offnariscv_core_inst.ifu_inst.state_q == 0) begin // IDLE state
+      logic [INST_ID_WIDTH-1:0] id;
+      assign id = offnariscv_core_inst.ifu_inst.inst_id_q;
+      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tF\n", id, id, id);
+    end else $sformat(s0, "");
+    if (offnariscv_core_inst.ifid_axis_if.ack()) begin
+      ifid_tdata_t tdata;
+      assign tdata = offnariscv_core_inst.ifid_axis_if.tdata;
+      $sformat(s1, "S\t%0d\t0\tD\nL\t%0d\t0\t%08x\n", tdata.id, tdata.id, tdata.inst);
+    end else $sformat(s1, "");
+    $sformat(log_file, "%s%s", s0, s1);
+  endtask
+
 endmodule
