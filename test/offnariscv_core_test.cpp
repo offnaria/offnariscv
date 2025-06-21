@@ -130,7 +130,7 @@ Tester::Tester(const std::string& test) {
                "Kanata\t0004\n"
                "C=\t0\n"
                "I\t0\t0\t0\n"
-               "S\t0\t0\tF\n");
+               "S\t0\t0\tIF\n");
   }
 
   init_dut();

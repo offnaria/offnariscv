@@ -19,10 +19,19 @@ verilate(offnariscv_core_test
     ../src/offnariscv_pkg.sv
     ../src/ace_if.sv
     ../src/common/axis_if.sv
+    ../src/common/axis_slice.sv
     ../src/common/axis_skid_buffer.sv
+    ../src/common/ram_async.sv
+    ../src/common/axis_sync_fifo.sv
     ../src/pcgen/pcgen.sv
     ../src/ifu/ifu.sv
+    ../src/decoder/decoder.sv
+    ../src/regfile/regfile.sv
+    ../src/execute/dispatcher.sv
+    ../src/execute/alu.sv
+    ../src/execute/bru.sv
     # ../src/lsu/lsu.sv
+    ../src/committer/committer.sv
     ../src/offnariscv_core.sv
     offnariscv_core_wrap.sv
   TOP_MODULE

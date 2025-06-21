@@ -150,21 +150,90 @@ module offnariscv_core_wrap
     .core_ace_if(core_ace_if)
   );
 
+  logic wbrf_prev_ack;
+  wbrf_tdata_t wbrf_prev_tdata;
+  always_ff @(posedge clk) begin
+    if (rst) begin
+      wbrf_prev_ack <= '0;
+      wbrf_prev_tdata <= '0;
+    end else begin
+      wbrf_prev_ack <= offnariscv_core_inst.wbrf_axis_if.ack();
+      wbrf_prev_tdata <= offnariscv_core_inst.wbrf_axis_if.tdata;
+      $write("ifid: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.ifid_axis_if.tvalid,
+             offnariscv_core_inst.ifid_axis_if.tready,
+             offnariscv_core_inst.ifid_axis_if.ack());
+      $write("idrf: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.idrf_axis_if.tvalid,
+             offnariscv_core_inst.idrf_axis_if.tready,
+             offnariscv_core_inst.idrf_axis_if.ack());
+      $write("rfex: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.rfex_axis_if.tvalid,
+             offnariscv_core_inst.rfex_axis_if.tready,
+             offnariscv_core_inst.rfex_axis_if.ack());
+      $write("exwb: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.exwb_axis_if.tvalid,
+             offnariscv_core_inst.exwb_axis_if.tready,
+             offnariscv_core_inst.exwb_axis_if.ack());
+      $write("wbrf: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.wbrf_axis_if.tvalid,
+             offnariscv_core_inst.wbrf_axis_if.tready,
+             offnariscv_core_inst.wbrf_axis_if.ack());
+      for (int i = 0; i < 32; i++) begin
+        $write("rf[%0d] = %08x\n", i, offnariscv_core_inst.regfile_inst.rf_mem[i]);
+      end
+      if (offnariscv_core_inst.wbrf_axis_if.ack()) begin
+        wbrf_tdata_t tdata;
+        assign tdata = offnariscv_core_inst.wbrf_axis_if.tdata;
+        $write("pc=%08x, rd=%0d, wdata=%08x\n",
+               tdata.ex_data.rf_data.id_data.if_data.pc,
+               tdata.ex_data.rf_data.id_data.rd,
+               tdata.wdata);
+      end
+      if (offnariscv_core_inst.wbpcg_axis_if.ack()) begin
+        bruwb_tdata_t tdata;
+        assign tdata = offnariscv_core_inst.bruwb_axis_if.tdata;
+        $write("new_pc=%08x, taken=%0d\n", tdata.new_pc, tdata.taken);
+      end
+      $write("\n");
+    end
+  end
+
+  int ret_cnt = 0;
   export "DPI-C" task kanata_log_dut;
   task kanata_log_dut;
     output string log_file;
-    string s0, s1;
+    string s0, s1, s2, s3, s4, s5;
     if (offnariscv_core_inst.ifu_inst.state_q == 0) begin // IDLE state
       logic [INST_ID_WIDTH-1:0] id;
       assign id = offnariscv_core_inst.ifu_inst.inst_id_q;
-      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tF\n", id, id, id);
+      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tIF\n", id, id, id);
     end else $sformat(s0, "");
     if (offnariscv_core_inst.ifid_axis_if.ack()) begin
       ifid_tdata_t tdata;
       assign tdata = offnariscv_core_inst.ifid_axis_if.tdata;
-      $sformat(s1, "S\t%0d\t0\tD\nL\t%0d\t0\t%08x\n", tdata.id, tdata.id, tdata.inst);
+      $sformat(s1, "S\t%0d\t0\tID\nL\t%0d\t0\t%08x %08x\n", tdata.id, tdata.id, tdata.pc, tdata.inst);
     end else $sformat(s1, "");
-    $sformat(log_file, "%s%s", s0, s1);
+    if (offnariscv_core_inst.idrf_axis_if.ack()) begin
+      idrf_tdata_t tdata;
+      assign tdata = offnariscv_core_inst.idrf_axis_if.tdata;
+      $sformat(s2, "S\t%0d\t0\tRF\n", tdata.if_data.id);
+    end else $sformat(s2, "");
+    if (offnariscv_core_inst.rfex_axis_if.ack()) begin
+      rfex_tdata_t tdata;
+      assign tdata = offnariscv_core_inst.rfex_axis_if.tdata;
+      $sformat(s3, "S\t%0d\t0\tEX\n", tdata.id_data.if_data.id);
+    end else $sformat(s3, "");
+    if (offnariscv_core_inst.exwb_axis_if.ack()) begin
+      exwb_tdata_t tdata;
+      assign tdata = offnariscv_core_inst.exwb_axis_if.tdata;
+      $sformat(s4, "S\t%0d\t0\tWB\n", tdata.rf_data.id_data.if_data.id);
+    end else $sformat(s4, "");
+    if (wbrf_prev_ack) begin
+      $sformat(s5, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.id, ret_cnt);
+      ret_cnt++;
+    end else $sformat(s5, "");
+    $sformat(log_file, "%s%s%s%s%s%s", s0, s1, s2, s3, s4, s5);
   endtask
 
 endmodule

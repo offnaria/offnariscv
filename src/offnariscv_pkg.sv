@@ -51,6 +51,83 @@ package offnariscv_pkg;
     int_exc_code_u int_exc_code;
   } ifid_tdata_t;
 
+  typedef enum logic [2:0] {
+    ADD
+  } alu_cmd_e;
+
+  typedef enum logic [2:0] {
+    BRU_JAL,
+    BRU_JALR,
+    BRU_BEQ,
+    BRU_BNE,
+    BRU_BLT,
+    BRU_BGE,
+    BRU_BLTU,
+    BRU_BGEU
+  } bru_cmd_e;
+
+  typedef struct packed {
+    logic rf; // Forwarding is needed at RF stage
+    logic ex; // Forwarding is needed at EX stage
+  } fwd_t;
+
+  typedef struct packed {
+    logic [4:0] rs1;
+    logic [4:0] rs2;
+    logic [4:0] rd;
+    logic [XLEN-1:0] immediate;
+    logic [XLEN-1:0] auipc; // PC value used by AUIPC instruction
+    fwd_t fwd_rs1;
+    fwd_t fwd_rs2;
+    alu_cmd_e alu_cmd;
+    logic alu_cmd_vld;
+    bru_cmd_e bru_cmd;
+    logic bru_cmd_vld;
+    ifid_tdata_t if_data;
+  } idrf_tdata_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0] op1;
+    logic [XLEN-1:0] op2;
+  } operands_t;
+
+  typedef struct packed {
+    operands_t operands;
+    logic [XLEN-1:0] rs2_data; // For store
+    idrf_tdata_t id_data;
+  } rfex_tdata_t;
+
+  typedef struct packed {
+    operands_t operands;
+    alu_cmd_e cmd;
+  } rfalu_tdata_t;
+
+  typedef struct packed {
+    operands_t operands;
+    logic [XLEN-1:0] offset;
+    logic [XLEN-1:0] this_pc;
+    bru_cmd_e cmd;
+  } rfbru_tdata_t;
+
+  typedef struct packed {
+    rfex_tdata_t rf_data;
+  } exwb_tdata_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0] wdata;
+    exwb_tdata_t ex_data;
+  } wbrf_tdata_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0] result;
+  } aluwb_tdata_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0] result;
+    logic [XLEN-1:0] new_pc;
+    logic taken;
+  } bruwb_tdata_t;
+
 endpackage
 
 `endif
