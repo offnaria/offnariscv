@@ -238,8 +238,7 @@ module offnariscv_core_wrap
     end else $sformat(s5, "");
     if (prev_invalidate) begin
       for (longint i = wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.id + 1; i < offnariscv_core_inst.ifu_inst.inst_id_q; ++i) begin
-        $sformat(s6, "%sR\t%0d\t%0d\t1\n", s6, i, ret_cnt);
-        ret_cnt++;
+        $sformat(s6, "%sR\t%0d\t-1\t1\n", s6, i);
       end
     end else $sformat(s6, "");
     $sformat(log_file, "%s%s%s%s%s%s%s", s0, s1, s2, s3, s4, s5, s6);
