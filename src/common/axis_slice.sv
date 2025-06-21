@@ -8,7 +8,7 @@ module axis_slice (
   axis_if.m axis_mif, // Manager
   axis_if.s axis_sif, // Subordinate
 
-  input logic invalidate // TODO
+  input logic invalidate
 );
 
   // Define local parameters
@@ -34,6 +34,8 @@ module axis_slice (
     if (rst) begin
       tvalid <= '0;
       tdata <= '0;
+    end else if (invalidate) begin
+      tvalid <= '0;
     end else begin
       if (axis_sif.tready) begin
         tvalid <= axis_sif.tvalid;

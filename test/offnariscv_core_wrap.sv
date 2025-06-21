@@ -152,13 +152,16 @@ module offnariscv_core_wrap
 
   logic wbrf_prev_ack;
   wbrf_tdata_t wbrf_prev_tdata;
+  logic prev_invalidate;
   always_ff @(posedge clk) begin
     if (rst) begin
       wbrf_prev_ack <= '0;
       wbrf_prev_tdata <= '0;
+      prev_invalidate <= '0;
     end else begin
       wbrf_prev_ack <= offnariscv_core_inst.wbrf_axis_if.ack();
       wbrf_prev_tdata <= offnariscv_core_inst.wbrf_axis_if.tdata;
+      prev_invalidate <= offnariscv_core_inst.invalidate;
       $write("ifid: tvalid=%0d, tready=%0d, ack=%0d\n",
              offnariscv_core_inst.ifid_axis_if.tvalid,
              offnariscv_core_inst.ifid_axis_if.tready,
@@ -203,7 +206,7 @@ module offnariscv_core_wrap
   export "DPI-C" task kanata_log_dut;
   task kanata_log_dut;
     output string log_file;
-    string s0, s1, s2, s3, s4, s5;
+    string s0, s1, s2, s3, s4, s5, s6;
     if (offnariscv_core_inst.ifu_inst.state_q == 0) begin // IDLE state
       logic [INST_ID_WIDTH-1:0] id;
       assign id = offnariscv_core_inst.ifu_inst.inst_id_q;
@@ -233,7 +236,13 @@ module offnariscv_core_wrap
       $sformat(s5, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.id, ret_cnt);
       ret_cnt++;
     end else $sformat(s5, "");
-    $sformat(log_file, "%s%s%s%s%s%s", s0, s1, s2, s3, s4, s5);
+    if (prev_invalidate) begin
+      for (longint i = wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.id + 1; i < offnariscv_core_inst.ifu_inst.inst_id_q; ++i) begin
+        $sformat(s6, "%sR\t%0d\t%0d\t1\n", s6, i, ret_cnt);
+        ret_cnt++;
+      end
+    end else $sformat(s6, "");
+    $sformat(log_file, "%s%s%s%s%s%s%s", s0, s1, s2, s3, s4, s5, s6);
   endtask
 
 endmodule

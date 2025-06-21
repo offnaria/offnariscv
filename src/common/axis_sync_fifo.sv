@@ -133,6 +133,11 @@ module axis_sync_fifo_core #(
       tdata_q <= '0;
       tready_q <= '0;
       empty_q <= '0;
+    end else if (invalidate) begin
+      wptr_q <= '0;
+      rptr_q <= '0;
+      tvalid_q <= '0;
+      tready_q <= '0;
     end else begin
       wptr_q <= wptr_d;
       rptr_q <= rptr_d;

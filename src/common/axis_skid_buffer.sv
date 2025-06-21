@@ -46,6 +46,10 @@ module axis_skid_buffer (
       tdata <= '0;
       skid_tvalid <= '0;
       skid_tdata <= '0;
+    end else if (invalidate) begin
+      tvalid <= '0;
+      tready <= '0;
+      skid_tvalid <= '0;
     end else begin
       if (!tvalid || axis_mif.tready) begin
         tvalid <= skid_tvalid || s_handshake;
