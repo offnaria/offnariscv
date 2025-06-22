@@ -36,22 +36,34 @@ module bru
         bruwb_tdata.taken = 1'b1;
       end
       BRU_BEQ: begin
-
+        if (rfbru_tdata.operands.op1 == rfbru_tdata.operands.op2) begin
+          bruwb_tdata.taken = 1'b1;
+        end
       end
       BRU_BNE: begin
-
+        if (rfbru_tdata.operands.op1 != rfbru_tdata.operands.op2) begin
+          bruwb_tdata.taken = 1'b1;
+        end
       end
       BRU_BLT: begin
-
+        if ($signed(rfbru_tdata.operands.op1) < $signed(rfbru_tdata.operands.op2)) begin
+          bruwb_tdata.taken = 1'b1;
+        end
       end
       BRU_BGE: begin
-
+        if ($signed(rfbru_tdata.operands.op1) >= $signed(rfbru_tdata.operands.op2)) begin
+          bruwb_tdata.taken = 1'b1;
+        end
       end
       BRU_BLTU: begin
-
+        if (rfbru_tdata.operands.op1 < rfbru_tdata.operands.op2) begin
+          bruwb_tdata.taken = 1'b1;
+        end
       end
       BRU_BGEU: begin
-
+        if (rfbru_tdata.operands.op1 >= rfbru_tdata.operands.op2) begin
+          bruwb_tdata.taken = 1'b1;
+        end
       end
     endcase
 

@@ -151,10 +151,23 @@ module decoder
         idrf_tdata.alu_cmd = ADD; // TODO
       end
       idrf_tdata.bru_cmd_vld: begin
-        unique case (1'b1)
-          opcode == JAL: idrf_tdata.bru_cmd = BRU_JAL;
-          opcode == JALR: idrf_tdata.bru_cmd = BRU_JALR;
-          default: idrf_tdata.bru_cmd = BRU_BEQ; // TODO
+        unique case (opcode)
+          BRANCH: unique case (inst.b.funct3)
+            3'b000: idrf_tdata.bru_cmd = BRU_BEQ;
+            3'b001: idrf_tdata.bru_cmd = BRU_BNE;
+            3'b100: idrf_tdata.bru_cmd = BRU_BLT;
+            3'b101: idrf_tdata.bru_cmd = BRU_BGE;
+            3'b110: idrf_tdata.bru_cmd = BRU_BLTU;
+            3'b111: idrf_tdata.bru_cmd = BRU_BGEU;
+            default: begin
+              // Invalid instruction, raise an exception
+            end
+          endcase
+          JAL: idrf_tdata.bru_cmd = BRU_JAL;
+          JALR: idrf_tdata.bru_cmd = BRU_JALR;
+          default: begin
+            // Invalid instruction, raise an exception
+          end
         endcase
       end
     endcase
