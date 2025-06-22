@@ -79,6 +79,8 @@ module decoder
 
   // Declare interfaces
   axis_if #(.TDATA_WIDTH($bits(idrf_tdata_t))) idrf_fifo_if ();
+  axis_if #(.TDATA_WIDTH(5)) prev_rd_sif ();
+  axis_if #(.TDATA_WIDTH(5)) prev_rd_mif ();
 
   // Declare wires
   ifid_tdata_t ifid_tdata;
@@ -136,10 +138,10 @@ module decoder
       end
     endcase
 
-    idrf_tdata.fwd_rs1.rf = 1'b1; // TODO
-    idrf_tdata.fwd_rs1.ex = 1'b0; // TODO
-    idrf_tdata.fwd_rs2.rf = 1'b0; // TODO
-    idrf_tdata.fwd_rs2.ex = 1'b0; // TODO
+    idrf_tdata.fwd_rs1.rf = (idrf_tdata.rs1 != '0);
+    idrf_tdata.fwd_rs1.ex = (idrf_tdata.rs1 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs1 == prev_rd_mif.tdata));
+    idrf_tdata.fwd_rs2.rf = (idrf_tdata.rs2 != '0);
+    idrf_tdata.fwd_rs2.ex = (idrf_tdata.rs2 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs2 == prev_rd_mif.tdata));
 
     // Prepare commands
     idrf_tdata.alu_cmd_vld = opcode inside {OP_IMM, AUIPC, OP, LUI};
@@ -178,6 +180,10 @@ module decoder
     idrf_fifo_if.tdata = idrf_tdata;
     idrf_fifo_if.tvalid = ifid_axis_if.tvalid;
     ifid_axis_if.tready = idrf_fifo_if.tready;
+
+    prev_rd_sif.tdata = idrf_tdata.rd;
+    prev_rd_sif.tvalid = idrf_fifo_if.tvalid && (idrf_tdata.rd != '0);
+    prev_rd_mif.tready = idrf_fifo_if.tready;
   end
 
   // Instantiate FIFO
@@ -188,6 +194,14 @@ module decoder
     .rst(rst),
     .axis_mif(idrf_axis_if),
     .axis_sif(idrf_fifo_if),
+    .invalidate(invalidate)
+  );
+
+  axis_slice prev_rd_slice (
+    .clk(clk),
+    .rst(rst),
+    .axis_mif(prev_rd_mif),
+    .axis_sif(prev_rd_sif),
     .invalidate(invalidate)
   );
 
