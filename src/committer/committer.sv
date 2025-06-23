@@ -35,11 +35,10 @@ module committer
     endcase
     wbrf_tdata.ex_data = exwb_tdata;
 
-    exwb_axis_if.tready = wbrf_axis_if.tready && wbpcg_axis_if.tready
-                                              && ((aluwb_axis_if.tvalid && exwb_tdata.rf_data.id_data.alu_cmd_vld) || 
-                                                  (bruwb_axis_if.tvalid && exwb_tdata.rf_data.id_data.bru_cmd_vld));
+    exwb_axis_if.tready = wbrf_axis_if.tready && ((!exwb_tdata.rf_data.id_data.alu_cmd_vld || aluwb_axis_if.tvalid) && 
+                                                  (!exwb_tdata.rf_data.id_data.bru_cmd_vld || (bruwb_axis_if.tvalid && (!bruwb_tdata.taken || wbpcg_axis_if.tready))));
     aluwb_axis_if.tready = wbrf_axis_if.tready;
-    bruwb_axis_if.tready = wbrf_axis_if.tready;
+    bruwb_axis_if.tready = wbrf_axis_if.tready && (!bruwb_tdata.taken || wbpcg_axis_if.tready);
 
     wbrf_axis_if.tdata = wbrf_tdata;
     wbrf_axis_if.tvalid = exwb_axis_if.tvalid && exwb_axis_if.tready;

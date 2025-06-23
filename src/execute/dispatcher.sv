@@ -4,7 +4,7 @@
 module dispatcher
   import offnariscv_pkg::*;
 # (
-  parameter FIFO_DEPTH = 2
+  parameter FIFO_DEPTH = 1
 ) (
   input logic clk,
   input logic rst,
@@ -33,8 +33,8 @@ module dispatcher
 
   always_comb begin
     rfex_tdata = rfex_axis_if.tdata;
-    rfex_axis_if.tready = exwb_slice_if.tready && rfalu_axis_if.tready && rfbru_axis_if.tready;
-    exwb_slice_if.tvalid = rfex_axis_if.tvalid && rfex_axis_if.tready;
+    rfex_axis_if.tready = exwb_slice_if.tready;
+    exwb_slice_if.tvalid = rfex_axis_if.tvalid;
 
     wbrf_tdata = wbrf_axis_if.tdata;
     fwd_data = wbrf_tdata.wdata;
@@ -44,7 +44,7 @@ module dispatcher
     rfalu_tdata.operands.op2 = (rfex_tdata.id_data.fwd_rs2.ex) ? fwd_data : rfex_tdata.operands.op2;
     rfalu_tdata.cmd = rfex_tdata.id_data.alu_cmd;
     rfalu_axis_if.tdata = rfalu_tdata;
-    rfalu_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.alu_cmd_vld;
+    rfalu_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.alu_cmd_vld && rfex_axis_if.tready;
 
     // BRU
     rfbru_tdata.operands.op1 = (rfex_tdata.id_data.fwd_rs1.ex) ? fwd_data : rfex_tdata.operands.op1;
@@ -53,7 +53,7 @@ module dispatcher
     rfbru_tdata.this_pc = rfex_tdata.id_data.if_data.pc;
     rfbru_tdata.cmd = rfex_tdata.id_data.bru_cmd;
     rfbru_axis_if.tdata = rfbru_tdata;
-    rfbru_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.bru_cmd_vld;
+    rfbru_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.bru_cmd_vld && rfex_axis_if.tready;
 
     exwb_tdata.rf_data = rfex_tdata;
     exwb_slice_if.tdata = exwb_tdata;
