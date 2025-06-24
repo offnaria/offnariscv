@@ -23,7 +23,21 @@ module alu
   always_comb begin
     rfalu_tdata = rfalu_axis_if.tdata;
 
-    aluwb_tdata.result = rfalu_tdata.operands.op1 + rfalu_tdata.operands.op2; // TODO
+    aluwb_tdata.result = '0;
+    unique case (rfalu_tdata.cmd)
+      ADD: aluwb_tdata.result = rfalu_tdata.operands.op1 + rfalu_tdata.operands.op2;
+      SUB: aluwb_tdata.result = rfalu_tdata.operands.op1 - rfalu_tdata.operands.op2;
+      SLL: aluwb_tdata.result = rfalu_tdata.operands.op1 << rfalu_tdata.operands.op2[4:0];
+      SLT: aluwb_tdata.result = XLEN'($signed(rfalu_tdata.operands.op1) < $signed(rfalu_tdata.operands.op2));
+      SLTU: aluwb_tdata.result = XLEN'(rfalu_tdata.operands.op1 < rfalu_tdata.operands.op2);
+      XOR: aluwb_tdata.result = rfalu_tdata.operands.op1 ^ rfalu_tdata.operands.op2;
+      SRL: aluwb_tdata.result = rfalu_tdata.operands.op1 >> rfalu_tdata.operands.op2[4:0];
+      SRA: aluwb_tdata.result = $signed($signed(rfalu_tdata.operands.op1) >>> rfalu_tdata.operands.op2[4:0]);
+      OR:  aluwb_tdata.result = rfalu_tdata.operands.op1 | rfalu_tdata.operands.op2;
+      AND: aluwb_tdata.result = rfalu_tdata.operands.op1 & rfalu_tdata.operands.op2;
+      default: begin
+      end
+    endcase
 
     // Slice connection
     aluwb_slice_if.tdata = aluwb_tdata;

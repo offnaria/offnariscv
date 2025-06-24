@@ -51,8 +51,17 @@ package offnariscv_pkg;
     int_exc_code_u int_exc_code;
   } ifid_tdata_t;
 
-  typedef enum logic [2:0] {
-    ADD
+  typedef enum logic [3:0] {
+    ADD,
+    SUB,
+    SLL,
+    SLT,
+    SLTU,
+    XOR,
+    SRL,
+    SRA,
+    OR,
+    AND
   } alu_cmd_e;
 
   typedef enum logic [2:0] {

@@ -150,7 +150,19 @@ module decoder
     idrf_tdata.bru_cmd = BRU_JAL; // TODO
     unique case (1'b1)
       idrf_tdata.alu_cmd_vld: begin
-        idrf_tdata.alu_cmd = ADD; // TODO
+        unique case (inst.r.funct3)
+          3'b000: idrf_tdata.alu_cmd = (inst[30] && (opcode == OP)) ? SUB : ADD;
+          3'b001: idrf_tdata.alu_cmd = SLL;
+          3'b010: idrf_tdata.alu_cmd = SLT;
+          3'b011: idrf_tdata.alu_cmd = SLTU;
+          3'b100: idrf_tdata.alu_cmd = XOR;
+          3'b101: idrf_tdata.alu_cmd = (inst[30]) ? SRA : SRL;
+          3'b110: idrf_tdata.alu_cmd = OR;
+          3'b111: idrf_tdata.alu_cmd = AND;
+          default: begin
+            // Invalid instruction, raise an exception
+          end
+        endcase
       end
       idrf_tdata.bru_cmd_vld: begin
         unique case (opcode)
