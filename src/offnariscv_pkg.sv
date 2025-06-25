@@ -75,6 +75,21 @@ package offnariscv_pkg;
     BRU_BGEU
   } bru_cmd_e;
 
+  typedef enum logic [3:0] {
+    CSRRW,
+    CSRRS,
+    CSRRC,
+    CSRRWI,
+    CSRRSI,
+    CSRRCI,
+    ECALL,
+    EBREAK,
+    MRET,
+    SRET,
+    WFI,
+    SFENCE_VMA
+  } system_cmd_e;
+
   typedef struct packed {
     logic rf; // Forwarding is needed at RF stage
     logic ex; // Forwarding is needed at EX stage
@@ -86,12 +101,15 @@ package offnariscv_pkg;
     logic [4:0] rd;
     logic [XLEN-1:0] immediate;
     logic [XLEN-1:0] auipc; // PC value used by AUIPC instruction
+    logic [11:0] csr_addr;
     fwd_t fwd_rs1;
     fwd_t fwd_rs2;
     alu_cmd_e alu_cmd;
     logic alu_cmd_vld;
     bru_cmd_e bru_cmd;
     logic bru_cmd_vld;
+    system_cmd_e sys_cmd;
+    logic sys_cmd_vld;
     ifid_tdata_t if_data;
   } idrf_tdata_t;
 
@@ -119,6 +137,11 @@ package offnariscv_pkg;
   } rfbru_tdata_t;
 
   typedef struct packed {
+    operands_t operands;
+    system_cmd_e cmd;
+  } rfsys_tdata_t;
+
+  typedef struct packed {
     rfex_tdata_t rf_data;
   } exwb_tdata_t;
 
@@ -136,6 +159,12 @@ package offnariscv_pkg;
     logic [XLEN-1:0] new_pc;
     logic taken;
   } bruwb_tdata_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0] csr_wdata;
+    logic [XLEN-1:0] csr_wmask;
+    logic csr_update;
+  } syswb_tdata_t;
 
 endpackage
 

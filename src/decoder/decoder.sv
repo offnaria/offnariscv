@@ -146,8 +146,10 @@ module decoder
     // Prepare commands
     idrf_tdata.alu_cmd_vld = opcode inside {OP_IMM, AUIPC, OP, LUI};
     idrf_tdata.bru_cmd_vld = opcode inside {BRANCH, JAL, JALR};
+    idrf_tdata.sys_cmd_vld = opcode inside {SYSTEM};
     idrf_tdata.alu_cmd = ADD; // TODO
     idrf_tdata.bru_cmd = BRU_JAL; // TODO
+    idrf_tdata.sys_cmd = CSRRW; // TODO
     unique case (1'b1)
       idrf_tdata.alu_cmd_vld: begin
         unique case (inst.r.funct3)
@@ -179,6 +181,58 @@ module decoder
           endcase
           JAL: idrf_tdata.bru_cmd = BRU_JAL;
           JALR: idrf_tdata.bru_cmd = BRU_JALR;
+          default: begin
+            // Invalid instruction, raise an exception
+          end
+        endcase
+      end
+      idrf_tdata.sys_cmd_vld: begin
+        unique case (inst.r.funct3)
+          3'b000: begin
+            unique case (inst.r.funct7)
+              7'b0000000: idrf_tdata.sys_cmd = (inst.r.rs2 == '0) ? ECALL : EBREAK;
+              7'b0001000: idrf_tdata.sys_cmd = (inst.r.rs2 == 5'b00010) ? SRET : WFI;
+              7'b0011000: idrf_tdata.sys_cmd = MRET;
+              7'b0001001: begin
+                idrf_tdata.sys_cmd = SFENCE_VMA;
+                idrf_tdata.rs1 = inst.r.rs1;
+                idrf_tdata.rs2 = inst.r.rs2;
+              end
+              default: begin
+                // Invalid instruction, raise an exception
+              end
+            endcase
+          end
+          3'b001: begin
+            idrf_tdata.sys_cmd = CSRRW;
+            idrf_tdata.rs1 = inst.r.rs1;
+            idrf_tdata.rd = inst.r.rd;
+          end
+          3'b010: begin
+            idrf_tdata.sys_cmd = CSRRS;
+            idrf_tdata.rs1 = inst.r.rs1;
+            idrf_tdata.rd = inst.r.rd;
+          end
+          3'b011: begin
+            idrf_tdata.sys_cmd = CSRRC;
+            idrf_tdata.rs1 = inst.r.rs1;
+            idrf_tdata.rd = inst.r.rd;
+          end
+          3'b101: begin
+            idrf_tdata.sys_cmd = CSRRWI;
+            idrf_tdata.immediate[4:0] = inst.r.rs1;
+            idrf_tdata.rd = inst.r.rd;
+          end
+          3'b110: begin
+            idrf_tdata.sys_cmd = CSRRSI;
+            idrf_tdata.immediate[4:0] = inst.r.rs1;
+            idrf_tdata.rd = inst.r.rd;
+          end
+          3'b111: begin
+            idrf_tdata.sys_cmd = CSRRCI;
+            idrf_tdata.immediate[4:0] = inst.r.rs1;
+            idrf_tdata.rd = inst.r.rd;
+          end
           default: begin
             // Invalid instruction, raise an exception
           end
