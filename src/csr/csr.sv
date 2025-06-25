@@ -40,6 +40,8 @@ module csr
 
     // Read CSR
     csr_rif_rsp.rdata = '0;
+    csr_rif_rsp.mtvec = mtvec_q;
+    csr_rif_rsp.mepc = mepc_q;
     csr_rif_rsp.ro = (csr_rif_rsp.addr[11:10] == 2'b11);
     csr_rif_rsp.exception = '0; // TODO: This would be used for illegal CSR access, such as privilege level violations
     unique case (csr_rif_rsp.addr)

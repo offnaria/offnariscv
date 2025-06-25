@@ -122,6 +122,8 @@ package offnariscv_pkg;
     operands_t operands;
     logic [XLEN-1:0] rs2_data; // For store
     logic [XLEN-1:0] csr_rdata;
+    logic [XLEN-1:0] mtvec;
+    logic [XLEN-1:0] mepc;
     idrf_tdata_t id_data;
   } rfex_tdata_t;
 

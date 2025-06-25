@@ -6,14 +6,16 @@ interface csr_rif;
 
   logic [11:0] addr;
   logic [XLEN-1:0] rdata;
+  logic [XLEN-1:0] mtvec;
+  logic [XLEN-1:0] mepc;
   logic ro; // Read-only flag
   logic exception;
 
   // Request modport
-  modport req (output addr, input rdata, ro, exception);
+  modport req (output addr, input rdata, mtvec, mepc, ro, exception);
 
   // Response modport
-  modport rsp (input addr, output rdata, ro, exception);
+  modport rsp (input addr, output rdata, mtvec, mepc, ro, exception);
 
 endinterface
 

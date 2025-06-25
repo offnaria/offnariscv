@@ -45,16 +45,14 @@ module committer
 
     exwb_axis_if.tready = wbrf_axis_if.tready && ((!exwb_tdata.rf_data.id_data.alu_cmd_vld || aluwb_axis_if.tvalid) && 
                                                   (!exwb_tdata.rf_data.id_data.bru_cmd_vld || (bruwb_axis_if.tvalid && (!bruwb_tdata.taken || wbpcg_axis_if.tready))) && 
-                                                  (!exwb_tdata.rf_data.id_data.sys_cmd_vld || (syswb_axis_if.tvalid && (!syswb_tdata.csr_update || wbpcg_axis_if.tready))));
+                                                  (!exwb_tdata.rf_data.id_data.sys_cmd_vld || (syswb_axis_if.tvalid && (!syswb_tdata.csr_update || wbpcg_axis_if.tready))) &&
+                                                  (!exwb_tdata.rf_data.id_data.if_data.int_exc_valid || wbpcg_axis_if.tready));
     aluwb_axis_if.tready = wbrf_axis_if.tready;
     bruwb_axis_if.tready = wbrf_axis_if.tready && (!bruwb_tdata.taken || wbpcg_axis_if.tready);
     syswb_axis_if.tready = wbrf_axis_if.tready && (!syswb_tdata.csr_update || wbpcg_axis_if.tready);
 
     wbrf_axis_if.tdata = wbrf_tdata;
     wbrf_axis_if.tvalid = exwb_axis_if.tvalid && exwb_axis_if.tready;
-    wbpcg_axis_if.tdata = (exwb_tdata.rf_data.id_data.bru_cmd_vld) ? bruwb_tdata.new_pc : (exwb_tdata.rf_data.id_data.if_data.pc + 'd4);
-    wbpcg_axis_if.tvalid = (exwb_axis_if.tvalid && exwb_axis_if.tready) && ((bruwb_axis_if.tvalid && exwb_tdata.rf_data.id_data.bru_cmd_vld && bruwb_tdata.taken) || 
-                                                                            (syswb_axis_if.tvalid && exwb_tdata.rf_data.id_data.sys_cmd_vld && syswb_tdata.csr_update));
 
     // CSR
     wbcsr_wif.addr = exwb_tdata.rf_data.id_data.csr_addr;
@@ -63,6 +61,19 @@ module committer
     wbcsr_wif.cause = XLEN'(exwb_tdata.rf_data.id_data.if_data.int_exc_code); // TODO
     wbcsr_wif.trap = '0; // TODO
     wbcsr_wif.valid = syswb_axis_if.tvalid && syswb_axis_if.tready && syswb_tdata.csr_update; // TODO
+
+    // Program Counter Generator
+    wbpcg_axis_if.tdata = '0;
+    case (1'b1)
+      exwb_tdata.rf_data.id_data.if_data.int_exc_valid: wbpcg_axis_if.tdata = exwb_tdata.rf_data.mtvec;
+      bruwb_tdata.taken: wbpcg_axis_if.tdata = bruwb_tdata.new_pc;
+      syswb_tdata.csr_update: wbpcg_axis_if.tdata = exwb_tdata.rf_data.id_data.if_data.pc + 'd4; // Re-fetch next instruction
+      default: begin
+      end
+    endcase
+    wbpcg_axis_if.tvalid = (exwb_axis_if.tvalid && exwb_axis_if.tready) && ((exwb_tdata.rf_data.id_data.bru_cmd_vld && bruwb_tdata.taken) || 
+                                                                            (exwb_tdata.rf_data.id_data.sys_cmd_vld && syswb_tdata.csr_update) ||
+                                                                            exwb_tdata.rf_data.id_data.if_data.int_exc_valid);
   end
 
 endmodule

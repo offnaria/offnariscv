@@ -42,6 +42,8 @@ module regfile
   assign idrf_tdata = idrf_axis_if.tdata;
   assign rfcsr_rif.addr = idrf_tdata.csr_addr;
   assign rfex_tdata.csr_rdata = rfcsr_rif.rdata;
+  assign rfex_tdata.mtvec = rfcsr_rif.mtvec;
+  assign rfex_tdata.mepc = rfcsr_rif.mepc;
 
   always_comb begin
     wbrf_tdata = wbrf_axis_if.tdata;
