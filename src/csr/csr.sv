@@ -23,7 +23,7 @@ module csr
   logic [XLEN-1:0] mhartid_q;
   mstatus_t mstatus_q;
   mstatush_t mstatush_q;
-  logic [XLEN-1:0] mtved_q;
+  logic [XLEN-1:0] mtvec_q;
 
   always_ff @(posedge clk) begin
     if (rst) begin
@@ -33,7 +33,7 @@ module csr
       mhartid_q <= MHARTID;
       mstatus_q <= '0; // TODO
       mstatush_q <= '0; // TODO
-      mtved_q <= '0; // Direct mode
+      mtvec_q <= '0; // Direct mode
     end else begin
 
     end
