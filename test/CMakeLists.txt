@@ -19,6 +19,7 @@ verilate(offnariscv_core_test
     ../src/offnariscv_pkg.sv
     ../src/ace_if.sv
     ../src/common/axis_if.sv
+    ../src/csr/csr_if.sv
     ../src/common/axis_slice.sv
     ../src/common/axis_skid_buffer.sv
     ../src/common/ram_async.sv
@@ -27,6 +28,7 @@ verilate(offnariscv_core_test
     ../src/ifu/ifu.sv
     ../src/decoder/decoder.sv
     ../src/regfile/regfile.sv
+    ../src/csr/csr.sv
     ../src/execute/dispatcher.sv
     ../src/execute/alu.sv
     ../src/execute/bru.sv

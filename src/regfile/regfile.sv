@@ -12,6 +12,8 @@ module regfile
 
   axis_if.s wbrf_axis_if, // From Write Back
 
+  csr_rif.req rfcsr_rif, // CSR read interface
+
   input logic invalidate
 );
 
@@ -36,9 +38,15 @@ module regfile
   wbrf_tdata_t wbrf_tdata;
   logic [XLEN-1:0] rs1_data, rs2_data;
 
+  // Wire assignments
+  assign idrf_tdata = idrf_axis_if.tdata;
+  assign rfcsr_rif.addr = idrf_tdata.csr_addr;
+  assign rfex_tdata.csr_rdata = rfcsr_rif.rdata;
+
   always_comb begin
-    idrf_tdata = idrf_axis_if.tdata;
     wbrf_tdata = wbrf_axis_if.tdata;
+
+    rfcsr_rif.addr = idrf_tdata.csr_addr; // Is this evaluated before rfcsr_rif.rdata is used?
 
     rs1_data = (idrf_tdata.fwd_rs1.rf && wbrf_axis_if.tvalid) ? wbrf_tdata.wdata : rf_mem[idrf_tdata.rs1];
     rs2_data = (idrf_tdata.fwd_rs2.rf && wbrf_axis_if.tvalid) ? wbrf_tdata.wdata : rf_mem[idrf_tdata.rs2];
@@ -46,7 +54,6 @@ module regfile
     rfex_tdata.operands.op1 = rs1_data | idrf_tdata.auipc; // Assuming rs1 and auipc are exclusive
     rfex_tdata.operands.op2 = rs2_data | idrf_tdata.immediate; // Assuming rs2 and immediate are exclusive
     rfex_tdata.rs2_data = rs2_data; // For store
-    rfex_tdata.csr_rdata = '0; // TODO
 
     rfex_tdata.id_data = idrf_tdata;
 

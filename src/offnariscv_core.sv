@@ -27,6 +27,9 @@ module offnariscv_core
   axis_if #(.TDATA_WIDTH($bits(syswb_tdata_t))) syswb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(wbrf_tdata_t))) wbrf_axis_if ();
 
+  csr_rif rfcsr_rif ();
+  csr_wif wbcsr_wif ();
+
   logic invalidate;
 
   // Wire assignments
@@ -68,7 +71,15 @@ module offnariscv_core
     .idrf_axis_if(idrf_axis_if),
     .rfex_axis_if(rfex_axis_if),
     .wbrf_axis_if(wbrf_axis_if),
+    .rfcsr_rif(rfcsr_rif),
     .invalidate(invalidate)
+  );
+
+  csr csr_inst (
+    .clk(clk),
+    .rst(rst),
+    .csr_rif_rsp(rfcsr_rif),
+    .csr_wif_rsp(wbcsr_wif)
   );
 
   dispatcher dispatcher_inst (
@@ -115,7 +126,8 @@ module offnariscv_core
     .bruwb_axis_if(bruwb_axis_if),
     .syswb_axis_if(syswb_axis_if),
     .wbrf_axis_if(wbrf_axis_if),
-    .wbpcg_axis_if(wbpcg_axis_if)
+    .wbpcg_axis_if(wbpcg_axis_if),
+    .wbcsr_wif(wbcsr_wif)
   );
 
   // lsu lsu_inst (

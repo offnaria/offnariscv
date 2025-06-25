@@ -12,7 +12,9 @@ module committer
   axis_if.s bruwb_axis_if, // From BRU
   axis_if.s syswb_axis_if, // From System Unit
   axis_if.m wbrf_axis_if, // To Register File
-  axis_if.m wbpcg_axis_if // To Program Counter Generator
+  axis_if.m wbpcg_axis_if, // To Program Counter Generator
+
+  csr_wif.req wbcsr_wif // For CSR write interface
 );
 
   exwb_tdata_t exwb_tdata;
@@ -53,6 +55,14 @@ module committer
     wbpcg_axis_if.tdata = (exwb_tdata.rf_data.id_data.bru_cmd_vld) ? bruwb_tdata.new_pc : (exwb_tdata.rf_data.id_data.if_data.pc + 'd4);
     wbpcg_axis_if.tvalid = (exwb_axis_if.tvalid && exwb_axis_if.tready) && ((bruwb_axis_if.tvalid && exwb_tdata.rf_data.id_data.bru_cmd_vld && bruwb_tdata.taken) || 
                                                                             (syswb_axis_if.tvalid && exwb_tdata.rf_data.id_data.sys_cmd_vld && syswb_tdata.csr_update));
+
+    // CSR
+    wbcsr_wif.addr = exwb_tdata.rf_data.id_data.csr_addr;
+    wbcsr_wif.data = syswb_tdata.csr_wdata;
+    wbcsr_wif.pc = exwb_tdata.rf_data.id_data.if_data.pc;
+    wbcsr_wif.cause = XLEN'(exwb_tdata.rf_data.id_data.if_data.int_exc_code); // TODO
+    wbcsr_wif.trap = '0; // TODO
+    wbcsr_wif.valid = syswb_axis_if.tvalid && syswb_axis_if.tready && syswb_tdata.csr_update; // TODO
   end
 
 endmodule
