@@ -121,6 +121,7 @@ package offnariscv_pkg;
   typedef struct packed {
     operands_t operands;
     logic [XLEN-1:0] rs2_data; // For store
+    logic [XLEN-1:0] csr_rdata;
     idrf_tdata_t id_data;
   } rfex_tdata_t;
 
@@ -138,6 +139,7 @@ package offnariscv_pkg;
 
   typedef struct packed {
     operands_t operands;
+    logic [XLEN-1:0] csr_rdata;
     system_cmd_e cmd;
   } rfsys_tdata_t;
 
@@ -162,7 +164,7 @@ package offnariscv_pkg;
 
   typedef struct packed {
     logic [XLEN-1:0] csr_wdata;
-    logic [XLEN-1:0] csr_wmask;
+    // logic [XLEN-1:0] csr_wmask;
     logic csr_update;
   } syswb_tdata_t;
 

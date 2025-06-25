@@ -46,6 +46,7 @@ module regfile
     rfex_tdata.operands.op1 = rs1_data | idrf_tdata.auipc; // Assuming rs1 and auipc are exclusive
     rfex_tdata.operands.op2 = rs2_data | idrf_tdata.immediate; // Assuming rs2 and immediate are exclusive
     rfex_tdata.rs2_data = rs2_data; // For store
+    rfex_tdata.csr_rdata = '0; // TODO
 
     rfex_tdata.id_data = idrf_tdata;
 

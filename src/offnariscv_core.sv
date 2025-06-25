@@ -20,9 +20,11 @@ module offnariscv_core
   axis_if #(.TDATA_WIDTH($bits(rfex_tdata_t))) rfex_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(rfalu_tdata_t))) rfalu_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(rfbru_tdata_t))) rfbru_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(rfsys_tdata_t))) rfsys_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(exwb_tdata_t))) exwb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(aluwb_tdata_t))) aluwb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(bruwb_tdata_t))) bruwb_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(syswb_tdata_t))) syswb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(wbrf_tdata_t))) wbrf_axis_if ();
 
   logic invalidate;
@@ -75,6 +77,7 @@ module offnariscv_core
     .rfex_axis_if(rfex_axis_if),
     .rfalu_axis_if(rfalu_axis_if),
     .rfbru_axis_if(rfbru_axis_if),
+    .rfsys_axis_if(rfsys_axis_if),
     .exwb_axis_if(exwb_axis_if),
     .wbrf_axis_if(wbrf_axis_if), // For forwarding
     .invalidate(invalidate)
@@ -96,12 +99,21 @@ module offnariscv_core
     .invalidate(invalidate)
   );
 
+  system sys_inst (
+    .clk(clk),
+    .rst(rst),
+    .rfsys_axis_if(rfsys_axis_if),
+    .syswb_axis_if(syswb_axis_if),
+    .invalidate(invalidate)
+  );
+
   committer committer_inst (
     .clk(clk),
     .rst(rst),
     .exwb_axis_if(exwb_axis_if),
     .aluwb_axis_if(aluwb_axis_if),
     .bruwb_axis_if(bruwb_axis_if),
+    .syswb_axis_if(syswb_axis_if),
     .wbrf_axis_if(wbrf_axis_if),
     .wbpcg_axis_if(wbpcg_axis_if)
   );

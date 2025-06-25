@@ -239,6 +239,7 @@ module decoder
         endcase
       end
     endcase
+    idrf_tdata.csr_addr = inst[31:20];
 
     idrf_tdata.if_data = ifid_tdata;
 

@@ -67,6 +67,43 @@ package riscv_pkg;
     UNKNOWN
   } opcode_e;
 
+  typedef struct packed {
+    logic sd;
+    logic [5:0] wpri0;
+    logic sdt;
+    logic spelp;
+    logic tsr;
+    logic tw;
+    logic tvm;
+    logic mxr;
+    logic sum;
+    logic mprv;
+    logic [1:0] xs;
+    logic [1:0] fs;
+    logic [1:0] mpp;
+    logic [1:0] vs;
+    logic spp;
+    logic mpie;logic ube;
+    logic spie;
+    logic wpri1;
+    logic mie;
+    logic wpri2;
+    logic sie;
+    logic wpri3;
+  } mstatus_t;
+
+  typedef struct packed {
+    logic [20:0] wpri0;
+    logic mdt;
+    logic mpelp;
+    logic mpri1;
+    logic mpv;
+    logic gva;
+    logic mbe;
+    logic sbe;
+    logic [3:0] wpri1;
+  } mstatush_t;
+
 endpackage
 
 `endif
