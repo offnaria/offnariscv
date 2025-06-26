@@ -138,11 +138,6 @@ module decoder
       end
     endcase
 
-    idrf_tdata.fwd_rs1.rf = (idrf_tdata.rs1 != '0);
-    idrf_tdata.fwd_rs1.ex = (idrf_tdata.rs1 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs1 == prev_rd_mif.tdata));
-    idrf_tdata.fwd_rs2.rf = (idrf_tdata.rs2 != '0);
-    idrf_tdata.fwd_rs2.ex = (idrf_tdata.rs2 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs2 == prev_rd_mif.tdata));
-
     // Prepare commands
     idrf_tdata.alu_cmd_vld = opcode inside {OP_IMM, AUIPC, OP, LUI};
     idrf_tdata.bru_cmd_vld = opcode inside {BRANCH, JAL, JALR};
@@ -240,6 +235,12 @@ module decoder
       end
     endcase
     idrf_tdata.csr_addr = inst[31:20];
+
+    // Forwarding information
+    idrf_tdata.fwd_rs1.rf = (idrf_tdata.rs1 != '0);
+    idrf_tdata.fwd_rs1.ex = (idrf_tdata.rs1 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs1 == prev_rd_mif.tdata));
+    idrf_tdata.fwd_rs2.rf = (idrf_tdata.rs2 != '0);
+    idrf_tdata.fwd_rs2.ex = (idrf_tdata.rs2 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs2 == prev_rd_mif.tdata));
 
     idrf_tdata.if_data = ifid_tdata;
 

@@ -33,10 +33,10 @@ package offnariscv_pkg;
     ACE_RESP_DECERR = 2'b11
   } ace_resp_e;
 
-  typedef union packed {
-    interrupt_codes_e int_code;
-    exception_codes_e exc_code;
-  } int_exc_code_u;
+  // typedef union packed {
+  //   interrupt_codes_e int_code;
+  //   exception_codes_e exc_code;
+  // } int_exc_code_u;
 
   localparam INST_ID_WIDTH = 64;
 
@@ -47,8 +47,9 @@ package offnariscv_pkg;
     logic [XLEN-1:0] pc;
     logic [XLEN-1:0] untaken_pc; // For branch prediction
     logic [XLEN-1:0] inst;
-    logic int_exc_valid;
-    int_exc_code_u int_exc_code;
+    // logic int_exc_valid; // TODO
+    // int_exc_code_u int_exc_code; // TODO
+    trap_cause_t trap_cause;
   } ifid_tdata_t;
 
   typedef enum logic [3:0] {
@@ -143,6 +144,10 @@ package offnariscv_pkg;
     operands_t operands;
     logic [XLEN-1:0] csr_rdata;
     system_cmd_e cmd;
+    trap_cause_t trap_cause;
+    logic [XLEN-1:0] this_pc;
+    logic [XLEN-1:0] mtvec;
+    logic [XLEN-1:0] mepc;
   } rfsys_tdata_t;
 
   typedef struct packed {
@@ -168,6 +173,10 @@ package offnariscv_pkg;
     logic [XLEN-1:0] csr_wdata;
     // logic [XLEN-1:0] csr_wmask;
     logic csr_update;
+    trap_cause_t trap_cause;
+    logic [XLEN-1:0] new_pc;
+    logic use_new_pc;
+    logic trap;
   } syswb_tdata_t;
 
 endpackage

@@ -65,15 +65,19 @@ module csr
 
     // Write CSR
     if (csr_wif_rsp.valid) begin
-      unique case (csr_wif_rsp.addr)
-        12'h305: mtvec_d[XLEN-1:2] = csr_wif_rsp.data[XLEN-1:2]; // Direct mode
-        12'h341: mepc_d = csr_wif_rsp.data;
-        12'h342: mcause_d = csr_wif_rsp.data;
-        default: begin
-          // TODO: Handle other CSRs
-        end
-      endcase
-      // TODO: Handle traps
+      if (csr_wif_rsp.trap) begin
+        mepc_d = csr_wif_rsp.pc;
+        mcause_d = csr_wif_rsp.cause;
+      end else begin
+        unique case (csr_wif_rsp.addr)
+          12'h305: mtvec_d[XLEN-1:2] = csr_wif_rsp.data[XLEN-1:2]; // Direct mode
+          12'h341: mepc_d = csr_wif_rsp.data;
+          12'h342: mcause_d = csr_wif_rsp.data;
+          default: begin
+            // TODO: Handle other CSRs
+          end
+        endcase
+      end
     end
   end
 
@@ -98,6 +102,7 @@ module csr
       mtvec_q <= mtvec_d;
       mepc_q <= mepc_d;
       mcause_q <= mcause_d;
+      if (mepc_d != mepc_q) $write("CSR: mepc updated to %0h from %0h\n", mepc_d, mepc_q);
     end
   end
 

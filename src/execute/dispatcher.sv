@@ -62,6 +62,10 @@ module dispatcher
     rfsys_tdata.operands.op2 = (rfex_tdata.id_data.fwd_rs2.ex) ? fwd_data : rfex_tdata.operands.op2;
     rfsys_tdata.csr_rdata = rfex_tdata.csr_rdata;
     rfsys_tdata.cmd = rfex_tdata.id_data.sys_cmd;
+    rfsys_tdata.trap_cause = rfex_tdata.id_data.if_data.trap_cause;
+    rfsys_tdata.this_pc = rfex_tdata.id_data.if_data.pc;
+    rfsys_tdata.mtvec = rfex_tdata.mtvec;
+    rfsys_tdata.mepc = rfex_tdata.mepc;
     rfsys_axis_if.tdata = rfsys_tdata;
     rfsys_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.sys_cmd_vld && rfex_axis_if.tready;
 
