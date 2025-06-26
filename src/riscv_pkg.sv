@@ -36,6 +36,28 @@ package riscv_pkg;
     EXC_HE = 19 // Hardware error
   } exception_codes_e;
 
+  typedef logic [19:0] trap_cause_t;
+
+  function logic [EXC_CODES_WIDTH-1:0] transform_cause(input trap_cause_t cause);
+    // Based on the priority of synchronous exceptions in RISC-V
+    if (cause[EXC_BP]) return EXC_BP; // NOTE: This is for instruction address breakpoint
+    else if (cause[EXC_IPF]) return EXC_IPF;
+    else if (cause[EXC_IAF]) return EXC_IAF;
+    else if (cause[EXC_II]) return EXC_II;
+    else if (cause[EXC_IAM]) return EXC_IAM;
+    else if (cause[EXC_ECU]) return EXC_ECU;
+    else if (cause[EXC_ECS]) return EXC_ECS;
+    else if (cause[EXC_ECM]) return EXC_ECM;
+    else if (cause[EXC_BP]) return EXC_BP; // NOTE: This is for load/store/AMO address breakpoint
+    else if (cause[EXC_LAM]) return EXC_LAM; // Option
+    else if (cause[EXC_SAM]) return EXC_SAM; // Option
+    else if (cause[EXC_LPF]) return EXC_LPF;
+    else if (cause[EXC_SPF]) return EXC_SPF;
+    else if (cause[EXC_LAF]) return EXC_LAF;
+    else if (cause[EXC_SAF]) return EXC_SAF;
+    else return '0; // TODO: Handle other exceptions
+  endfunction
+
   typedef enum logic [4:0] {
     LOAD = 5'b00000,
     // LOAD_FP = 5'b00001,
