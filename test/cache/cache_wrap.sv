@@ -43,7 +43,6 @@ module cache_wrap
   end
 
   cache_directory # (
-    .ENABLE(1),
     .INDEX_WIDTH(7),
     .BLOCK_OFFSET(5)
   ) directory_inst (

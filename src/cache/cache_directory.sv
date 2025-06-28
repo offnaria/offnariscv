@@ -1,43 +1,11 @@
 // SPDX-License-Identifier: MIT
 
 // Dual-port cache directory
-module cache_directory #(
-  parameter ENABLE = 1,
-  parameter INDEX_WIDTH = 7, // 128 entries
-  parameter BLOCK_OFFSET = 5 // 32 bytes (256 bits) per block
-) (
-  input logic clk,
-  input logic rst,
-
-  cache_dir_if.rsp cache_dir_rsp_if_0,
-  cache_dir_if.rsp cache_dir_rsp_if_1
-);
-
-  generate
-    if (ENABLE) begin
-      cache_directory_entity #(
-        .INDEX_WIDTH(INDEX_WIDTH),
-        .BLOCK_OFFSET(BLOCK_OFFSET)
-      ) inst (
-        .clk(clk),
-        .rst(rst),
-        .cache_dir_rsp_if_0(cache_dir_rsp_if_0),
-        .cache_dir_rsp_if_1(cache_dir_rsp_if_1)
-      );
-    end else begin
-      assign cache_dir_rsp_if_0.hit = '0;
-      assign cache_dir_rsp_if_0.current_state = '0;
-      assign cache_dir_rsp_if_1.hit = '0;
-      assign cache_dir_rsp_if_1.current_state = '0;
-    end
-  endgenerate
-endmodule
-
-module cache_directory_entity
+module cache_directory
   import cache_pkg::*;
 #(
-  parameter INDEX_WIDTH = 7,
-  parameter BLOCK_OFFSET = 5
+  parameter INDEX_WIDTH = 7, // 128 entries
+  parameter BLOCK_OFFSET = 5 // 256 bits (32 bytes) per block
 ) (
   input logic clk,
   input logic rst,
