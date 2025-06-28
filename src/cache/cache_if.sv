@@ -3,18 +3,20 @@
 interface cache_dir_if
   import cache_pkg::*;
 # (
-  parameter ADDR_WIDTH = 32
+  parameter INDEX_WIDTH = 7,
+  parameter TAG_WIDTH = 20
 );
-  logic [ADDR_WIDTH-1:0] addr;
-  line_state_t current_state;
-  logic hit;
+  logic [INDEX_WIDTH-1:0] index;
+  logic [TAG_WIDTH-1:0] next_tag;
   line_state_t next_state;
   logic write;
+  logic [TAG_WIDTH-1:0] current_tag;
+  line_state_t current_state;
 
-  // Request modport
-  modport req (output addr, next_state, write, input current_state, hit);
+  // Request modport (controller side)
+  modport req (output index, next_tag, next_state, write, input current_tag, current_state);
 
-  // Response modport
-  modport rsp (input addr, next_state, write, output current_state, hit);
+  // Response modport (directory side)
+  modport rsp (input index, next_tag, next_state, write, output current_tag, current_state);
 
 endinterface

@@ -3,10 +3,7 @@
 // Dual-port cache directory
 module cache_directory
   import cache_pkg::*;
-#(
-  parameter INDEX_WIDTH = 7, // 128 entries
-  parameter BLOCK_OFFSET = 5 // 256 bits (32 bytes) per block
-) (
+(
   input logic clk,
   input logic rst,
 
@@ -15,15 +12,15 @@ module cache_directory
 );
 
   // Define local parameters
-  localparam ADDR_WIDTH = cache_dir_rsp_if_0.ADDR_WIDTH;
-  localparam TAG_WIDTH = ADDR_WIDTH - INDEX_WIDTH - BLOCK_OFFSET; // TODO: Decrease the width if possible (e.g., if the cachable region is fixed to 0x80000000-0xFFFFFFFF)
+  localparam INDEX_WIDTH = cache_dir_rsp_if_0.INDEX_WIDTH;
+  localparam TAG_WIDTH = cache_dir_rsp_if_0.TAG_WIDTH;
 
   // Assert conditions
   initial begin
-    assert (cache_dir_rsp_if_1.ADDR_WIDTH == ADDR_WIDTH) else $fatal("cache_dir_rsp_if_1.ADDR_WIDTH must match cache_dir_rsp_if_0.ADDR_WIDTH");
-    assert (INDEX_WIDTH + BLOCK_OFFSET <= 12) else $fatal("Cache size must be less than 4 KiB for now");
-    assert (INDEX_WIDTH > 0) else $fatal("INDEX_WIDTH must be greater than 0 for now"); // TODO: Support 1-entry cache
-    assert (TAG_WIDTH >= 0) else $fatal("TAG_WIDTH must be greater than or equal to 0");
+    assert (INDEX_WIDTH == cache_dir_rsp_if_1.INDEX_WIDTH) else $fatal("INDEX_WIDTH must match between interfaces");
+    assert (TAG_WIDTH == cache_dir_rsp_if_1.TAG_WIDTH) else $fatal("TAG_WIDTH must match between interfaces");
+    assert (INDEX_WIDTH > 0) else $fatal("INDEX_WIDTH must be greater than 0 for now"); // TODO: Support 1 entry cache
+    assert (TAG_WIDTH >= 0) else $fatal("TAG_WIDTH must be greater than or equal to 0"); // NOTE: 0 means no tag...
   end
 
   // Define types
@@ -48,18 +45,19 @@ module cache_directory
 
   always_comb begin
     // if0
-    if0_index = cache_dir_rsp_if_0.addr[BLOCK_OFFSET +: INDEX_WIDTH];
-    if0_tag = cache_dir_rsp_if_0.addr[ADDR_WIDTH-1 -: TAG_WIDTH];
+    if0_index = cache_dir_rsp_if_0.index;
+    if0_tag = cache_dir_rsp_if_0.next_tag;
 
+    cache_dir_rsp_if_0.current_tag = directory[if0_index].tag;
     cache_dir_rsp_if_0.current_state = directory[if0_index].state;
-    cache_dir_rsp_if_0.hit = (directory[if0_index].state.v && (directory[if0_index].tag == if0_tag));
 
     // if1
-    if1_index = cache_dir_rsp_if_1.addr[BLOCK_OFFSET +: INDEX_WIDTH];
-    if1_tag = cache_dir_rsp_if_1.addr[ADDR_WIDTH-1 -: TAG_WIDTH];
+    if1_index = cache_dir_rsp_if_1.index;
+    if1_tag = cache_dir_rsp_if_1.next_tag;
 
+    cache_dir_rsp_if_1.current_tag = directory[if1_index].tag;
     cache_dir_rsp_if_1.current_state = directory[if1_index].state;
-    cache_dir_rsp_if_1.hit = (directory[if1_index].state.v && (directory[if1_index].tag == if1_tag));
+    
   end
 
   always_ff @(posedge clk) begin
