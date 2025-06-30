@@ -42,13 +42,13 @@ module axis_skid_buffer (
   always_ff @(posedge clk) begin
     if (rst) begin
       tvalid <= '0;
-      tready <= '0;
+      tready <= '1;
       tdata <= '0;
       skid_tvalid <= '0;
       skid_tdata <= '0;
     end else if (invalidate) begin
       tvalid <= '0;
-      tready <= '0;
+      tready <= '1;
       skid_tvalid <= '0;
     end else begin
       if (!tvalid || axis_mif.tready) begin
