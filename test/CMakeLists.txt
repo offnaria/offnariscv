@@ -18,9 +18,13 @@ verilate(offnariscv_core_test
   SOURCES
     ../src/riscv_pkg.sv
     ../src/offnariscv_pkg.sv
+    ../src/cache/cache_pkg.sv
     ../src/ace_if.sv
     ../src/common/axis_if.sv
     ../src/csr/csr_if.sv
+    ../src/cache/cache_if.sv
+    ../src/cache/cache_directory.sv
+    ../src/cache/cache_memory.sv
     ../src/common/axis_slice.sv
     ../src/common/axis_skid_buffer.sv
     ../src/common/ram_async.sv

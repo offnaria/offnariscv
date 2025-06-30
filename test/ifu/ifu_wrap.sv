@@ -4,7 +4,9 @@ module ifu_wrap
   import offnariscv_pkg::*;
 # (
   localparam ACE_XDATA_WIDTH = 256,
-  localparam ACE_AXADDR_WIDTH = 32
+  localparam ACE_AXADDR_WIDTH = 32,
+  localparam INDEX_WIDTH = 7,
+  localparam TAG_WIDTH = 20
 ) (
   input clk,
   input rst,
@@ -83,6 +85,11 @@ module ifu_wrap
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) inst_axis_if ();
 
+  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_0 ();
+  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_1 ();
+  cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_0 ();
+  cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_1 ();
+
   ifid_tdata_t ifid_tdata;
 
   // AR channel signals
@@ -151,6 +158,23 @@ module ifu_wrap
   assign ifid_tdata_untaken_pc = ifid_tdata.untaken_pc;
   assign ifid_tdata_inst = ifid_tdata.inst;
 
-  ifu ifu_inst (.*);
+  ifu ifu_inst (
+    .clk(clk),
+    .rst(rst),
+    .ifu_ace_if(ifu_ace_if),
+    .next_pc_axis_if(next_pc_axis_if),
+    .current_pc_axis_if(current_pc_axis_if),
+    .inst_axis_if(inst_axis_if),
+    .l1i_dir_if(l1i_dir_if_0),
+    .l1i_mem_if(l1i_mem_if_0),
+    .invalidate(invalidate)
+  );
+
+  cache_directory l1i_dir_inst (
+    .clk(clk),
+    .rst(rst),
+    .cache_dir_rsp_if_0(l1i_dir_if_0),
+    .cache_dir_rsp_if_1(l1i_dir_if_1)
+  );
 
 endmodule

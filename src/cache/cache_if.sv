@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+// Cache directory interface
 interface cache_dir_if
   import cache_pkg::*;
 # (
@@ -18,5 +19,25 @@ interface cache_dir_if
 
   // Response modport (directory side)
   modport rsp (input index, next_tag, next_state, write, output current_tag, current_state);
+
+endinterface
+
+// Cache memory interface
+interface cache_mem_if
+# (
+  parameter BLOCK_SIZE = 256,
+  parameter INDEX_WIDTH = 7,
+  localparam STRB_WIDTH = BLOCK_SIZE / 8
+);
+  logic [INDEX_WIDTH-1:0] index;
+  logic [BLOCK_SIZE-1:0] wdata;
+  logic [STRB_WIDTH-1:0] wstrb;
+  logic [BLOCK_SIZE-1:0] rdata;
+
+  // Request modport (controller side)
+  modport req (output index, wdata, wstrb, input rdata);
+
+  // Response modport (memory side)
+  modport rsp (input index, wdata, wstrb, output rdata);
 
 endinterface

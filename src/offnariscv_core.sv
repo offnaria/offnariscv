@@ -11,6 +11,10 @@ module offnariscv_core
   ace_if.m core_ace_if
 );
 
+  localparam BLOCK_SIZE = core_ace_if.ACE_XDATA_WIDTH;
+  localparam INDEX_WIDTH = 12 - $clog2(BLOCK_SIZE / 8);
+  localparam TAG_WIDTH = core_ace_if.ACE_AXADDR_WIDTH - INDEX_WIDTH - $clog2(BLOCK_SIZE / 8);
+
   // Declare interfaces
   axis_if #(.TDATA_WIDTH(XLEN)) next_pc_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
@@ -29,6 +33,11 @@ module offnariscv_core
 
   csr_rif rfcsr_rif ();
   csr_wif wbcsr_wif ();
+
+  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_0 ();
+  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_1 ();
+  cache_mem_if # (.BLOCK_SIZE(BLOCK_SIZE), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_0 ();
+  cache_mem_if # (.BLOCK_SIZE(BLOCK_SIZE), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_1 ();
 
   logic invalidate;
 
@@ -52,7 +61,23 @@ module offnariscv_core
     .next_pc_axis_if(next_pc_axis_if),
     .current_pc_axis_if(current_pc_axis_if),
     .inst_axis_if(ifid_axis_if),
+    .l1i_dir_if(l1i_dir_if_0),
+    .l1i_mem_if(l1i_mem_if_0),
     .invalidate(invalidate)
+  );
+
+  cache_directory l1i_dir_inst (
+    .clk(clk),
+    .rst(rst),
+    .cache_dir_rsp_if_0(l1i_dir_if_0),
+    .cache_dir_rsp_if_1(l1i_dir_if_1)
+  );
+
+  cache_memory l1i_mem_inst (
+    .clk(clk),
+    .rst(rst),
+    .cache_mem_rsp_if_0(l1i_mem_if_0),
+    .cache_mem_rsp_if_1(l1i_mem_if_1)
   );
 
   decoder # (

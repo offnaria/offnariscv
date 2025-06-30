@@ -2,9 +2,10 @@
 
 // Instruction Fetch Unit
 module ifu
-  import offnariscv_pkg::*;
+  import offnariscv_pkg::*, cache_pkg::*;
 # (
-  parameter RESET_VECTOR = 0
+  parameter RESET_VECTOR = 0,
+  parameter CACHE_SIZE = 4096 // 4 KiB
 ) (
   input clk,
   input rst,
@@ -19,13 +20,20 @@ module ifu
   // To Decoder
   axis_if.m inst_axis_if,
 
+  // To L1 I-Cache
+  cache_dir_if.req l1i_dir_if,
+  cache_mem_if.req l1i_mem_if,
+
   input logic invalidate
 );
 
   // Define local parameters
   localparam ADDR_WIDTH = ifu_ace_if.ACE_AXADDR_WIDTH;
   localparam BLOCK_SIZE = ifu_ace_if.ACE_XDATA_WIDTH;
-  localparam BLOCK_OFFSET_WIDTH = $clog2(BLOCK_SIZE / XLEN);
+  localparam BLOCK_OFFSET_WIDTH = $clog2(BLOCK_SIZE / 8);
+  localparam BLOCK_SEL_WIDTH = $clog2(BLOCK_SIZE / XLEN);
+  localparam INDEX_WIDTH = l1i_dir_if.INDEX_WIDTH;
+  localparam TAG_WIDTH = l1i_dir_if.TAG_WIDTH;
 
   // Assert conditions
   initial begin
@@ -33,6 +41,9 @@ module ifu
     assert (next_pc_axis_if.TDATA_WIDTH == XLEN) else $fatal("next_pc_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (current_pc_axis_if.TDATA_WIDTH == XLEN) else $fatal("current_pc_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (inst_axis_if.TDATA_WIDTH == $bits(ifid_tdata_t)) else $fatal("inst_axis_if.TDATA_WIDTH must match ifid_tdata_t");
+    assert (TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) == ADDR_WIDTH) else $fatal("TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) must equal ADDR_WIDTH");
+    assert (l1i_mem_if.BLOCK_SIZE == BLOCK_SIZE) else $fatal("l1i_mem_if.BLOCK_SIZE must match BLOCK_SIZE");
+    assert (l1i_mem_if.INDEX_WIDTH == INDEX_WIDTH) else $fatal("l1i_mem_if.INDEX_WIDTH must match INDEX_WIDTH");
   end
 
   // Define types
@@ -51,17 +62,22 @@ module ifu
   state_e state_q, state_d;
   logic arvalid_q, arvalid_d;
   logic rready_q, rready_d;
-  logic [XLEN-1:0] inst_q, inst_d;
+  logic [BLOCK_SIZE-1:0] block_q, block_d;
   logic [ACE_RRESP_WIDTH-1:0] rresp_q, rresp_d;
+
+  logic [TAG_WIDTH-1:0] l1i_current_tag_q;
+  line_state_t l1i_current_state_q;
+  logic [BLOCK_SIZE-1:0] l1i_rdata_q, l1i_rdata_pipe_q;
+  logic l1i_hit_q, l1i_hit_d;
+
 `ifndef SYNTHESIS
   logic [INST_ID_WIDTH-1:0] inst_id_q, inst_id_d;
 `endif
 
   // Declare wires
-  logic [((BLOCK_OFFSET_WIDTH>0)?BLOCK_OFFSET_WIDTH-1:0):0] block_offset;
+  logic [((BLOCK_SEL_WIDTH>0)?BLOCK_SEL_WIDTH-1:0):0] block_offset;
   ifid_tdata_t ifid_tdata;
   logic icache_hit;
-  logic [BLOCK_SIZE-1:0] icache_data;
   logic itlb_hit;
 
   // Wire assignments
@@ -73,13 +89,19 @@ module ifu
 
   assign ifid_tdata.pc = pc_q;
   assign ifid_tdata.untaken_pc = '0; // TODO
-  assign ifid_tdata.inst = inst_d;
+  assign ifid_tdata.inst = (l1i_hit_q) ? l1i_rdata_pipe_q[block_offset*XLEN +: XLEN] : block_d[block_offset*XLEN +: XLEN];
   assign ifid_pipe_reg_if.tdata = ifid_tdata;
 
-  assign block_offset = (BLOCK_OFFSET_WIDTH>0) ? pc_q[$clog2(XLEN/8)+BLOCK_OFFSET_WIDTH-32'(BLOCK_OFFSET_WIDTH>0):$clog2(XLEN/8)] : '0;
-  assign icache_hit = 1'b0; // TODO
-  assign icache_data = '0; // TODO
+  assign block_offset = (BLOCK_SEL_WIDTH>0) ? pc_q[$clog2(XLEN/8)+BLOCK_SEL_WIDTH-32'(BLOCK_SEL_WIDTH>0):$clog2(XLEN/8)] : '0;
+  assign icache_hit = l1i_current_state_q.v && (l1i_current_tag_q == pc_q[ADDR_WIDTH-1 -: TAG_WIDTH]);
   assign itlb_hit = 1'b1; // TODO
+
+  assign l1i_dir_if.index = pc_d[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH];
+  assign l1i_dir_if.next_tag = pc_q[ADDR_WIDTH-1 -: TAG_WIDTH]; // TODO: Set physical tag when TLB is implemented
+  assign l1i_dir_if.next_state = '{default: '0, v: 1'b1}; // SharedClean
+
+  assign l1i_mem_if.index = pc_d[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH];
+  assign l1i_mem_if.wdata = block_d;
 
 `ifndef SYNTHESIS
   assign ifid_tdata.id = inst_id_q;
@@ -91,24 +113,28 @@ module ifu
     state_d = state_q;
     arvalid_d = arvalid_q;
     rready_d = rready_q;
-    inst_d = inst_q;
+    block_d = block_q;
     rresp_d = rresp_q;
+    l1i_hit_d = l1i_hit_q;
 
     ifid_pipe_reg_if.tvalid = 1'b0;
 
-    case (state_q)
+    l1i_dir_if.write = 1'b0;
+    l1i_mem_if.wstrb = '0;
+
+    case (state_q) // NOTE: This FSM works regardless of next_pc_axis_if.tvalid
       IDLE: begin
         if (itlb_hit) begin
           if (icache_hit) begin
             ifid_pipe_reg_if.tvalid = 1'b1;
-            inst_d = icache_data[block_offset*XLEN +: XLEN];
-            // TODO: icache_data will be available in the next cycle
+            l1i_hit_d = 1'b1;
             if (ifid_pipe_reg_if.tready) begin
               state_d = IDLE;
             end else begin
               state_d = WAIT;
             end
           end else begin
+            l1i_hit_d = '0;
             arvalid_d = 1'b1;
             rready_d = 1'b1;
             state_d = LOAD;
@@ -126,11 +152,13 @@ module ifu
         end
         if (ifu_ace_if.rvalid) begin
           rready_d = 1'b0;
-          inst_d = ifu_ace_if.rdata[block_offset*XLEN +: XLEN];
+          block_d = ifu_ace_if.rdata;
           rresp_d = ifu_ace_if.rresp;
         end
         if (!rready_d) begin // rvalid must be asserted after arready
           ifid_pipe_reg_if.tvalid = 1'b1;
+          l1i_dir_if.write = 1'b1;
+          l1i_mem_if.wstrb = '1; // All bits are 1
           if (ifid_pipe_reg_if.tready) begin
             state_d = IDLE;
           end else begin
@@ -156,8 +184,9 @@ module ifu
       state_q <= LOAD; // Start in LOAD state to fetch the first instruction
       arvalid_q <= 1'b1; // NOTE
       rready_q <= 1'b1; // NOTE
-      inst_q <= '0;
+      block_q <= '0;
       rresp_q <= '0;
+      l1i_hit_q <= '0;
 `ifndef SYNTHESIS
       inst_id_q <= '0;
 `endif
@@ -166,12 +195,23 @@ module ifu
       state_q <= state_d;
       arvalid_q <= arvalid_d;
       rready_q <= rready_d;
-      inst_q <= inst_d;
+      block_q <= block_d;
       rresp_q <= rresp_d;
+      l1i_hit_q <= l1i_hit_d;
 `ifndef SYNTHESIS
       inst_id_q <= inst_id_d;
 `endif
+      $write("pc_q=%08h, pc_q.tag=%05h, l1i_current_tag_q=%05h, pc_q.index=%02h, l1i_dir_if.index=%02h, state_q=%s, icache_hit=%b\n", pc_q, pc_q[ADDR_WIDTH-1 -: TAG_WIDTH], l1i_current_tag_q, pc_q[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH], l1i_dir_if.index, state_q.name(), icache_hit);
     end
+  end
+
+  always_ff @(posedge clk) begin // Expecting to be synthesized to dedicated RAM elements
+    if (next_pc_axis_if.tvalid && next_pc_axis_if.tready) begin
+      l1i_current_tag_q <= (l1i_dir_if.write && (l1i_dir_if.index == pc_q[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH])) ? l1i_dir_if.next_tag : l1i_dir_if.current_tag;
+      l1i_current_state_q <= (l1i_dir_if.write && (l1i_dir_if.index == pc_q[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH])) ? l1i_dir_if.next_state : l1i_dir_if.current_state;
+      l1i_rdata_q <= (l1i_dir_if.write && (l1i_mem_if.index == pc_q[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH])) ? l1i_mem_if.wdata : l1i_mem_if.rdata;
+    end
+    l1i_rdata_pipe_q <= l1i_rdata_q;
   end
 
   axis_skid_buffer ifid_pipe_reg (
