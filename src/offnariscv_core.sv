@@ -16,7 +16,7 @@ module offnariscv_core
   localparam TAG_WIDTH = core_ace_if.ACE_AXADDR_WIDTH - INDEX_WIDTH - $clog2(BLOCK_SIZE / 8);
 
   // Declare interfaces
-  axis_if #(.TDATA_WIDTH(XLEN)) pcgif_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) wbpcg_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) ifid_axis_if ();
@@ -48,7 +48,6 @@ module offnariscv_core
     .clk(clk),
     .rst(rst),
     .pcgif_axis_if(pcgif_axis_if),
-    .current_pc_axis_if(current_pc_axis_if),
     .wbpcg_axis_if(wbpcg_axis_if)
   );
 

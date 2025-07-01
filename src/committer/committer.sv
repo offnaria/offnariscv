@@ -66,7 +66,7 @@ module committer
     // CSR
     wbcsr_wif.addr = exwb_tdata.rf_data.id_data.csr_addr;
     wbcsr_wif.data = syswb_tdata.csr_wdata;
-    wbcsr_wif.pc = exwb_tdata.rf_data.id_data.if_data.pc;
+    wbcsr_wif.pc = exwb_tdata.rf_data.id_data.if_data.pcg_data.pc;
     wbcsr_wif.cause = XLEN'(transform_cause(trap_cause)); // TODO: Support interrupts
     wbcsr_wif.trap = trap;
     wbcsr_wif.valid = syswb_axis_if.tvalid && (syswb_tdata.csr_update || trap); // TODO

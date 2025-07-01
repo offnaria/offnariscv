@@ -6,7 +6,7 @@ module pcgen_wrap
   input clk,
   input rst,
 
-  output logic [XLEN-1:0] next_pc_tdata,
+  output logic [$bits(pcgif_tdata_t)-1:0] next_pc_tdata,
   output logic next_pc_tvalid,
   input logic next_pc_tready,
 
@@ -19,7 +19,7 @@ module pcgen_wrap
   output logic bru_tready
 );
 
-  axis_if #(.TDATA_WIDTH(XLEN)) pcgif_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) wbpcg_axis_if ();
 

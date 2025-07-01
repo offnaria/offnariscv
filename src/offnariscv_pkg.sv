@@ -41,15 +41,19 @@ package offnariscv_pkg;
   localparam INST_ID_WIDTH = 64;
 
   typedef struct packed {
+    logic [XLEN-1:0] pc;
+    logic [XLEN-1:0] untaken_pc; // For branch prediction
 `ifndef SYNTHESIS
     logic [INST_ID_WIDTH-1:0] id;
 `endif
-    logic [XLEN-1:0] pc;
-    logic [XLEN-1:0] untaken_pc; // For branch prediction
+  } pcgif_tdata_t;
+
+  typedef struct packed {
     logic [XLEN-1:0] inst;
     // logic int_exc_valid; // TODO
     // int_exc_code_u int_exc_code; // TODO
     trap_cause_t trap_cause;
+    pcgif_tdata_t pcg_data;
   } ifid_tdata_t;
 
   typedef enum logic [3:0] {

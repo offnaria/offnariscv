@@ -106,7 +106,7 @@ module decoder
     idrf_tdata.rs2 = '0;
     idrf_tdata.rd = '0;
     idrf_tdata.immediate = '0;
-    idrf_tdata.auipc = (opcode == AUIPC) ? ifid_tdata.pc : '0;
+    idrf_tdata.auipc = (opcode == AUIPC) ? ifid_tdata.pcg_data.pc : '0;
     unique case (1'b1)
       rtype: begin
         idrf_tdata.rs1 = inst.r.rs1;

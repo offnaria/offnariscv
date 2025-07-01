@@ -69,9 +69,6 @@ module ifu_wrap
   input logic current_pc_tready,
 
   // To Decoder
-  output logic [63:0] ifid_tdata_id,
-  output logic [XLEN-1:0] ifid_tdata_pc,
-  output logic [XLEN-1:0] ifid_tdata_untaken_pc,
   output logic [XLEN-1:0] ifid_tdata_inst,
   output logic inst_tvalid,
   input logic inst_tready,
@@ -81,7 +78,7 @@ module ifu_wrap
 
   ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) ifu_ace_if ();
 
-  axis_if #(.TDATA_WIDTH(XLEN)) pcgif_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) inst_axis_if ();
 
@@ -90,6 +87,7 @@ module ifu_wrap
   cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_0 ();
   cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_1 ();
 
+  pcgif_tdata_t pcgif_tdata;
   ifid_tdata_t ifid_tdata;
 
   // AR channel signals
@@ -141,7 +139,9 @@ module ifu_wrap
   assign ifu_ace_rack = ifu_ace_if.rack;
 
   // From/To Program Counter Generator
-  assign pcgif_axis_if.tdata = next_pc_tdata;
+  assign pcgif_tdata.pc = next_pc_tdata;
+
+  assign pcgif_axis_if.tdata = pcgif_tdata;
   assign pcgif_axis_if.tvalid = next_pc_tvalid;
   assign next_pc_tready = pcgif_axis_if.tready;
 
@@ -153,9 +153,6 @@ module ifu_wrap
   assign inst_tvalid = inst_axis_if.tvalid;
   assign inst_axis_if.tready = inst_tready;
 
-  assign ifid_tdata_id = ifid_tdata.id;
-  assign ifid_tdata_pc = ifid_tdata.pc;
-  assign ifid_tdata_untaken_pc = ifid_tdata.untaken_pc;
   assign ifid_tdata_inst = ifid_tdata.inst;
 
   ifu ifu_inst (

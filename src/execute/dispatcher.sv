@@ -52,7 +52,7 @@ module dispatcher
     rfbru_tdata.operands.op1 = (rfex_tdata.id_data.fwd_rs1.ex) ? fwd_data : rfex_tdata.operands.op1;
     rfbru_tdata.operands.op2 = (rfex_tdata.id_data.fwd_rs2.ex) ? fwd_data : rfex_tdata.operands.op2;
     rfbru_tdata.offset = rfex_tdata.id_data.immediate;
-    rfbru_tdata.this_pc = rfex_tdata.id_data.if_data.pc;
+    rfbru_tdata.this_pc = rfex_tdata.id_data.if_data.pcg_data.pc;
     rfbru_tdata.cmd = rfex_tdata.id_data.bru_cmd;
     rfbru_axis_if.tdata = rfbru_tdata;
     rfbru_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.bru_cmd_vld && rfex_axis_if.tready;
@@ -63,7 +63,7 @@ module dispatcher
     rfsys_tdata.csr_rdata = rfex_tdata.csr_rdata;
     rfsys_tdata.cmd = rfex_tdata.id_data.sys_cmd;
     rfsys_tdata.trap_cause = rfex_tdata.id_data.if_data.trap_cause;
-    rfsys_tdata.this_pc = rfex_tdata.id_data.if_data.pc;
+    rfsys_tdata.this_pc = rfex_tdata.id_data.if_data.pcg_data.pc;
     rfsys_tdata.mtvec = rfex_tdata.mtvec;
     rfsys_tdata.mepc = rfex_tdata.mepc;
     rfsys_axis_if.tdata = rfsys_tdata;
