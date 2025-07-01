@@ -16,7 +16,7 @@ module offnariscv_core
   localparam TAG_WIDTH = core_ace_if.ACE_AXADDR_WIDTH - INDEX_WIDTH - $clog2(BLOCK_SIZE / 8);
 
   // Declare interfaces
-  axis_if #(.TDATA_WIDTH(XLEN)) next_pc_axis_if ();
+  axis_if #(.TDATA_WIDTH(XLEN)) pcgif_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) wbpcg_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) ifid_axis_if ();
@@ -47,9 +47,9 @@ module offnariscv_core
   pcgen pcgen_inst (
     .clk(clk),
     .rst(rst),
-    .next_pc_axis_if(next_pc_axis_if),
+    .pcgif_axis_if(pcgif_axis_if),
     .current_pc_axis_if(current_pc_axis_if),
-    .bru_axis_if(wbpcg_axis_if)
+    .wbpcg_axis_if(wbpcg_axis_if)
   );
 
   ifu # (
@@ -58,7 +58,7 @@ module offnariscv_core
     .clk(clk),
     .rst(rst),
     .ifu_ace_if(core_ace_if),
-    .next_pc_axis_if(next_pc_axis_if),
+    .pcgif_axis_if(pcgif_axis_if),
     .current_pc_axis_if(current_pc_axis_if),
     .inst_axis_if(ifid_axis_if),
     .l1i_dir_if(l1i_dir_if_0),

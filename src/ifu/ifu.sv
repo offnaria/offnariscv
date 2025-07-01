@@ -14,7 +14,7 @@ module ifu
   ace_if.m ifu_ace_if,
 
   // From/To Program Counter Generator
-  axis_if.s next_pc_axis_if,
+  axis_if.s pcgif_axis_if,
   axis_if.m current_pc_axis_if,
 
   // To Decoder
@@ -38,7 +38,7 @@ module ifu
   // Assert conditions
   initial begin
     assert (ADDR_WIDTH == XLEN) else $fatal("ifu_ace_if.ADDR_WIDTH must be equal to XLEN for now");
-    assert (next_pc_axis_if.TDATA_WIDTH == XLEN) else $fatal("next_pc_axis_if.TDATA_WIDTH must be equal to XLEN");
+    assert (pcgif_axis_if.TDATA_WIDTH == XLEN) else $fatal("pcgif_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (current_pc_axis_if.TDATA_WIDTH == XLEN) else $fatal("current_pc_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (inst_axis_if.TDATA_WIDTH == $bits(ifid_tdata_t)) else $fatal("inst_axis_if.TDATA_WIDTH must match ifid_tdata_t");
     assert (TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) == ADDR_WIDTH) else $fatal("TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) must equal ADDR_WIDTH");
@@ -81,9 +81,9 @@ module ifu
   logic itlb_hit;
 
   // Wire assignments
-  assign pc_d = (next_pc_axis_if.tvalid && next_pc_axis_if.tready) ? next_pc_axis_if.tdata : pc_q;
+  assign pc_d = (pcgif_axis_if.tvalid && pcgif_axis_if.tready) ? pcgif_axis_if.tdata : pc_q;
 
-  assign next_pc_axis_if.tready = (state_d == IDLE);
+  assign pcgif_axis_if.tready = (state_d == IDLE);
   assign current_pc_axis_if.tdata = pc_q;
   assign current_pc_axis_if.tvalid = 1'b1;
 
@@ -122,7 +122,7 @@ module ifu
     l1i_dir_if.write = 1'b0;
     l1i_mem_if.wstrb = '0;
 
-    case (state_q) // NOTE: This FSM works regardless of next_pc_axis_if.tvalid
+    case (state_q) // NOTE: This FSM works regardless of pcgif_axis_if.tvalid
       IDLE: begin
         if (itlb_hit) begin
           if (icache_hit) begin
@@ -206,7 +206,7 @@ module ifu
   end
 
   always_ff @(posedge clk) begin // Expecting to be synthesized to dedicated RAM elements
-    if (next_pc_axis_if.tvalid && next_pc_axis_if.tready) begin
+    if (pcgif_axis_if.tvalid && pcgif_axis_if.tready) begin
       l1i_current_tag_q <= (l1i_dir_if.write && (l1i_dir_if.index == pc_q[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH])) ? l1i_dir_if.next_tag : l1i_dir_if.current_tag;
       l1i_current_state_q <= (l1i_dir_if.write && (l1i_dir_if.index == pc_q[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH])) ? l1i_dir_if.next_state : l1i_dir_if.current_state;
       l1i_rdata_q <= (l1i_dir_if.write && (l1i_mem_if.index == pc_q[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH])) ? l1i_mem_if.wdata : l1i_mem_if.rdata;

@@ -81,7 +81,7 @@ module ifu_wrap
 
   ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) ifu_ace_if ();
 
-  axis_if #(.TDATA_WIDTH(XLEN)) next_pc_axis_if ();
+  axis_if #(.TDATA_WIDTH(XLEN)) pcgif_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) inst_axis_if ();
 
@@ -141,9 +141,9 @@ module ifu_wrap
   assign ifu_ace_rack = ifu_ace_if.rack;
 
   // From/To Program Counter Generator
-  assign next_pc_axis_if.tdata = next_pc_tdata;
-  assign next_pc_axis_if.tvalid = next_pc_tvalid;
-  assign next_pc_tready = next_pc_axis_if.tready;
+  assign pcgif_axis_if.tdata = next_pc_tdata;
+  assign pcgif_axis_if.tvalid = next_pc_tvalid;
+  assign next_pc_tready = pcgif_axis_if.tready;
 
   assign current_pc_tdata = current_pc_axis_if.tdata;
   assign current_pc_tvalid = current_pc_axis_if.tvalid;
@@ -162,7 +162,7 @@ module ifu_wrap
     .clk(clk),
     .rst(rst),
     .ifu_ace_if(ifu_ace_if),
-    .next_pc_axis_if(next_pc_axis_if),
+    .pcgif_axis_if(pcgif_axis_if),
     .current_pc_axis_if(current_pc_axis_if),
     .inst_axis_if(inst_axis_if),
     .l1i_dir_if(l1i_dir_if_0),

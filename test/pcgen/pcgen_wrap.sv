@@ -19,21 +19,21 @@ module pcgen_wrap
   output logic bru_tready
 );
 
-  axis_if #(.TDATA_WIDTH(XLEN)) next_pc_axis_if ();
+  axis_if #(.TDATA_WIDTH(XLEN)) pcgif_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
-  axis_if #(.TDATA_WIDTH(XLEN)) bru_axis_if ();
+  axis_if #(.TDATA_WIDTH(XLEN)) wbpcg_axis_if ();
 
-  assign next_pc_tdata = next_pc_axis_if.tdata;
-  assign next_pc_tvalid = next_pc_axis_if.tvalid;
-  assign next_pc_axis_if.tready = next_pc_tready;
+  assign next_pc_tdata = pcgif_axis_if.tdata;
+  assign next_pc_tvalid = pcgif_axis_if.tvalid;
+  assign pcgif_axis_if.tready = next_pc_tready;
 
   assign current_pc_axis_if.tdata = current_pc_tdata;
   assign current_pc_axis_if.tvalid = current_pc_tvalid;
   assign current_pc_tready = current_pc_axis_if.tready;
 
-  assign bru_axis_if.tdata = bru_tdata;
-  assign bru_axis_if.tvalid = bru_tvalid;
-  assign bru_tready = bru_axis_if.tready;
+  assign wbpcg_axis_if.tdata = bru_tdata;
+  assign wbpcg_axis_if.tvalid = bru_tvalid;
+  assign bru_tready = wbpcg_axis_if.tready;
 
   pcgen pcgen_inst (.*);
 
