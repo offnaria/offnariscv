@@ -64,6 +64,7 @@ module ifu
   logic [BLOCK_SIZE-1:0] rdata_q, rdata_d;
   logic [$bits(ifu_ace_if.rresp)-1:0] rresp_q, rresp_d;
   logic l1ic_hit_q, l1ic_hit_d;
+  logic invalidate_q, invalidate_d;
 
   logic [INDEX_WIDTH-1:0] l1ic_dir_index_q, l1ic_dir_index_d;
   logic [INDEX_WIDTH-1:0] l1ic_mem_index_q, l1ic_mem_index_d;
@@ -95,6 +96,7 @@ module ifu
     l1ic_hit_d = l1ic_hit_q;
     rdata_d = rdata_q;
     rresp_d = rresp_q;
+    invalidate_d = invalidate_q;
 
     pcgif_pipe_reg_if.tready = '0;
     ifid_pipe_reg_if.tvalid = '0;
@@ -165,6 +167,20 @@ module ifu
     ifid_pipe_reg_if.tdata = ifid_tdata;
 
     l1i_mem_if.wdata = rdata_d;
+
+    if (invalidate && (state_q != IDLE)) begin
+      if (!ifid_pipe_reg_if.tvalid) begin
+        invalidate_d = 1'b1;
+      end
+    end
+
+    if (invalidate_q) begin
+      if (ifid_pipe_reg_if.ack()) begin
+        invalidate_d = '0;
+      end
+      ifid_pipe_reg_if.tvalid = '0;
+      pcgif_pipe_reg_if.tready = '0;
+    end
   end
 
   // Update registers
@@ -176,6 +192,7 @@ module ifu
       rdata_q <= '0;
       rresp_q <= '0;
       l1ic_hit_q <= '0;
+      invalidate_q <= '0;
     end else begin
       state_q <= state_d;
       arvalid_q <= arvalid_d;
@@ -183,6 +200,7 @@ module ifu
       rdata_q <= rdata_d;
       rresp_q <= rresp_d;
       l1ic_hit_q <= l1ic_hit_d;
+      invalidate_q <= invalidate_d;
     end
   end
 
