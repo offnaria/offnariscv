@@ -70,6 +70,7 @@ module ifu
 
   // Declare wires
   pcgif_tdata_t pcgif_tdata;
+  pcgif_tdata_t pcgif_pipe_tdata;
   logic pcgif_ack;
   logic l1itlb_hit;
   logic [TAG_WIDTH-1:0] tag;
@@ -78,7 +79,8 @@ module ifu
   ifid_tdata_t ifid_tdata;
 
   // Wire assignments
-  assign pcgif_tdata = pcgif_pipe_reg_if.tdata;
+  assign pcgif_tdata = pcgif_axis_if.tdata;
+  assign pcgif_pipe_tdata = pcgif_pipe_reg_if.tdata;
   assign pcgif_ack = pcgif_axis_if.tvalid && pcgif_axis_if.tready;
   assign l1itlb_hit = 1'b1; // TODO
 
@@ -97,12 +99,12 @@ module ifu
     pcgif_pipe_reg_if.tready = '0;
     ifid_pipe_reg_if.tvalid = '0;
 
-    tag = pcgif_tdata.pc[ADDR_WIDTH-1 -: TAG_WIDTH]; // TODO: The tag will be obtained from TLB when implemented
-    block_sel = (BLOCK_SEL_WIDTH==0) ? '0 : pcgif_tdata.pc[BLOCK_OFFSET_WIDTH-1 -: BLOCK_SEL_WIDTH];
+    tag = pcgif_pipe_tdata.pc[ADDR_WIDTH-1 -: TAG_WIDTH]; // TODO: The tag will be obtained from TLB when implemented
+    block_sel = (BLOCK_SEL_WIDTH==0) ? '0 : pcgif_pipe_tdata.pc[BLOCK_OFFSET_WIDTH-1 -: BLOCK_SEL_WIDTH];
 
     ifid_tdata.inst = l1i_mem_if.rdata[block_sel * XLEN +: XLEN];
     ifid_tdata.trap_cause = '0; // TODO
-    ifid_tdata.pcg_data = pcgif_tdata;
+    ifid_tdata.pcg_data = pcgif_pipe_tdata;
 
     l1i_dir_if.next_tag = tag;
     l1i_dir_if.next_state = '{default: '0, v: 1'b1};
@@ -181,8 +183,6 @@ module ifu
       rdata_q <= rdata_d;
       rresp_q <= rresp_d;
       l1ic_hit_q <= l1ic_hit_d;
-      $write("ifu: state=%s, arvalid=%0d, rready=%0d, l1ic_hit=%0d, rresp=%0h\n",
-             state_q.name(), arvalid_q, rready_q, l1ic_hit_q, rresp_q);
     end
   end
 
@@ -239,7 +239,7 @@ module ifu
 
   //// AR channel signals
   assign ifu_ace_if.arid = '0; // TODO
-  assign ifu_ace_if.araddr = pcgif_tdata.pc;
+  assign ifu_ace_if.araddr = pcgif_pipe_tdata.pc;
   assign ifu_ace_if.arlen = '0; // TODO
   assign ifu_ace_if.arsize = '0; // TODO
   assign ifu_ace_if.arburst = '0; // TODO
