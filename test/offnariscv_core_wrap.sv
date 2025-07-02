@@ -162,41 +162,82 @@ module offnariscv_core_wrap
       wbrf_prev_ack <= offnariscv_core_inst.wbrf_axis_if.ack();
       wbrf_prev_tdata <= offnariscv_core_inst.wbrf_axis_if.tdata;
       prev_invalidate <= offnariscv_core_inst.invalidate;
-      $write("ifid: tvalid=%0d, tready=%0d, ack=%0d\n",
+      $write("pcgif:\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.pcgif_axis_if.tvalid,
+             offnariscv_core_inst.pcgif_axis_if.tready,
+             offnariscv_core_inst.pcgif_axis_if.ack(),
+             offnariscv_core_inst.pcgif_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.pcgif_axis_if.tdata[63:0]);
+      $write("if1:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tvalid,
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tready,
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.ack(),
+              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[127 -: XLEN],
+              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[63:0]);
+      $write("ifid:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
              offnariscv_core_inst.ifid_axis_if.tvalid,
              offnariscv_core_inst.ifid_axis_if.tready,
-             offnariscv_core_inst.ifid_axis_if.ack());
-      $write("idrf: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.ifid_axis_if.ack(),
+             offnariscv_core_inst.ifid_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.ifid_axis_if.tdata[63:0]);
+      $write("idrf:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
              offnariscv_core_inst.idrf_axis_if.tvalid,
              offnariscv_core_inst.idrf_axis_if.tready,
-             offnariscv_core_inst.idrf_axis_if.ack());
-      $write("rfex: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.idrf_axis_if.ack(),
+             offnariscv_core_inst.idrf_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.idrf_axis_if.tdata[63:0]);
+      $write("rfex:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, alu.op1=%016h, alu.op2=%016h, bru.op1=%016h, bru.op2=%016h, id=%0d\n",
              offnariscv_core_inst.rfex_axis_if.tvalid,
              offnariscv_core_inst.rfex_axis_if.tready,
-             offnariscv_core_inst.rfex_axis_if.ack());
-      $write("exwb: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.rfex_axis_if.ack(),
+             offnariscv_core_inst.rfex_axis_if.tdata[127 -: XLEN],
+              offnariscv_core_inst.rfalu_axis_if.tdata,
+              offnariscv_core_inst.rfalu_axis_if.tdata,
+              offnariscv_core_inst.rfbru_axis_if.tdata,
+              offnariscv_core_inst.rfbru_axis_if.tdata,
+             offnariscv_core_inst.rfex_axis_if.tdata[63:0]);
+      $write("exwb:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
              offnariscv_core_inst.exwb_axis_if.tvalid,
              offnariscv_core_inst.exwb_axis_if.tready,
-             offnariscv_core_inst.exwb_axis_if.ack());
-      $write("wbrf: tvalid=%0d, tready=%0d, ack=%0d\n",
+             offnariscv_core_inst.exwb_axis_if.ack(),
+             offnariscv_core_inst.exwb_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.exwb_axis_if.tdata[63:0]);
+      if (0)
+      $write("wbrf:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
              offnariscv_core_inst.wbrf_axis_if.tvalid,
              offnariscv_core_inst.wbrf_axis_if.tready,
-             offnariscv_core_inst.wbrf_axis_if.ack());
-      for (int i = 0; i < 32; i++) begin
-        $write("rf[%0d] = %08x\n", i, offnariscv_core_inst.regfile_inst.rf_mem[i]);
-      end
-      if (offnariscv_core_inst.wbrf_axis_if.ack()) begin
+             offnariscv_core_inst.wbrf_axis_if.ack(),
+             offnariscv_core_inst.wbrf_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.wbrf_axis_if.tdata[63:0]);
+      // for (int i = 0; i < 32; i++) begin
+      //   $write("rf[%0d] = %08x\n", i, offnariscv_core_inst.regfile_inst.rf_mem[i]);
+      // end
+      if (offnariscv_core_inst.wbrf_axis_if.ack() || 1) begin
         wbrf_tdata_t tdata;
         assign tdata = offnariscv_core_inst.wbrf_axis_if.tdata;
+        $write ("wbrf:\t\tid=%0d, rd=%0d, wdata=%08x, pc=%08x, trap=%0d\n",
+               tdata.ex_data.rf_data.id_data.if_data.pcg_data.id,
+               tdata.ex_data.rf_data.id_data.rd,
+               tdata.wdata,
+               tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
+               offnariscv_core_inst.wbcsr_wif.trap);
+        if (tdata.ex_data.rf_data.id_data.rd != 0)
         $write("pc=%08x, rd=%0d, wdata=%08x\n",
-               tdata.ex_data.rf_data.id_data.if_data.pc,
+               tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
                tdata.ex_data.rf_data.id_data.rd,
                tdata.wdata);
+        if (offnariscv_core_inst.wbcsr_wif.valid || offnariscv_core_inst.syswb_axis_if.tvalid)
+        $write("csr_addr=%08x, csr_rdata=%08x, csr_wdata=%08x, pc=%08x, cause=%0d\n",
+               offnariscv_core_inst.wbcsr_wif.addr,
+               tdata.ex_data.rf_data.csr_rdata,
+               offnariscv_core_inst.wbcsr_wif.data,
+               offnariscv_core_inst.wbcsr_wif.pc,
+               offnariscv_core_inst.wbcsr_wif.cause);
+        if (offnariscv_core_inst.wbcsr_wif.trap)
+          $write("trap: %0d\n", offnariscv_core_inst.wbcsr_wif.cause);
       end
       if (offnariscv_core_inst.wbpcg_axis_if.ack()) begin
-        bruwb_tdata_t tdata;
-        assign tdata = offnariscv_core_inst.bruwb_axis_if.tdata;
-        $write("new_pc=%08x, taken=%0d\n", tdata.new_pc, tdata.taken);
+        $write("new_pc=%08x\n", offnariscv_core_inst.wbpcg_axis_if.tdata);
       end
       $write("\n");
     end
@@ -206,42 +247,49 @@ module offnariscv_core_wrap
   export "DPI-C" task kanata_log_dut;
   task kanata_log_dut;
     output string log_file;
-    string s0, s1, s2, s3, s4, s5, s6;
-    if (offnariscv_core_inst.ifu_inst.state_q == 0) begin // IDLE state
+    string s0, s1, s2, s3, s4, s5, s6, s7;
+    if (offnariscv_core_inst.wbpcg_axis_if.ack() || offnariscv_core_inst.pcgif_axis_if.ack()) begin
       logic [INST_ID_WIDTH-1:0] id;
-      assign id = offnariscv_core_inst.ifu_inst.inst_id_q;
-      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tIF\n", id, id, id);
+      assign id = offnariscv_core_inst.pcgen_inst.inst_id_q;
+      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tPC\n", id, id, id);
     end else $sformat(s0, "");
+    if (offnariscv_core_inst.pcgif_axis_if.ack()) begin // IDLE state
+      pcgif_tdata_t tdata;
+      assign tdata = offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata;
+      $sformat(s1, "S\t%0d\t0\tIF\n", tdata.id);
+    end else $sformat(s1, "");
     if (offnariscv_core_inst.ifid_axis_if.ack()) begin
       ifid_tdata_t tdata;
       assign tdata = offnariscv_core_inst.ifid_axis_if.tdata;
-      $sformat(s1, "S\t%0d\t0\tID\nL\t%0d\t0\t%08x %08x\n", tdata.id, tdata.id, tdata.pc, tdata.inst);
-    end else $sformat(s1, "");
+      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t%08x %08x\n", tdata.pcg_data.id, tdata.pcg_data.id, tdata.pcg_data.pc, tdata.inst);
+    end else $sformat(s2, "");
     if (offnariscv_core_inst.idrf_axis_if.ack()) begin
       idrf_tdata_t tdata;
       assign tdata = offnariscv_core_inst.idrf_axis_if.tdata;
-      $sformat(s2, "S\t%0d\t0\tRF\n", tdata.if_data.id);
-    end else $sformat(s2, "");
+      $sformat(s3, "S\t%0d\t0\tRF\n", tdata.if_data.pcg_data.id);
+    end else $sformat(s3, "");
     if (offnariscv_core_inst.rfex_axis_if.ack()) begin
       rfex_tdata_t tdata;
       assign tdata = offnariscv_core_inst.rfex_axis_if.tdata;
-      $sformat(s3, "S\t%0d\t0\tEX\n", tdata.id_data.if_data.id);
-    end else $sformat(s3, "");
+      $sformat(s4, "S\t%0d\t0\tEX\n", tdata.id_data.if_data.pcg_data.id);
+    end else $sformat(s4, "");
     if (offnariscv_core_inst.exwb_axis_if.ack()) begin
       exwb_tdata_t tdata;
       assign tdata = offnariscv_core_inst.exwb_axis_if.tdata;
-      $sformat(s4, "S\t%0d\t0\tWB\n", tdata.rf_data.id_data.if_data.id);
-    end else $sformat(s4, "");
-    if (wbrf_prev_ack) begin
-      $sformat(s5, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.id, ret_cnt);
-      ret_cnt++;
+      $sformat(s5, "S\t%0d\t0\tWB\n", tdata.rf_data.id_data.if_data.pcg_data.id);
     end else $sformat(s5, "");
-    if (prev_invalidate) begin
-      for (longint i = wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.id + 1; i < offnariscv_core_inst.ifu_inst.inst_id_q; ++i) begin
-        $sformat(s6, "%sR\t%0d\t-1\t1\n", s6, i);
-      end
+    if (wbrf_prev_ack) begin
+      $sformat(s6, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id, ret_cnt);
+      ret_cnt++;
     end else $sformat(s6, "");
-    $sformat(log_file, "%s%s%s%s%s%s%s", s0, s1, s2, s3, s4, s5, s6);
+    if (prev_invalidate) begin
+      pcgif_tdata_t tdata;
+      assign tdata = offnariscv_core_inst.pcgif_axis_if.tdata;
+      for (longint i = wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id + 1; i < tdata.id; ++i) begin
+        $sformat(s7, "%sR\t%0d\t-1\t1\n", s7, i);
+      end
+    end else $sformat(s7, "");
+    $sformat(log_file, "%s%s%s%s%s%s%s%s", s0, s1, s2, s3, s4, s5, s6, s7);
   endtask
 
 endmodule
