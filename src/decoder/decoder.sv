@@ -238,9 +238,9 @@ module decoder
 
     // Forwarding information
     idrf_tdata.fwd_rs1.rf = (idrf_tdata.rs1 != '0);
-    idrf_tdata.fwd_rs1.ex = (idrf_tdata.rs1 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs1 == prev_rd_mif.tdata));
+    idrf_tdata.fwd_rs1.ex = (idrf_tdata.rs1 != '0) && (prev_rd_mif.tvalid && (idrf_tdata.rs1 == prev_rd_mif.tdata));
     idrf_tdata.fwd_rs2.rf = (idrf_tdata.rs2 != '0);
-    idrf_tdata.fwd_rs2.ex = (idrf_tdata.rs2 != '0) && (!prev_rd_mif.tvalid || (idrf_tdata.rs2 == prev_rd_mif.tdata));
+    idrf_tdata.fwd_rs2.ex = (idrf_tdata.rs2 != '0) && (prev_rd_mif.tvalid && (idrf_tdata.rs2 == prev_rd_mif.tdata));
 
     idrf_tdata.if_data = ifid_tdata;
 
@@ -250,8 +250,8 @@ module decoder
     ifid_axis_if.tready = idrf_fifo_if.tready;
 
     prev_rd_sif.tdata = idrf_tdata.rd;
-    prev_rd_sif.tvalid = idrf_fifo_if.tvalid && (idrf_tdata.rd != '0);
-    prev_rd_mif.tready = idrf_fifo_if.tready;
+    prev_rd_sif.tvalid = idrf_fifo_if.tvalid && idrf_fifo_if.tready && (idrf_tdata.rd != '0);
+    prev_rd_mif.tready = ifid_axis_if.tvalid && ifid_axis_if.tready;
   end
 
   // Instantiate FIFO

@@ -50,8 +50,8 @@ module regfile
 
     rfcsr_rif.addr = idrf_tdata.csr_addr; // Is this evaluated before rfcsr_rif.rdata is used?
 
-    rs1_data = (idrf_tdata.fwd_rs1.rf && wbrf_axis_if.tvalid) ? wbrf_tdata.wdata : rf_mem[idrf_tdata.rs1];
-    rs2_data = (idrf_tdata.fwd_rs2.rf && wbrf_axis_if.tvalid) ? wbrf_tdata.wdata : rf_mem[idrf_tdata.rs2];
+    rs1_data = (idrf_tdata.fwd_rs1.rf && (idrf_tdata.rs1 == wbrf_tdata.ex_data.rf_data.id_data.rd) && wbrf_axis_if.tvalid) ? wbrf_tdata.wdata : rf_mem[idrf_tdata.rs1];
+    rs2_data = (idrf_tdata.fwd_rs2.rf && (idrf_tdata.rs2 == wbrf_tdata.ex_data.rf_data.id_data.rd) && wbrf_axis_if.tvalid) ? wbrf_tdata.wdata : rf_mem[idrf_tdata.rs2];
 
     rfex_tdata.operands.op1 = rs1_data | idrf_tdata.auipc; // Assuming rs1 and auipc are exclusive
     rfex_tdata.operands.op2 = rs2_data | idrf_tdata.immediate; // Assuming rs2 and immediate are exclusive
