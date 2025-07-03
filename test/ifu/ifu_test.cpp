@@ -44,9 +44,24 @@ TEST_CASE("ifu_load") {
   tfp->open("simx.fst");
   init_dut(dut);
 
+  std::print("----- First step\n");
+  for (int i = 0; i < 10; ++i) {
+    std::print("next_pc_tready={}\n", dut->next_pc_tready);
+    if (dut->next_pc_tready == 1) break;
+    dut.step();
+  }
+  REQUIRE(dut->next_pc_tready == 1);
+  dut->next_pc_tvalid = 1;
+  dut->next_pc_tdata = 0;
+  dut.step();
+
   std::print("----- Wait for the first instruction load\n");
-  std::print("arvalid={}, araddr=0x{:08x}, rready={}\n", dut->ifu_ace_arvalid,
-             dut->ifu_ace_araddr, dut->ifu_ace_rready);
+  for (int i = 0; i < 10; ++i) {
+    std::print("arvalid={}, araddr=0x{:08x}, rready={}\n", dut->ifu_ace_arvalid,
+               dut->ifu_ace_araddr, dut->ifu_ace_rready);
+    if (dut->ifu_ace_arvalid == 1) break;
+    dut.step();
+  }
   REQUIRE(dut->ifu_ace_arvalid == 1);
   REQUIRE(dut->ifu_ace_araddr ==
           0x00000000);  // Assuming the reset vector is 0x00000000
