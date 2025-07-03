@@ -250,8 +250,10 @@ module offnariscv_core_wrap
     string s0, s1, s2, s3, s4, s5, s6, s7;
     if (offnariscv_core_inst.wbpcg_axis_if.ack() || offnariscv_core_inst.pcgif_axis_if.ack()) begin
       logic [INST_ID_WIDTH-1:0] id;
+      logic [XLEN-1:0] pc;
       assign id = offnariscv_core_inst.pcgen_inst.inst_id_q;
-      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tPC\n", id, id, id);
+      assign pc = offnariscv_core_inst.pcgen_inst.pc_q;
+      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tPC\nL\t%0d\t0\t%08x \n", id, id, id, id, pc);
     end else $sformat(s0, "");
     if (offnariscv_core_inst.pcgif_axis_if.ack()) begin // IDLE state
       pcgif_tdata_t tdata;
@@ -261,7 +263,7 @@ module offnariscv_core_wrap
     if (offnariscv_core_inst.ifid_axis_if.ack()) begin
       ifid_tdata_t tdata;
       assign tdata = offnariscv_core_inst.ifid_axis_if.tdata;
-      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t%08x %08x\n", tdata.pcg_data.id, tdata.pcg_data.id, tdata.pcg_data.pc, tdata.inst);
+      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t%08x\n", tdata.pcg_data.id, tdata.pcg_data.id, tdata.inst);
     end else $sformat(s2, "");
     if (offnariscv_core_inst.idrf_axis_if.ack()) begin
       idrf_tdata_t tdata;
