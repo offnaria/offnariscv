@@ -8,12 +8,18 @@ module offnariscv_core
   input clk,
   input rst,
 
-  ace_if.m core_ace_if
+  ace_if.m ifu_ace_if,
+  ace_if.m lsu_ace_if
 );
 
-  localparam BLOCK_SIZE = core_ace_if.ACE_XDATA_WIDTH;
+  localparam BLOCK_SIZE = ifu_ace_if.ACE_XDATA_WIDTH;
   localparam INDEX_WIDTH = 12 - $clog2(BLOCK_SIZE / 8);
-  localparam TAG_WIDTH = core_ace_if.ACE_AXADDR_WIDTH - INDEX_WIDTH - $clog2(BLOCK_SIZE / 8);
+  localparam TAG_WIDTH = ifu_ace_if.ACE_AXADDR_WIDTH - INDEX_WIDTH - $clog2(BLOCK_SIZE / 8);
+
+  // Assert conditions
+  initial begin
+    assert (BLOCK_SIZE == lsu_ace_if.ACE_XDATA_WIDTH) else $fatal("BLOCK_SIZE must match lsu_ace_if.ACE_XDATA_WIDTH for now");
+  end
 
   // Declare interfaces
   axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
@@ -56,7 +62,7 @@ module offnariscv_core
   ) ifu_inst (
     .clk(clk),
     .rst(rst),
-    .ifu_ace_if(core_ace_if),
+    .ifu_ace_if(ifu_ace_if),
     .pcgif_axis_if(pcgif_axis_if),
     .current_pc_axis_if(current_pc_axis_if),
     .inst_axis_if(ifid_axis_if),

@@ -76,6 +76,8 @@ module offnariscv_core_wrap
 );
 
   ace_if core_ace_if ();
+  ace_if ifu_ace_if ();
+  ace_if lsu_ace_if ();
 
   assign core_ace_awid = core_ace_if.awid;
   assign core_ace_awaddr = core_ace_if.awaddr;
@@ -142,12 +144,78 @@ module offnariscv_core_wrap
   assign core_ace_rack = core_ace_if.rack;
   assign core_ace_wack = core_ace_if.wack;
 
+  assign core_ace_if.awid = ifu_ace_if.awid;
+  assign core_ace_if.awaddr = ifu_ace_if.awaddr;
+  assign core_ace_if.awlen = ifu_ace_if.awlen;
+  assign core_ace_if.awsize = ifu_ace_if.awsize;
+  assign core_ace_if.awburst = ifu_ace_if.awburst;
+  assign core_ace_if.awlock = ifu_ace_if.awlock;
+  assign core_ace_if.awcache = ifu_ace_if.awcache;
+  assign core_ace_if.awprot = ifu_ace_if.awprot;
+  assign core_ace_if.awqos = ifu_ace_if.awqos;
+  assign core_ace_if.awregion = ifu_ace_if.awregion;
+  assign core_ace_if.awuser = ifu_ace_if.awuser;
+  assign core_ace_if.awvalid = ifu_ace_if.awvalid;
+  assign ifu_ace_if.awready = core_ace_if.awready;
+  assign core_ace_if.awsnoop = ifu_ace_if.awsnoop;
+  assign core_ace_if.awdomain = ifu_ace_if.awdomain;
+  assign core_ace_if.awbar = ifu_ace_if.awbar;
+  assign core_ace_if.wdata = ifu_ace_if.wdata;
+  assign core_ace_if.wstrb = ifu_ace_if.wstrb;
+  assign core_ace_if.wlast = ifu_ace_if.wlast;
+  assign core_ace_if.wuser = ifu_ace_if.wuser;
+  assign core_ace_if.wvalid = ifu_ace_if.wvalid;
+  assign ifu_ace_if.wready = core_ace_if.wready;
+  assign ifu_ace_if.bid = core_ace_if.bid;
+  assign ifu_ace_if.bresp = core_ace_if.bresp;
+  assign ifu_ace_if.buser = core_ace_if.buser;
+  assign ifu_ace_if.bvalid = core_ace_if.bvalid;
+  assign core_ace_if.bready = ifu_ace_if.bready;
+  assign core_ace_if.arid = ifu_ace_if.arid;
+  assign core_ace_if.araddr = ifu_ace_if.araddr;
+  assign core_ace_if.arlen = ifu_ace_if.arlen;
+  assign core_ace_if.arsize = ifu_ace_if.arsize;
+  assign core_ace_if.arburst = ifu_ace_if.arburst;
+  assign core_ace_if.arlock = ifu_ace_if.arlock;
+  assign core_ace_if.arcache = ifu_ace_if.arcache;
+  assign core_ace_if.arprot = ifu_ace_if.arprot;
+  assign core_ace_if.arqos = ifu_ace_if.arqos;
+  assign core_ace_if.arregion = ifu_ace_if.arregion;
+  assign core_ace_if.aruser = ifu_ace_if.aruser;
+  assign core_ace_if.arvalid = ifu_ace_if.arvalid;
+  assign ifu_ace_if.arready = core_ace_if.arready;
+  assign core_ace_if.arsnoop = ifu_ace_if.arsnoop;
+  assign core_ace_if.ardomain = ifu_ace_if.ardomain;
+  assign core_ace_if.arbar = ifu_ace_if.arbar;
+  assign ifu_ace_if.rid = core_ace_if.rid;
+  assign ifu_ace_if.rdata = core_ace_if.rdata;
+  assign ifu_ace_if.rresp = core_ace_if.rresp;
+  assign ifu_ace_if.rlast = core_ace_if.rlast;
+  assign ifu_ace_if.ruser = core_ace_if.ruser;
+  assign ifu_ace_if.rvalid = core_ace_if.rvalid;
+  assign core_ace_if.rready = ifu_ace_if.rready;
+  assign ifu_ace_if.acvalid = core_ace_if.acvalid;
+  assign core_ace_if.acready = ifu_ace_if.acready;
+  assign ifu_ace_if.acaddr = core_ace_if.acaddr;
+  assign ifu_ace_if.acsnoop = core_ace_if.acsnoop;
+  assign ifu_ace_if.acprot = core_ace_if.acprot;
+  assign core_ace_if.crvalid = ifu_ace_if.crvalid;
+  assign ifu_ace_if.crready = core_ace_if.crready;
+  assign core_ace_if.crresp = ifu_ace_if.crresp;
+  assign core_ace_if.cdvalid = ifu_ace_if.cdvalid;
+  assign ifu_ace_if.cdready = core_ace_if.cdready;
+  assign core_ace_if.cddata = ifu_ace_if.cddata;
+  assign core_ace_if.cdlast = ifu_ace_if.cdlast;
+  assign core_ace_if.rack = ifu_ace_if.rack;
+  assign core_ace_if.wack = ifu_ace_if.wack;
+
   offnariscv_core #(
     .RESET_VECTOR(0)
   ) offnariscv_core_inst (
     .clk(clk),
     .rst(rst),
-    .core_ace_if(core_ace_if)
+    .ifu_ace_if(ifu_ace_if),
+    .lsu_ace_if(lsu_ace_if)
   );
 
   logic wbpcg_prev_ack;
