@@ -29,7 +29,6 @@ static void init_dut(Dut<Vifu>& dut) {
   dut->ifu_ace_cdready = 0;
   dut->next_pc_tdata = 0;
   dut->next_pc_tvalid = 0;
-  dut->current_pc_tready = 0;
   dut->inst_tready = 0;
   dut->invalidate = 0;
 

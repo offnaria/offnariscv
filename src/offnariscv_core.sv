@@ -23,7 +23,6 @@ module offnariscv_core
 
   // Declare interfaces
   axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
-  axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH(XLEN)) wbpcg_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) ifid_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(idrf_tdata_t))) idrf_axis_if ();
@@ -64,7 +63,6 @@ module offnariscv_core
     .rst(rst),
     .ifu_ace_if(ifu_ace_if),
     .pcgif_axis_if(pcgif_axis_if),
-    .current_pc_axis_if(current_pc_axis_if),
     .inst_axis_if(ifid_axis_if),
     .l1i_dir_if(l1i_dir_if_0),
     .l1i_mem_if(l1i_mem_if_0),

@@ -64,10 +64,6 @@ module ifu_wrap
   input logic next_pc_tvalid,
   output logic next_pc_tready,
 
-  output logic [XLEN-1:0] current_pc_tdata,
-  output logic current_pc_tvalid,
-  input logic current_pc_tready,
-
   // To Decoder
   output logic [XLEN-1:0] ifid_tdata_inst,
   output logic inst_tvalid,
@@ -79,7 +75,6 @@ module ifu_wrap
   ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) ifu_ace_if ();
 
   axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
-  axis_if #(.TDATA_WIDTH(XLEN)) current_pc_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) inst_axis_if ();
 
   cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_0 ();
@@ -145,10 +140,6 @@ module ifu_wrap
   assign pcgif_axis_if.tvalid = next_pc_tvalid;
   assign next_pc_tready = pcgif_axis_if.tready;
 
-  assign current_pc_tdata = current_pc_axis_if.tdata;
-  assign current_pc_tvalid = current_pc_axis_if.tvalid;
-  assign current_pc_axis_if.tready = current_pc_tready;
-
   assign ifid_tdata = inst_axis_if.tdata;
   assign inst_tvalid = inst_axis_if.tvalid;
   assign inst_axis_if.tready = inst_tready;
@@ -160,7 +151,6 @@ module ifu_wrap
     .rst(rst),
     .ifu_ace_if(ifu_ace_if),
     .pcgif_axis_if(pcgif_axis_if),
-    .current_pc_axis_if(current_pc_axis_if),
     .inst_axis_if(inst_axis_if),
     .l1i_dir_if(l1i_dir_if_0),
     .l1i_mem_if(l1i_mem_if_0),

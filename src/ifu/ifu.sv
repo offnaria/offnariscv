@@ -13,9 +13,8 @@ module ifu
   // To lower level memory
   ace_if.m ifu_ace_if,
 
-  // From/To Program Counter Generator
+  // From Program Counter Generator
   axis_if.s pcgif_axis_if,
-  axis_if.m current_pc_axis_if,
 
   // To Decoder
   axis_if.m inst_axis_if,
@@ -38,7 +37,6 @@ module ifu
   // Assert conditions
   initial begin
     assert (ADDR_WIDTH == XLEN) else $fatal("ifu_ace_if.ADDR_WIDTH must be equal to XLEN for now");
-    assert (current_pc_axis_if.TDATA_WIDTH == XLEN) else $fatal("current_pc_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (inst_axis_if.TDATA_WIDTH == $bits(ifid_tdata_t)) else $fatal("inst_axis_if.TDATA_WIDTH must match ifid_tdata_t");
     assert (TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) == ADDR_WIDTH) else $fatal("TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) must equal ADDR_WIDTH");
     assert (l1i_mem_if.BLOCK_SIZE == BLOCK_SIZE) else $fatal("l1i_mem_if.BLOCK_SIZE must match BLOCK_SIZE");
