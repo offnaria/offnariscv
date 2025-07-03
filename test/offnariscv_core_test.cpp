@@ -128,7 +128,10 @@ Tester::Tester(const std::string& test) {
     REQUIRE(kanata_log.is_open());
     std::print(kanata_log,
                "Kanata\t0004\n"
-               "C=\t0\n");
+               "C=\t0\n"
+               "I\t0\t0\t0\n"
+               "S\t0\t0\tPC\n"
+               "L\t0\t0\t00000000\n");
   }
 
   init_dut();
