@@ -89,10 +89,15 @@ module lsu_wrap
 
   // Additional signals
   output lsu_ace_rack,
-  output lsu_ace_wack
+  output lsu_ace_wack,
+
+  input logic invalidate
 );
 
   ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) lsu_ace_if ();
+
+  axis_if #(.TDATA_WIDTH($bits(rflsu_tdata_t))) rflsu_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(lsuwb_tdata_t))) lsuwb_axis_if ();
 
   // AW channel signals
   assign lsu_ace_awid = lsu_ace_if.awid;
@@ -179,7 +184,10 @@ module lsu_wrap
   lsu lsu_inst (
     .clk(clk),
     .rst(rst),
-    .lsu_ace_if(lsu_ace_if)
+    .lsu_ace_if(lsu_ace_if),
+    .rflsu_axis_if(rflsu_axis_if),
+    .lsuwb_axis_if(lsuwb_axis_if),
+    .invalidate(invalidate)
   );
 
 endmodule

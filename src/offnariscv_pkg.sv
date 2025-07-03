@@ -155,6 +155,10 @@ package offnariscv_pkg;
   } rfsys_tdata_t;
 
   typedef struct packed {
+    logic tmp;
+  } rflsu_tdata_t;
+
+  typedef struct packed {
     rfex_tdata_t rf_data;
   } exwb_tdata_t;
 
@@ -182,6 +186,10 @@ package offnariscv_pkg;
     logic use_new_pc;
     logic trap;
   } syswb_tdata_t;
+
+  typedef struct packed {
+    logic tmp;
+  } lsuwb_tdata_t;
 
 endpackage
 
