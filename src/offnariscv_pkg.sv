@@ -95,6 +95,17 @@ package offnariscv_pkg;
     SFENCE_VMA
   } system_cmd_e;
 
+  typedef enum logic [2:0] {
+    LSU_LW,
+    LSU_LH,
+    LSU_LB,
+    LSU_LHU,
+    LSU_LBU,
+    LSU_SW,
+    LSU_SH,
+    LSU_SB
+  } lsu_cmd_e; // TODO: AMO and LR/SC
+
   typedef struct packed {
     logic rf; // Forwarding is needed at RF stage
     logic ex; // Forwarding is needed at EX stage
@@ -115,6 +126,8 @@ package offnariscv_pkg;
     logic bru_cmd_vld;
     system_cmd_e sys_cmd;
     logic sys_cmd_vld;
+    lsu_cmd_e lsu_cmd;
+    logic lsu_cmd_vld;
     ifid_tdata_t if_data;
   } idrf_tdata_t;
 
@@ -155,7 +168,9 @@ package offnariscv_pkg;
   } rfsys_tdata_t;
 
   typedef struct packed {
-    logic tmp;
+    operands_t operands;
+    logic [XLEN-1:0] offset;
+    lsu_cmd_e cmd;
   } rflsu_tdata_t;
 
   typedef struct packed {
@@ -188,7 +203,9 @@ package offnariscv_pkg;
   } syswb_tdata_t;
 
   typedef struct packed {
-    logic tmp;
+    logic [XLEN-1:0] result;
+    trap_cause_t trap_cause;
+    logic trap;
   } lsuwb_tdata_t;
 
 endpackage

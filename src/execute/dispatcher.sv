@@ -13,6 +13,7 @@ module dispatcher
   axis_if.m rfalu_axis_if, // To ALU
   axis_if.m rfbru_axis_if, // To Branch Resolution Unit
   axis_if.m rfsys_axis_if, // To System Unit
+  axis_if.m rflsu_axis_if, // To Load/Store Unit
   axis_if.m exwb_axis_if, // To Write Back
 
   axis_if.s wbrf_axis_if, // For forwarding
@@ -28,6 +29,7 @@ module dispatcher
   rfalu_tdata_t rfalu_tdata;
   rfbru_tdata_t rfbru_tdata;
   rfsys_tdata_t rfsys_tdata;
+  rflsu_tdata_t rflsu_tdata;
   exwb_tdata_t exwb_tdata;
   wbrf_tdata_t wbrf_tdata;
 
@@ -68,6 +70,14 @@ module dispatcher
     rfsys_tdata.mepc = rfex_tdata.mepc;
     rfsys_axis_if.tdata = rfsys_tdata;
     rfsys_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.sys_cmd_vld && rfex_axis_if.tready;
+
+    // LSU
+    rflsu_tdata.operands.op1 = (wbrf_axis_if.tvalid && rfex_tdata.id_data.fwd_rs1.ex) ? fwd_data : rfex_tdata.operands.op1;
+    rflsu_tdata.operands.op2 = (wbrf_axis_if.tvalid && rfex_tdata.id_data.fwd_rs2.ex) ? fwd_data : rfex_tdata.rs2_data;
+    rflsu_tdata.offset = rfex_tdata.id_data.immediate;
+    rflsu_tdata.cmd = rfex_tdata.id_data.lsu_cmd;
+    rflsu_axis_if.tdata = rflsu_tdata;
+    rflsu_axis_if.tvalid = exwb_slice_if.tvalid && rfex_tdata.id_data.lsu_cmd_vld && rfex_axis_if.tready;
 
     exwb_tdata.rf_data = rfex_tdata;
     exwb_slice_if.tdata = exwb_tdata;

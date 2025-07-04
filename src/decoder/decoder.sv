@@ -142,9 +142,11 @@ module decoder
     idrf_tdata.alu_cmd_vld = opcode inside {OP_IMM, AUIPC, OP, LUI};
     idrf_tdata.bru_cmd_vld = opcode inside {BRANCH, JAL, JALR};
     idrf_tdata.sys_cmd_vld = opcode inside {SYSTEM};
+    idrf_tdata.lsu_cmd_vld = opcode inside {LOAD, STORE}; // TODO: AMO
     idrf_tdata.alu_cmd = ADD; // TODO
     idrf_tdata.bru_cmd = BRU_JAL; // TODO
     idrf_tdata.sys_cmd = CSRRW; // TODO
+    idrf_tdata.lsu_cmd = LSU_LW; // TODO
     unique case (1'b1)
       idrf_tdata.alu_cmd_vld: begin
         if (opcode inside {AUIPC, LUI}) begin
@@ -231,6 +233,39 @@ module decoder
             idrf_tdata.sys_cmd = CSRRCI;
             idrf_tdata.immediate[4:0] = inst.r.rs1;
             idrf_tdata.rd = inst.r.rd;
+          end
+          default: begin
+            // Invalid instruction, raise an exception
+          end
+        endcase
+      end
+      idrf_tdata.lsu_cmd_vld: begin
+        unique case (opcode)
+          LOAD: begin
+            unique case (inst.i.funct3)
+              3'b000: idrf_tdata.lsu_cmd = LSU_LB;
+              3'b001: idrf_tdata.lsu_cmd = LSU_LH;
+              3'b010: idrf_tdata.lsu_cmd = LSU_LW;
+              3'b100: idrf_tdata.lsu_cmd = LSU_LBU;
+              3'b101: idrf_tdata.lsu_cmd = LSU_LHU;
+              default: begin
+                // Invalid instruction, raise an exception
+              end
+            endcase
+            idrf_tdata.rs1 = inst.i.rs1;
+            idrf_tdata.rd = inst.i.rd;
+          end
+          STORE: begin
+            unique case (inst.s.funct3)
+              3'b000: idrf_tdata.lsu_cmd = LSU_SB;
+              3'b001: idrf_tdata.lsu_cmd = LSU_SH;
+              3'b010: idrf_tdata.lsu_cmd = LSU_SW;
+              default: begin
+                // Invalid instruction, raise an exception
+              end
+            endcase
+            idrf_tdata.rs1 = inst.s.rs1;
+            idrf_tdata.rs2 = inst.s.rs2;
           end
           default: begin
             // Invalid instruction, raise an exception

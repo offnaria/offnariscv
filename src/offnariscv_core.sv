@@ -30,10 +30,12 @@ module offnariscv_core
   axis_if #(.TDATA_WIDTH($bits(rfalu_tdata_t))) rfalu_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(rfbru_tdata_t))) rfbru_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(rfsys_tdata_t))) rfsys_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(rflsu_tdata_t))) rflsu_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(exwb_tdata_t))) exwb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(aluwb_tdata_t))) aluwb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(bruwb_tdata_t))) bruwb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(syswb_tdata_t))) syswb_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(lsuwb_tdata_t))) lsuwb_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(wbrf_tdata_t))) wbrf_axis_if ();
 
   csr_rif rfcsr_rif ();
@@ -117,6 +119,7 @@ module offnariscv_core
     .rfalu_axis_if(rfalu_axis_if),
     .rfbru_axis_if(rfbru_axis_if),
     .rfsys_axis_if(rfsys_axis_if),
+    .rflsu_axis_if(rflsu_axis_if),
     .exwb_axis_if(exwb_axis_if),
     .wbrf_axis_if(wbrf_axis_if), // For forwarding
     .invalidate(invalidate)
@@ -153,6 +156,7 @@ module offnariscv_core
     .aluwb_axis_if(aluwb_axis_if),
     .bruwb_axis_if(bruwb_axis_if),
     .syswb_axis_if(syswb_axis_if),
+    .lsuwb_axis_if(lsuwb_axis_if),
     .wbrf_axis_if(wbrf_axis_if),
     .wbpcg_axis_if(wbpcg_axis_if),
     .wbcsr_wif(wbcsr_wif)
