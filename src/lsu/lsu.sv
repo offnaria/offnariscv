@@ -114,16 +114,14 @@ module lsu
                 wvalid_d = 1'b1;
                 wdata_d = {(BLOCK_SIZE / XLEN){rflsu_slice_tdata.operands.op2}}; // Replicating can be fine, too.
                 wstrb_d = '0;
-                for (int i = 0; i < BLOCK_SIZE / 8; i += BLOCK_SIZE / XLEN) begin
-                  if (BLOCK_SEL_WIDTH'(i) == block_sel) begin
-                    unique case (rflsu_slice_tdata.cmd)
-                      LSU_SW: wstrb_d[i +: XLEN/8] = '1;
-                      LSU_SH: wstrb_d[BLOCK_OFFSET_WIDTH'(i) + BLOCK_OFFSET_WIDTH'(addr_q[1]) +: XLEN/16] = '1;
-                      LSU_SB: wstrb_d[BLOCK_OFFSET_WIDTH'(i) + BLOCK_OFFSET_WIDTH'(addr_q[1:0])] = '1;
-                      default: begin
-                      end
-                    endcase
-                  end
+                for (int i = 0; i < BLOCK_SIZE / 8; ++i) begin
+                  unique case (rflsu_slice_tdata.cmd)
+                    LSU_SW: if (block_sel == BLOCK_SEL_WIDTH'(i/(XLEN/8))) wstrb_d[i] = 1'b1;
+                    LSU_SH: if (addr_q[BLOCK_OFFSET_WIDTH-1:1] == (BLOCK_OFFSET_WIDTH-1)'(i/(XLEN/4))) wstrb_d[i] = 1'b1;
+                    LSU_SB: if (addr_q[BLOCK_OFFSET_WIDTH-1:0] == BLOCK_OFFSET_WIDTH'(i)) wstrb_d[i] = 1'b1;
+                    default: begin
+                    end
+                  endcase
                 end
                 bready_d = 1'b1;
                 state_d = STORE;
@@ -146,7 +144,15 @@ module lsu
           rdata_d = lsu_ace_if.rdata;
         end
         if (!rready_d) begin
-          lsuwb_tdata.result = rdata_d[block_sel * XLEN +: XLEN];
+          unique case (rflsu_slice_tdata.cmd)
+            LSU_LW: lsuwb_tdata.result = rdata_d[block_sel * XLEN +: XLEN];
+            LSU_LH: lsuwb_tdata.result = XLEN'(signed'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:1] * 2 +: XLEN/2]));
+            LSU_LHU: lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:1] * 2 +: XLEN/2]));
+            LSU_LB: lsuwb_tdata.result = XLEN'(signed'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:0] +: XLEN/4]));
+            LSU_LBU: lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:0] +: XLEN/4]));
+            default: begin
+            end
+          endcase
           lsuwb_slice_if.tvalid = 1'b1;
           if (lsuwb_slice_if.tready) begin
             rflsu_slice_if.tready = 1'b1;

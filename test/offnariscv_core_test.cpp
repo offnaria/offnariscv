@@ -28,12 +28,15 @@ class Tester {
   std::unordered_map<std::uint32_t, std::vector<std::uint8_t>> memory;
   bool kanata_log_enabled;
   std::ofstream kanata_log;
+  std::uint32_t tohost_addr;
 
   void init_dut();
 
  public:
   Tester(const std::string& test);
   void step();
+  bool tohost_written;
+  std::uint32_t tohost_data;
 };
 
 void Tester::init_dut() {
@@ -134,6 +137,9 @@ Tester::Tester(const std::string& test) {
                "L\t0\t0\t00000000\n");
   }
 
+  tohost_written = false;
+  tohost_addr = 0x80001000;  // TODO
+
   init_dut();
 }
 
@@ -163,11 +169,37 @@ void Tester::step() {
     }
   }
 
+  auto bready = dut->core_ace_bready;
+  dut->core_ace_awready = 1;
+  dut->core_ace_wready = 1;
+  if (dut->core_ace_awvalid) {
+    auto awaddr = dut->core_ace_awaddr;
+    dut->core_ace_bvalid = 1;
+    auto ppn = awaddr & PAGE_NUMBER_MASK;
+    if (memory.contains(ppn)) {
+      std::print("awaddr: {:#010x}\n", awaddr);
+      std::print("wdata:");
+      auto offset = awaddr & PAGE_OFFSET_MASK & BLOCK_MASK;
+      for (int i = 0; i < BLOCK_BYTES; ++i) {
+        if ((dut->core_ace_wstrb >> i) & 1) {
+          memory[ppn][offset + i] = dut->core_ace_wdata[i / 4] >> (8 * (i % 4));
+        }
+        std::print(" {:#04x}", memory[ppn][offset + i]);
+      }
+      std::print("\n");
+      std::print("wstrb: {:#010x}\n", dut->core_ace_wstrb);
+    }
+    if (awaddr == tohost_addr) {
+      tohost_written = true;
+      tohost_data = dut->core_ace_wdata[0];
+    }
+  }
+
   dut->clk = 0;
   dut->eval();
 
-  // To observe the internal state of the DUT, we should do it between negedge
-  // evaluation and posedge evaluation
+  // To observe the internal state of the DUT, we should do it between
+  // negedge evaluation and posedge evaluation
 
   //  Update Kanata log
   if (kanata_log_enabled) {
@@ -186,13 +218,20 @@ void Tester::step() {
   if (rready) {
     dut->core_ace_rvalid = 0;
   }
+
+  if (bready) {
+    dut->core_ace_bvalid = 0;
+  }
 }
 
 static int run_simulation(Tester& tester) {
-  for (int i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 2000; ++i) {
+    if (tester.tohost_written) {
+      return tester.tohost_data;
+    }
     tester.step();
   }
-  return 1;
+  return 0;
 }
 
 static int runner(const std::string& test) {
@@ -205,6 +244,11 @@ static int runner(const std::string& test) {
       "--------------\n");
   Tester tester(test);
   auto return_code = run_simulation(tester);
+  if (return_code == 1) {
+    std::print("Test for {} passed!\n", test);
+  } else {
+    std::print("Test for {} failed!\n", test);
+  }
   return return_code;
 }
 
