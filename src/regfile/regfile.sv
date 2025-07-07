@@ -40,7 +40,6 @@ module regfile
 
   // Wire assignments
   assign idrf_tdata = idrf_axis_if.tdata;
-  assign rfcsr_rif.addr = idrf_tdata.csr_addr;
   assign rfex_tdata.csr_rdata = rfcsr_rif.rdata;
   assign rfex_tdata.mtvec = rfcsr_rif.mtvec;
   assign rfex_tdata.mepc = rfcsr_rif.mepc;
