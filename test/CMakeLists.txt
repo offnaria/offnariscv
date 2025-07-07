@@ -38,7 +38,7 @@ verilate(offnariscv_core_test
     ../src/execute/alu.sv
     ../src/execute/bru.sv
     ../src/execute/system.sv
-    # ../src/lsu/lsu.sv
+    ../src/lsu/lsu.sv
     ../src/committer/committer.sv
     ../src/offnariscv_core.sv
     offnariscv_core_wrap.sv

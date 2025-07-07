@@ -19,6 +19,7 @@ module lsu
   localparam ADDR_WIDTH = lsu_ace_if.ACE_AXADDR_WIDTH;
   localparam BLOCK_SIZE = lsu_ace_if.ACE_XDATA_WIDTH;
   localparam BLOCK_OFFSET_WIDTH = $clog2(BLOCK_SIZE / 8);
+  localparam BLOCK_SEL_WIDTH = $clog2(BLOCK_SIZE / XLEN);
 
   // Assert conditions
   initial begin
@@ -35,18 +36,34 @@ module lsu
   } state_e; // TODO: There might be more states for AMO in the future
 
   // Declare interfaces
+  axis_if #(.TDATA_WIDTH($bits(rflsu_tdata_t))) rflsu_slice_if ();
   axis_if #(.TDATA_WIDTH($bits(lsuwb_tdata_t))) lsuwb_slice_if ();
 
   // Declare registers and their next states
   state_e state_q, state_d;
   logic arvalid_q, arvalid_d;
   logic rready_q, rready_d;
+  logic [BLOCK_SIZE-1:0] rdata_q, rdata_d;
+  logic [$bits(lsu_ace_if.rresp)-1:0] rresp_q, rresp_d;
   logic awvalid_q, awvalid_d;
   logic wvalid_q, wvalid_d;
   logic [BLOCK_SIZE-1:0] wdata_q, wdata_d;
   logic [BLOCK_SIZE/8-1:0] wstrb_q, wstrb_d;
   logic bready_q, bready_d;
+  logic [$bits(lsu_ace_if.bresp)-1:0] bresp_q, bresp_d;
   logic [ADDR_WIDTH-1:0] addr_q, addr_d;
+
+  // Declare wires
+  logic rflsu_ack;
+  rflsu_tdata_t  rflsu_if_tdata, rflsu_slice_tdata;
+  lsuwb_tdata_t lsuwb_tdata;
+  logic [XLEN-1:0] effective_addr;
+  logic l1dtlb_hit;
+  logic l1dc_hit;
+  // logic [TAG_WIDTH-1:0] tag;
+  logic [((BLOCK_SEL_WIDTH>0)?BLOCK_SEL_WIDTH:1)-1:0] block_sel;
+
+  assign rflsu_ack = rflsu_axis_if.tvalid && rflsu_axis_if.tready;
 
   always_comb begin
     state_d = state_q;
@@ -57,7 +74,111 @@ module lsu
     wdata_d = wdata_q;
     wstrb_d = wstrb_q;
     bready_d = bready_q;
+    bresp_d = bresp_q;
     addr_d = addr_q;
+
+    rflsu_if_tdata = rflsu_axis_if.tdata;
+    rflsu_slice_tdata = rflsu_slice_if.tdata;
+    lsuwb_tdata = '0;
+
+    lsuwb_slice_if.tvalid = '0;
+    rflsu_slice_if.tready = '0;
+
+    effective_addr = rflsu_if_tdata.operands.op1 + rflsu_if_tdata.offset;
+    l1dtlb_hit = 1'b1; // TODO
+    l1dc_hit = 1'b0; // TODO
+
+    if (rflsu_ack) begin
+      addr_d = effective_addr;
+    end
+
+    block_sel = addr_q[BLOCK_OFFSET_WIDTH-1 -: BLOCK_SEL_WIDTH];
+
+    unique case (state_q)
+      IDLE: begin
+        if (rflsu_slice_if.tvalid && !invalidate) begin
+          if (l1dtlb_hit) begin
+            if (l1dc_hit) begin
+              lsuwb_slice_if.tvalid = 1'b1;
+              if (lsuwb_slice_if.tready) begin
+                rflsu_slice_if.tready = 1'b1;
+              end
+            end else begin
+              if (rflsu_slice_tdata.cmd inside {LSU_LW, LSU_LH, LSU_LB, LSU_LHU, LSU_LBU}) begin
+                arvalid_d = 1'b1;
+                rready_d = 1'b1;
+                state_d = LOAD;
+              end
+              if (rflsu_slice_tdata.cmd inside {LSU_SW, LSU_SH, LSU_SB}) begin
+                awvalid_d = 1'b1;
+                wvalid_d = 1'b1;
+                wdata_d = {(BLOCK_SIZE / XLEN){rflsu_slice_tdata.operands.op2}}; // Replicating can be fine, too.
+                wstrb_d = '0;
+                for (int i = 0; i < BLOCK_SIZE / 8; i += BLOCK_SIZE / XLEN) begin
+                  if (BLOCK_SEL_WIDTH'(i) == block_sel) begin
+                    unique case (rflsu_slice_tdata.cmd)
+                      LSU_SW: wstrb_d[i +: XLEN/8] = '1;
+                      LSU_SH: wstrb_d[BLOCK_OFFSET_WIDTH'(i) + BLOCK_OFFSET_WIDTH'(addr_q[1]) +: XLEN/16] = '1;
+                      LSU_SB: wstrb_d[BLOCK_OFFSET_WIDTH'(i) + BLOCK_OFFSET_WIDTH'(addr_q[1:0])] = '1;
+                      default: begin
+                      end
+                    endcase
+                  end
+                end
+                bready_d = 1'b1;
+                state_d = STORE;
+              end
+              // TODO: AMO
+            end
+          end
+        end
+      end
+      PTW: begin
+        // TODO
+      end
+      LOAD: begin
+        if (lsu_ace_if.arready) begin
+          arvalid_d = '0;
+        end
+        if (lsu_ace_if.rvalid) begin
+          rready_d = '0;
+          rresp_d = lsu_ace_if.rresp;
+          rdata_d = lsu_ace_if.rdata;
+        end
+        if (!rready_d) begin
+          lsuwb_tdata.result = rdata_d[block_sel * XLEN +: XLEN];
+          lsuwb_slice_if.tvalid = 1'b1;
+          if (lsuwb_slice_if.tready) begin
+            rflsu_slice_if.tready = 1'b1;
+            state_d = IDLE;
+          end
+        end
+      end
+      STORE: begin
+        if (lsu_ace_if.awready) begin
+          awvalid_d = '0;
+        end
+        if (lsu_ace_if.wready) begin
+          wvalid_d = '0;
+        end
+        if (lsu_ace_if.bvalid) begin
+          bready_d = '0;
+          bresp_d = lsu_ace_if.bresp;
+        end
+        if (!bready_d) begin
+          lsuwb_slice_if.tvalid = 1'b1;
+          if (lsuwb_slice_if.tready) begin
+            rflsu_slice_if.tready = 1'b1;
+            state_d = IDLE;
+          end
+        end
+      end
+      default: begin
+      end
+    endcase
+
+    lsuwb_slice_if.tdata = lsuwb_tdata;
+
   end
 
   always_ff @(posedge clk) begin
@@ -70,6 +191,7 @@ module lsu
       wdata_q <= '0;
       wstrb_q <= '0;
       bready_q <= 0;
+      bresp_q <= '0;
       addr_q <= '0;
     end else begin
       state_q <= state_d;
@@ -80,9 +202,28 @@ module lsu
       wdata_q <= wdata_d;
       wstrb_q <= wstrb_d;
       bready_q <= bready_d;
+      bresp_q <= bresp_d;
       addr_q <= addr_d;
+      // $write("LSU: state=%s, arvalid=%b, rready=%b, awvalid=%b, wvalid=%b, wdata=0x%h, wstrb=0x%h, bready=%b, bresp=0x%h, addr=0x%h\n",
+      //        state_q.name(), arvalid_q, rready_q, awvalid_q, wvalid_q, wdata_q, wstrb_q, bready_q, bresp_q, addr_q);
     end
   end
+
+  axis_slice rflsu_slice_inst (
+    .clk(clk),
+    .rst(rst),
+    .axis_mif(rflsu_slice_if),
+    .axis_sif(rflsu_axis_if),
+    .invalidate(invalidate)
+  );
+
+  axis_slice lsuwb_slice_inst (
+    .clk(clk),
+    .rst(rst),
+    .axis_mif(lsuwb_axis_if),
+    .axis_sif(lsuwb_slice_if),
+    .invalidate(invalidate)
+  );
 
   // External wire assignments
   //// AW channel signals
@@ -106,7 +247,7 @@ module lsu
   assign lsu_ace_if.wvalid = wvalid_q;
   assign lsu_ace_if.wdata = wdata_q;
   assign lsu_ace_if.wstrb = wstrb_q;
-  assign lsu_ace_if.wlast = '0; // TODO
+  assign lsu_ace_if.wlast = 1'b1; // TODO
   assign lsu_ace_if.wuser = '0; // TODO
 
   //// B channel signals

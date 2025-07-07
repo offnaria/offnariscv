@@ -162,10 +162,13 @@ module offnariscv_core
     .wbcsr_wif(wbcsr_wif)
   );
 
-  // lsu lsu_inst (
-  //   .clk(clk),
-  //   .rst(rst),
-  //   .lsu_ace_if(lsu_ace_if)
-  // );
+  lsu lsu_inst (
+    .clk(clk),
+    .rst(rst),
+    .lsu_ace_if(lsu_ace_if),
+    .rflsu_axis_if(rflsu_axis_if),
+    .lsuwb_axis_if(lsuwb_axis_if),
+    .invalidate(invalidate)
+  );
 
 endmodule
