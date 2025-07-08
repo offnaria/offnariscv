@@ -148,10 +148,10 @@ module lsu
         if (!rready_d) begin
           unique case (rflsu_slice_tdata.cmd)
             LSU_LW: lsuwb_tdata.result = rdata_d[block_sel * XLEN +: XLEN];
-            LSU_LH: lsuwb_tdata.result = XLEN'(signed'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:1] * 2 +: XLEN/2]));
-            LSU_LHU: lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:1] * 2 +: XLEN/2]));
-            LSU_LB: lsuwb_tdata.result = XLEN'(signed'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:0] +: XLEN/4]));
-            LSU_LBU: lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[block_sel * XLEN + addr_q[BLOCK_OFFSET_WIDTH-1:0] +: XLEN/4]));
+            LSU_LH: lsuwb_tdata.result = XLEN'(signed'(rdata_d[16 * addr_q[BLOCK_OFFSET_WIDTH-1:1] +: 16]));
+            LSU_LHU: lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[16 * addr_q[BLOCK_OFFSET_WIDTH-1:1] +: 16]));
+            LSU_LB: lsuwb_tdata.result = XLEN'(signed'(rdata_d[8 * addr_q[BLOCK_OFFSET_WIDTH-1:0] +: 8]));
+            LSU_LBU: lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[8 * addr_q[BLOCK_OFFSET_WIDTH-1:0] +: 8]));
             default: begin
             end
           endcase
