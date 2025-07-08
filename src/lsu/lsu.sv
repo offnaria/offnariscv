@@ -114,12 +114,18 @@ module lsu
               if (rflsu_slice_tdata.cmd inside {LSU_SW, LSU_SH, LSU_SB}) begin
                 awvalid_d = 1'b1;
                 wvalid_d = 1'b1;
-                wdata_d = {(BLOCK_SIZE / XLEN){rflsu_slice_tdata.operands.op2}}; // Replicating can be fine, too.
+                unique case (rflsu_slice_tdata.cmd)
+                  LSU_SW: wdata_d = {(BLOCK_SIZE / 32){rflsu_slice_tdata.operands.op2}};
+                  LSU_SH: wdata_d = {(BLOCK_SIZE / 16){rflsu_slice_tdata.operands.op2[15:0]}};
+                  LSU_SB: wdata_d = {(BLOCK_SIZE / 8){rflsu_slice_tdata.operands.op2[7:0]}};
+                  default: begin
+                  end
+                endcase
                 wstrb_d = '0;
                 for (int i = 0; i < BLOCK_SIZE / 8; ++i) begin
                   unique case (rflsu_slice_tdata.cmd)
-                    LSU_SW: if (block_sel == BLOCK_SEL_WIDTH'(i/(XLEN/8))) wstrb_d[i] = 1'b1;
-                    LSU_SH: if (addr_q[BLOCK_OFFSET_WIDTH-1:1] == (BLOCK_OFFSET_WIDTH-1)'(i/(XLEN/4))) wstrb_d[i] = 1'b1;
+                    LSU_SW: if (block_sel == BLOCK_SEL_WIDTH'(i/4)) wstrb_d[i] = 1'b1;
+                    LSU_SH: if (addr_q[BLOCK_OFFSET_WIDTH-1:1] == (BLOCK_OFFSET_WIDTH-1)'(i/2)) wstrb_d[i] = 1'b1;
                     LSU_SB: if (addr_q[BLOCK_OFFSET_WIDTH-1:0] == BLOCK_OFFSET_WIDTH'(i)) wstrb_d[i] = 1'b1;
                     default: begin
                     end
@@ -216,8 +222,8 @@ module lsu
       bready_q <= bready_d;
       bresp_q <= bresp_d;
       addr_q <= addr_d;
-      // $write("LSU: state=%s, arvalid=%b, rready=%b, awvalid=%b, wvalid=%b, wdata=0x%h, wstrb=0x%h, bready=%b, bresp=0x%h, addr=0x%h\n",
-      //        state_q.name(), arvalid_q, rready_q, awvalid_q, wvalid_q, wdata_q, wstrb_q, bready_q, bresp_q, addr_q);
+      $write("LSU: state=%s, arvalid=%b, rready=%b, awvalid=%b, wvalid=%b, wdata=0x%h, wstrb=0x%h, bready=%b, bresp=0x%h, addr=0x%h\n",
+             state_q.name(), arvalid_q, rready_q, awvalid_q, wvalid_q, wdata_q, wstrb_q, bready_q, bresp_q, addr_q);
     end
   end
 
