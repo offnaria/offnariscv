@@ -83,6 +83,9 @@ Tester::Tester(const std::string& test) {
     if (section->get_name().find(".text.init") != std::string::npos) {
       text_init = addr;
       std::print("Found .text.init section at address: {:#010x}\n", addr);
+    } else if (section->get_name().find(".tohost") != std::string::npos) {
+      tohost_addr = addr;
+      std::print("Found .tohost section at address: {:#010x}\n", addr);
     }
     auto data = section->get_data();
     auto end_data = data + size;
@@ -96,6 +99,7 @@ Tester::Tester(const std::string& test) {
         // Fill the last page with zeros if it is not fully filled
         memory[ppn].resize(PAGE_SIZE);
       }
+      addr += PAGE_SIZE;
     }
   }
   REQUIRE(!memory.empty());
@@ -138,7 +142,6 @@ Tester::Tester(const std::string& test) {
   }
 
   tohost_written = false;
-  tohost_addr = 0x80001000;  // TODO
 
   init_dut();
 }
@@ -225,7 +228,7 @@ void Tester::step() {
 }
 
 static int run_simulation(Tester& tester) {
-  for (int i = 0; i < 2000; ++i) {
+  for (int i = 0; i < 3000; ++i) {
     if (tester.tohost_written) {
       return tester.tohost_data;
     }
