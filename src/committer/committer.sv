@@ -52,6 +52,9 @@ module committer
       exwb_tdata.rf_data.id_data.sys_cmd_vld: begin
         wbrf_tdata.wdata = exwb_tdata.rf_data.csr_rdata;
       end
+      exwb_tdata.rf_data.id_data.lsu_cmd_vld: begin
+        wbrf_tdata.wdata = lsuwb_tdata.result;
+      end
     endcase
     wbrf_tdata.ex_data = exwb_tdata;
 

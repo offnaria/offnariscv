@@ -70,6 +70,8 @@ module lsu
     arvalid_d = arvalid_q;
     rready_d = rready_q;
     awvalid_d = awvalid_q;
+    rdata_d = rdata_q;
+    rresp_d = rresp_q;
     wvalid_d = wvalid_q;
     wdata_d = wdata_q;
     wstrb_d = wstrb_q;
@@ -192,6 +194,8 @@ module lsu
       state_q <= IDLE;
       arvalid_q <= 0;
       rready_q <= 0;
+      rdata_q <= '0;
+      rresp_q <= '0;
       awvalid_q <= 0;
       wvalid_q <= 0;
       wdata_q <= '0;
@@ -203,6 +207,8 @@ module lsu
       state_q <= state_d;
       arvalid_q <= arvalid_d;
       rready_q <= rready_d;
+      rdata_q <= rdata_d;
+      rresp_q <= rresp_d;
       awvalid_q <= awvalid_d;
       wvalid_q <= wvalid_d;
       wdata_q <= wdata_d;
