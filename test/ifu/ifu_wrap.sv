@@ -161,7 +161,8 @@ module ifu_wrap
     .clk(clk),
     .rst(rst),
     .cache_dir_rsp_if_0(l1i_dir_if_0),
-    .cache_dir_rsp_if_1(l1i_dir_if_1)
+    .cache_dir_rsp_if_1(l1i_dir_if_1),
+    .flush('0) // TODO
   );
 
 endmodule

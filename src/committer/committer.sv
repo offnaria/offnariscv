@@ -61,7 +61,8 @@ module committer
     exwb_axis_if.tready = wbrf_axis_if.tready && ((!exwb_tdata.rf_data.id_data.alu_cmd_vld || aluwb_axis_if.tvalid) && 
                                                   (!exwb_tdata.rf_data.id_data.bru_cmd_vld || (bruwb_axis_if.tvalid && (!bruwb_tdata.taken || wbpcg_axis_if.tready))) && 
                                                   (!exwb_tdata.rf_data.id_data.sys_cmd_vld || (syswb_axis_if.tvalid && (!syswb_tdata.use_new_pc || wbpcg_axis_if.tready))) &&
-                                                  (!exwb_tdata.rf_data.id_data.lsu_cmd_vld || (lsuwb_axis_if.tvalid && (!lsuwb_tdata.trap || wbpcg_axis_if.tready)))); // TODO
+                                                  (!exwb_tdata.rf_data.id_data.lsu_cmd_vld || (lsuwb_axis_if.tvalid && (!lsuwb_tdata.trap || wbpcg_axis_if.tready))) && 
+                                                  (!exwb_tdata.rf_data.id_data.fence_i || (wbpcg_axis_if.tready))); // TODO
     aluwb_axis_if.tready = wbrf_axis_if.tready;
     bruwb_axis_if.tready = wbrf_axis_if.tready && (!bruwb_tdata.taken || wbpcg_axis_if.tready);
     syswb_axis_if.tready = wbrf_axis_if.tready && (!syswb_tdata.use_new_pc || wbpcg_axis_if.tready);
@@ -82,13 +83,15 @@ module committer
     // Program Counter Generator
     wbpcg_axis_if.tdata = '0;
     case (1'b1)
+      exwb_tdata.rf_data.id_data.fence_i: wbpcg_axis_if.tdata = exwb_tdata.rf_data.id_data.if_data.pcg_data.pc + 'd4;
       syswb_axis_if.tvalid && syswb_tdata.use_new_pc: wbpcg_axis_if.tdata = syswb_tdata.new_pc;
       bruwb_tdata.taken: wbpcg_axis_if.tdata = bruwb_tdata.new_pc;
       default: begin
       end
     endcase
     wbpcg_axis_if.tvalid = (exwb_axis_if.tvalid && exwb_axis_if.tready) && ((exwb_tdata.rf_data.id_data.bru_cmd_vld && bruwb_tdata.taken) || 
-                                                                            (exwb_tdata.rf_data.id_data.sys_cmd_vld && syswb_tdata.use_new_pc)); // TODO
+                                                                            (exwb_tdata.rf_data.id_data.sys_cmd_vld && syswb_tdata.use_new_pc) ||
+                                                                            (exwb_tdata.rf_data.id_data.fence_i)); // TODO
   end
 
 endmodule

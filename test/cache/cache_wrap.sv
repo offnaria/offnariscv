@@ -50,7 +50,8 @@ module cache_wrap
     .clk(clk),
     .rst(rst),
     .cache_dir_rsp_if_0(if0),
-    .cache_dir_rsp_if_1(if1)
+    .cache_dir_rsp_if_1(if1),
+    .flush('0) // TODO
   );
 
 endmodule

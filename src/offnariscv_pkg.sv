@@ -129,6 +129,7 @@ package offnariscv_pkg;
     lsu_cmd_e lsu_cmd;
     logic lsu_cmd_vld;
     ifid_tdata_t if_data;
+    logic fence_i;
   } idrf_tdata_t;
 
   typedef struct packed {

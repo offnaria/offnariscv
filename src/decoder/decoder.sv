@@ -281,6 +281,9 @@ module decoder
     idrf_tdata.fwd_rs2.rf = (idrf_tdata.rs2 != '0);
     idrf_tdata.fwd_rs2.ex = (idrf_tdata.rs2 != '0) && (prev_rd_mif.tvalid && (idrf_tdata.rs2 == prev_rd_mif.tdata));
 
+    // MISC-MEM
+    idrf_tdata.fence_i = (opcode == MISC_MEM) && (inst.i.funct3 == 3'b001) && (inst.i.rs1 == '0) && (inst.i.rd == '0) && (inst.i.imm_11_0 == '0);
+
     idrf_tdata.if_data = ifid_tdata;
 
     // FIFO connection

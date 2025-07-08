@@ -8,7 +8,9 @@ module cache_directory
   input logic rst,
 
   cache_dir_if.rsp cache_dir_rsp_if_0,
-  cache_dir_if.rsp cache_dir_rsp_if_1
+  cache_dir_if.rsp cache_dir_rsp_if_1,
+
+  input logic flush
 );
 
   // Define local parameters
@@ -57,7 +59,7 @@ module cache_directory
 
     cache_dir_rsp_if_1.current_tag = directory[if1_index].tag;
     cache_dir_rsp_if_1.current_state = directory[if1_index].state;
-    
+
   end
 
   always_ff @(posedge clk) begin
@@ -67,8 +69,14 @@ module cache_directory
         directory[i].state.v <= '0;
       end
     end else begin
-      if (cache_dir_rsp_if_0.write) directory[if0_index].state.v <= cache_dir_rsp_if_0.next_state.v;
-      if (cache_dir_rsp_if_1.write) directory[if1_index].state.v <= cache_dir_rsp_if_1.next_state.v;
+      if (flush) begin
+        for (int i = 0; i < 2**INDEX_WIDTH; ++i) begin
+          directory[i].state.v <= '0;
+        end
+      end else begin
+        if (cache_dir_rsp_if_0.write) directory[if0_index].state.v <= cache_dir_rsp_if_0.next_state.v;
+        if (cache_dir_rsp_if_1.write) directory[if1_index].state.v <= cache_dir_rsp_if_1.next_state.v;
+      end
     end
   end
 

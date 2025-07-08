@@ -47,9 +47,11 @@ module offnariscv_core
   cache_mem_if # (.BLOCK_SIZE(BLOCK_SIZE), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_1 ();
 
   logic invalidate;
+  logic flush;
 
   // Wire assignments
   assign invalidate = wbpcg_axis_if.ack();
+  assign flush = wbpcg_axis_if.tvalid && committer_inst.exwb_tdata.rf_data.id_data.fence_i;
 
   pcgen pcgen_inst (
     .clk(clk),
@@ -75,7 +77,8 @@ module offnariscv_core
     .clk(clk),
     .rst(rst),
     .cache_dir_rsp_if_0(l1i_dir_if_0),
-    .cache_dir_rsp_if_1(l1i_dir_if_1)
+    .cache_dir_rsp_if_1(l1i_dir_if_1),
+    .flush(flush) // TODO
   );
 
   cache_memory l1i_mem_inst (
