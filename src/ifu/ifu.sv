@@ -147,11 +147,15 @@ module ifu
         end
         if (!rready_d) begin
           ifid_tdata.inst = rdata_d[block_sel * XLEN +: XLEN];
-          ifid_pipe_reg_if.tvalid = 1'b1;
-          l1i_dir_if.write = 1'b1;
-          l1i_mem_if.wstrb = '1;
+          if (!invalidate_q) begin
+            ifid_pipe_reg_if.tvalid = 1'b1;
+            l1i_dir_if.write = 1'b1; // TODO: Update the cache with appropriate index
+            l1i_mem_if.wstrb = '1;
+          end
           if (ifid_pipe_reg_if.tready) begin
-            pcgif_pipe_reg_if.tready = 1'b1;
+            if (!invalidate_q) begin
+              pcgif_pipe_reg_if.tready = 1'b1;
+            end
             state_d = IDLE;
           end
         end
@@ -172,12 +176,8 @@ module ifu
       end
     end
 
-    if (invalidate_q) begin
-      if (ifid_pipe_reg_if.ack()) begin
-        invalidate_d = '0;
-      end
-      ifid_pipe_reg_if.tvalid = '0;
-      pcgif_pipe_reg_if.tready = '0;
+    if (invalidate_q && !rready_d) begin
+      invalidate_d = '0;
     end
   end
 
