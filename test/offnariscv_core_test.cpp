@@ -416,3 +416,43 @@ TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-xori") {
 // TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-ma_data", "[ma_data]") {
 //   REQUIRE(runner("rv32ui-p-ma_data") == 1);
 // }
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amoadd_w") {
+  REQUIRE(runner("rv32ua-p-amoadd_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amoand_w") {
+  REQUIRE(runner("rv32ua-p-amoand_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amomax_w") {
+  REQUIRE(runner("rv32ua-p-amomax_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amomaxu_w") {
+  REQUIRE(runner("rv32ua-p-amomaxu_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amomin_w") {
+  REQUIRE(runner("rv32ua-p-amomin_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amominu_w") {
+  REQUIRE(runner("rv32ua-p-amominu_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amoor_w") {
+  REQUIRE(runner("rv32ua-p-amoor_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amoswap_w") {
+  REQUIRE(runner("rv32ua-p-amoswap_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-amoxor_w") {
+  REQUIRE(runner("rv32ua-p-amoxor_w") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ua-p-lrsc") {
+  REQUIRE(runner("rv32ua-p-lrsc") == 1);
+}
