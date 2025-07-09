@@ -88,15 +88,16 @@ Tester::Tester(const std::string& test) {
     }
     auto data = section->get_data();
     auto end_data = data + size;
+    if (data == nullptr) {
+      std::print("Section {} has no data at address {:#010x}\n", section->get_name(), addr);
+      continue;
+    }
     for (auto p = data; p < end_data; p += PAGE_SIZE) {
       // Assuming each section starts at a page-aligned address
       // and never crosses a page boundary
       auto ppn = addr & PAGE_NUMBER_MASK;
-      memory.emplace(ppn, std::vector<std::uint8_t>(p, std::min(p + PAGE_SIZE, end_data)));
-      if (p + PAGE_SIZE != end_data) {
-        // Fill the last page with zeros if it is not fully filled
-        memory[ppn].resize(PAGE_SIZE);
-      }
+      memory.emplace(ppn, std::vector<std::uint8_t>(PAGE_SIZE));
+      std::memcpy(memory[ppn].data(), p, std::min(static_cast<std::size_t>(PAGE_SIZE), static_cast<std::size_t>(end_data - p)));
       addr += PAGE_SIZE;
     }
   }
