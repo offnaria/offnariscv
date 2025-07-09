@@ -255,19 +255,170 @@ static int runner(const std::string& test) {
   return return_code;
 }
 
-TEST_CASE("offnariscv_core_riscv-tests/isa/rv32ui-p") {
-  auto test = GENERATE(
-      "rv32ui-p-simple", "rv32ui-p-add", "rv32ui-p-addi", "rv32ui-p-and",
-      "rv32ui-p-andi", "rv32ui-p-auipc", "rv32ui-p-beq", "rv32ui-p-bge",
-      "rv32ui-p-bgeu", "rv32ui-p-blt", "rv32ui-p-bltu", "rv32ui-p-bne",
-      "rv32ui-p-fence_i", "rv32ui-p-jal", "rv32ui-p-jalr", "rv32ui-p-lb",
-      "rv32ui-p-lbu", "rv32ui-p-ld_st", "rv32ui-p-lh", "rv32ui-p-lhu",
-      "rv32ui-p-lui", "rv32ui-p-lw", "rv32ui-p-or", "rv32ui-p-ori",
-      "rv32ui-p-sb", "rv32ui-p-sh", "rv32ui-p-sll", "rv32ui-p-slli",
-      "rv32ui-p-slt", "rv32ui-p-slti", "rv32ui-p-sltiu", "rv32ui-p-sltu",
-      "rv32ui-p-sra", "rv32ui-p-srai", "rv32ui-p-srl", "rv32ui-p-srli",
-      "rv32ui-p-st_ld", "rv32ui-p-sub", "rv32ui-p-sw", "rv32ui-p-xor",
-      "rv32ui-p-xori"  //, "rv32ui-p-ma_data"
-  );
-  REQUIRE(runner(test) == 1);
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-simple") {
+  REQUIRE(runner("rv32ui-p-simple") == 1);
 }
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-add") {
+  REQUIRE(runner("rv32ui-p-add") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-addi") {
+  REQUIRE(runner("rv32ui-p-addi") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-and") {
+  REQUIRE(runner("rv32ui-p-and") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-andi") {
+  REQUIRE(runner("rv32ui-p-andi") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-auipc") {
+  REQUIRE(runner("rv32ui-p-auipc") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-beq") {
+  REQUIRE(runner("rv32ui-p-beq") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-bge") {
+  REQUIRE(runner("rv32ui-p-bge") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-bgeu") {
+  REQUIRE(runner("rv32ui-p-bgeu") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-blt") {
+  REQUIRE(runner("rv32ui-p-blt") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-bltu") {
+  REQUIRE(runner("rv32ui-p-bltu") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-bne") {
+  REQUIRE(runner("rv32ui-p-bne") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-fence_i") {
+  REQUIRE(runner("rv32ui-p-fence_i") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-jal") {
+  REQUIRE(runner("rv32ui-p-jal") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-jalr") {
+  REQUIRE(runner("rv32ui-p-jalr") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-lb") {
+  REQUIRE(runner("rv32ui-p-lb") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-lbu") {
+  REQUIRE(runner("rv32ui-p-lbu") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-ld_st") {
+  REQUIRE(runner("rv32ui-p-ld_st") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-lh") {
+  REQUIRE(runner("rv32ui-p-lh") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-lhu") {
+  REQUIRE(runner("rv32ui-p-lhu") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-lui") {
+  REQUIRE(runner("rv32ui-p-lui") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-lw") {
+  REQUIRE(runner("rv32ui-p-lw") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-or") {
+  REQUIRE(runner("rv32ui-p-or") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-ori") {
+  REQUIRE(runner("rv32ui-p-ori") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sb") {
+  REQUIRE(runner("rv32ui-p-sb") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sh") {
+  REQUIRE(runner("rv32ui-p-sh") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sll") {
+  REQUIRE(runner("rv32ui-p-sll") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-slli") {
+  REQUIRE(runner("rv32ui-p-slli") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-slt") {
+  REQUIRE(runner("rv32ui-p-slt") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-slti") {
+  REQUIRE(runner("rv32ui-p-slti") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sltiu") {
+  REQUIRE(runner("rv32ui-p-sltiu") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sltu") {
+  REQUIRE(runner("rv32ui-p-sltu") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sra") {
+  REQUIRE(runner("rv32ui-p-sra") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-srai") {
+  REQUIRE(runner("rv32ui-p-srai") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-srl") {
+  REQUIRE(runner("rv32ui-p-srl") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-srli") {
+  REQUIRE(runner("rv32ui-p-srli") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-st_ld") {
+  REQUIRE(runner("rv32ui-p-st_ld") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sub") {
+  REQUIRE(runner("rv32ui-p-sub") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-sw") {
+  REQUIRE(runner("rv32ui-p-sw") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-xor") {
+  REQUIRE(runner("rv32ui-p-xor") == 1);
+}
+
+TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-xori") {
+  REQUIRE(runner("rv32ui-p-xori") == 1);
+}
+
+// TEST_CASE("offnariscv_core/riscv-tests/isa/rv32ui-p-ma_data", "[ma_data]") {
+//   REQUIRE(runner("rv32ui-p-ma_data") == 1);
+// }
