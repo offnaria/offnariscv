@@ -2,281 +2,331 @@
 
 module offnariscv_core_wrap
   import offnariscv_pkg::*;
-(
+# (
+  localparam ACE_XDATA_WIDTH = 256,
+  localparam ACE_AXADDR_WIDTH = 32
+) (
   input clk,
-  input rst_n,
+  input rst,
 
-  // ifu
-  output [ACE_XID_WIDTH-1:0] ifu_ace_awid,
-  output [ACE_AXADDR_WIDTH-1:0] ifu_ace_awaddr,
-  output [ACE_AXLEN_WIDTH-1:0] ifu_ace_awlen,
-  output [ACE_AXSIZE_WIDTH-1:0] ifu_ace_awsize,
-  output [ACE_AXBURST_WIDTH-1:0] ifu_ace_awburst,
-  output ifu_ace_awlock,
-  output [ACE_AXCACHE_WIDTH-1:0] ifu_ace_awcache,
-  output [ACE_AXPROT_WIDTH-1:0] ifu_ace_awprot,
-  output [ACE_AXQOS_WIDTH-1:0] ifu_ace_awqos,
-  output [ACE_AXREGION_WIDTH-1:0] ifu_ace_awregion,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_awuser,
-  output ifu_ace_awvalid,
-  input  ifu_ace_awready,
-  output [ACE_AWSNOOP_WIDTH-1:0] ifu_ace_awsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] ifu_ace_awdomain,
-  output [ACE_BAR_WIDTH-1:0] ifu_ace_awbar,
-  output [ACE_XDATA_WIDTH-1:0] ifu_ace_wdata,
-  output [ACE_XDATA_WIDTH/8-1:0] ifu_ace_wstrb,
-  output ifu_ace_wlast,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_wuser,
-  output ifu_ace_wvalid,
-  input  ifu_ace_wready,
-  input  [ACE_XID_WIDTH-1:0] ifu_ace_bid,
-  input  [ACE_BRESP_WIDTH-1:0] ifu_ace_bresp,
-  input  [ACE_XUSER_WIDTH-1:0] ifu_ace_buser,
-  input  ifu_ace_bvalid,
-  output ifu_ace_bready,
-  output [ACE_XID_WIDTH-1:0] ifu_ace_arid,
-  output [ACE_AXADDR_WIDTH-1:0] ifu_ace_araddr,
-  output [ACE_AXLEN_WIDTH-1:0] ifu_ace_arlen,
-  output [ACE_AXSIZE_WIDTH-1:0] ifu_ace_arsize,
-  output [ACE_AXBURST_WIDTH-1:0] ifu_ace_arburst,
-  output ifu_ace_arlock,
-  output [ACE_AXCACHE_WIDTH-1:0] ifu_ace_arcache,
-  output [ACE_AXPROT_WIDTH-1:0] ifu_ace_arprot,
-  output [ACE_AXQOS_WIDTH-1:0] ifu_ace_arqos,
-  output [ACE_AXREGION_WIDTH-1:0] ifu_ace_arregion,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_aruser,
-  output ifu_ace_arvalid,
-  input  ifu_ace_arready,
-  output [ACE_ARSNOOP_WIDTH-1:0] ifu_ace_arsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] ifu_ace_ardomain,
-  output [ACE_BAR_WIDTH-1:0] ifu_ace_arbar,
-  input  [ACE_XID_WIDTH-1:0] ifu_ace_rid,
-  input  [ACE_XDATA_WIDTH-1:0] ifu_ace_rdata,
-  input  [ACE_RRESP_WIDTH-1:0] ifu_ace_rresp,
-  input  ifu_ace_rlast,
-  input  [ACE_XUSER_WIDTH-1:0] ifu_ace_ruser,
-  input  ifu_ace_rvalid,
-  output ifu_ace_rready,
-  input  ifu_ace_acvalid,
-  output ifu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] ifu_ace_acaddr,
-  input  [ACE_ACSNOOP_WIDTH-1:0] ifu_ace_acsnoop,
-  input  [ACE_ACPROT_WIDTH-1:0] ifu_ace_acprot,
-  output ifu_ace_crvalid,
-  input  ifu_ace_crready,
-  output [ACE_CRRESP_WIDTH-1:0] ifu_ace_crresp,
-  output ifu_ace_cdvalid,
-  input  ifu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] ifu_ace_cddata,
-  output ifu_ace_cdlast,
-  output ifu_ace_rack,
-  output ifu_ace_wack,
-
-  // lsu
-  output [ACE_XID_WIDTH-1:0] lsu_ace_awid,
-  output [ACE_AXADDR_WIDTH-1:0] lsu_ace_awaddr,
-  output [ACE_AXLEN_WIDTH-1:0] lsu_ace_awlen,
-  output [ACE_AXSIZE_WIDTH-1:0] lsu_ace_awsize,
-  output [ACE_AXBURST_WIDTH-1:0] lsu_ace_awburst,
-  output lsu_ace_awlock,
-  output [ACE_AXCACHE_WIDTH-1:0] lsu_ace_awcache,
-  output [ACE_AXPROT_WIDTH-1:0] lsu_ace_awprot,
-  output [ACE_AXQOS_WIDTH-1:0] lsu_ace_awqos,
-  output [ACE_AXREGION_WIDTH-1:0] lsu_ace_awregion,
-  output [ACE_XUSER_WIDTH-1:0] lsu_ace_awuser,
-  output lsu_ace_awvalid,
-  input  lsu_ace_awready,
-  output [ACE_AWSNOOP_WIDTH-1:0] lsu_ace_awsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] lsu_ace_awdomain,
-  output [ACE_BAR_WIDTH-1:0] lsu_ace_awbar,
-  output [ACE_XDATA_WIDTH-1:0] lsu_ace_wdata,
-  output [ACE_XDATA_WIDTH/8-1:0] lsu_ace_wstrb,
-  output lsu_ace_wlast,
-  output [ACE_XUSER_WIDTH-1:0] lsu_ace_wuser,
-  output lsu_ace_wvalid,
-  input  lsu_ace_wready,
-  input  [ACE_XID_WIDTH-1:0] lsu_ace_bid,
-  input  [ACE_BRESP_WIDTH-1:0] lsu_ace_bresp,
-  input  [ACE_XUSER_WIDTH-1:0] lsu_ace_buser,
-  input  lsu_ace_bvalid,
-  output lsu_ace_bready,
-  output [ACE_XID_WIDTH-1:0] lsu_ace_arid,
-  output [ACE_AXADDR_WIDTH-1:0] lsu_ace_araddr,
-  output [ACE_AXLEN_WIDTH-1:0] lsu_ace_arlen,
-  output [ACE_AXSIZE_WIDTH-1:0] lsu_ace_arsize,
-  output [ACE_AXBURST_WIDTH-1:0] lsu_ace_arburst,
-  output lsu_ace_arlock,
-  output [ACE_AXCACHE_WIDTH-1:0] lsu_ace_arcache,
-  output [ACE_AXPROT_WIDTH-1:0] lsu_ace_arprot,
-  output [ACE_AXQOS_WIDTH-1:0] lsu_ace_arqos,
-  output [ACE_AXREGION_WIDTH-1:0] lsu_ace_arregion,
-  output [ACE_XUSER_WIDTH-1:0] lsu_ace_aruser,
-  output lsu_ace_arvalid,
-  input  lsu_ace_arready,
-  output [ACE_ARSNOOP_WIDTH-1:0] lsu_ace_arsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] lsu_ace_ardomain,
-  output [ACE_BAR_WIDTH-1:0] lsu_ace_arbar,
-  input  [ACE_XID_WIDTH-1:0] lsu_ace_rid,
-  input  [ACE_XDATA_WIDTH-1:0] lsu_ace_rdata,
-  input  [ACE_RRESP_WIDTH-1:0] lsu_ace_rresp,
-  input  lsu_ace_rlast,
-  input  [ACE_XUSER_WIDTH-1:0] lsu_ace_ruser,
-  input  lsu_ace_rvalid,
-  output lsu_ace_rready,
-  input  lsu_ace_acvalid,
-  output lsu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] lsu_ace_acaddr,
-  input  [ACE_ACSNOOP_WIDTH-1:0] lsu_ace_acsnoop,
-  input  [ACE_ACPROT_WIDTH-1:0] lsu_ace_acprot,
-  output lsu_ace_crvalid,
-  input  lsu_ace_crready,
-  output [ACE_CRRESP_WIDTH-1:0] lsu_ace_crresp,
-  output lsu_ace_cdvalid,
-  input  lsu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] lsu_ace_cddata,
-  output lsu_ace_cdlast,
-  output lsu_ace_rack,
-  output lsu_ace_wack
+  output [ACE_XID_WIDTH-1:0] core_ace_awid,
+  output [ACE_AXADDR_WIDTH-1:0] core_ace_awaddr,
+  output [ACE_AXLEN_WIDTH-1:0] core_ace_awlen,
+  output [ACE_AXSIZE_WIDTH-1:0] core_ace_awsize,
+  output [ACE_AXBURST_WIDTH-1:0] core_ace_awburst,
+  output core_ace_awlock,
+  output [ACE_AXCACHE_WIDTH-1:0] core_ace_awcache,
+  output [ACE_AXPROT_WIDTH-1:0] core_ace_awprot,
+  output [ACE_AXQOS_WIDTH-1:0] core_ace_awqos,
+  output [ACE_AXREGION_WIDTH-1:0] core_ace_awregion,
+  output [ACE_XUSER_WIDTH-1:0] core_ace_awuser,
+  output core_ace_awvalid,
+  input  core_ace_awready,
+  output [ACE_AWSNOOP_WIDTH-1:0] core_ace_awsnoop,
+  output [ACE_DOMAIN_WIDTH-1:0] core_ace_awdomain,
+  output [ACE_BAR_WIDTH-1:0] core_ace_awbar,
+  output [ACE_XDATA_WIDTH-1:0] core_ace_wdata,
+  output [ACE_XDATA_WIDTH/8-1:0] core_ace_wstrb,
+  output core_ace_wlast,
+  output [ACE_XUSER_WIDTH-1:0] core_ace_wuser,
+  output core_ace_wvalid,
+  input  core_ace_wready,
+  input  [ACE_XID_WIDTH-1:0] core_ace_bid,
+  input  [ACE_BRESP_WIDTH-1:0] core_ace_bresp,
+  input  [ACE_XUSER_WIDTH-1:0] core_ace_buser,
+  input  core_ace_bvalid,
+  output core_ace_bready,
+  output [ACE_XID_WIDTH-1:0] core_ace_arid,
+  output [ACE_AXADDR_WIDTH-1:0] core_ace_araddr,
+  output [ACE_AXLEN_WIDTH-1:0] core_ace_arlen,
+  output [ACE_AXSIZE_WIDTH-1:0] core_ace_arsize,
+  output [ACE_AXBURST_WIDTH-1:0] core_ace_arburst,
+  output core_ace_arlock,
+  output [ACE_AXCACHE_WIDTH-1:0] core_ace_arcache,
+  output [ACE_AXPROT_WIDTH-1:0] core_ace_arprot,
+  output [ACE_AXQOS_WIDTH-1:0] core_ace_arqos,
+  output [ACE_AXREGION_WIDTH-1:0] core_ace_arregion,
+  output [ACE_XUSER_WIDTH-1:0] core_ace_aruser,
+  output core_ace_arvalid,
+  input  core_ace_arready,
+  output [ACE_ARSNOOP_WIDTH-1:0] core_ace_arsnoop,
+  output [ACE_DOMAIN_WIDTH-1:0] core_ace_ardomain,
+  output [ACE_BAR_WIDTH-1:0] core_ace_arbar,
+  input  [ACE_XID_WIDTH-1:0] core_ace_rid,
+  input  [ACE_XDATA_WIDTH-1:0] core_ace_rdata,
+  input  [ACE_RRESP_WIDTH-1:0] core_ace_rresp,
+  input  core_ace_rlast,
+  input  [ACE_XUSER_WIDTH-1:0] core_ace_ruser,
+  input  core_ace_rvalid,
+  output core_ace_rready,
+  input  core_ace_acvalid,
+  output core_ace_acready,
+  input  [ACE_AXADDR_WIDTH-1:0] core_ace_acaddr,
+  input  [ACE_ACSNOOP_WIDTH-1:0] core_ace_acsnoop,
+  input  [ACE_ACPROT_WIDTH-1:0] core_ace_acprot,
+  output core_ace_crvalid,
+  input  core_ace_crready,
+  output [ACE_CRRESP_WIDTH-1:0] core_ace_crresp,
+  output core_ace_cdvalid,
+  input  core_ace_cdready,
+  output [ACE_XDATA_WIDTH-1:0] core_ace_cddata,
+  output core_ace_cdlast,
+  output core_ace_rack,
+  output core_ace_wack
 );
 
+  ace_if core_ace_if ();
   ace_if ifu_ace_if ();
   ace_if lsu_ace_if ();
 
-  assign ifu_ace_awid = ifu_ace_if.awid;
-  assign ifu_ace_awaddr = ifu_ace_if.awaddr;
-  assign ifu_ace_awlen = ifu_ace_if.awlen;
-  assign ifu_ace_awsize = ifu_ace_if.awsize;
-  assign ifu_ace_awburst = ifu_ace_if.awburst;
-  assign ifu_ace_awlock = ifu_ace_if.awlock;
-  assign ifu_ace_awcache = ifu_ace_if.awcache;
-  assign ifu_ace_awprot = ifu_ace_if.awprot;
-  assign ifu_ace_awqos = ifu_ace_if.awqos;
-  assign ifu_ace_awregion = ifu_ace_if.awregion;
-  assign ifu_ace_awuser = ifu_ace_if.awuser;
-  assign ifu_ace_awvalid = ifu_ace_if.awvalid;
-  assign ifu_ace_if.awready = ifu_ace_awready;
-  assign ifu_ace_awsnoop = ifu_ace_if.awsnoop;
-  assign ifu_ace_awdomain = ifu_ace_if.awdomain;
-  assign ifu_ace_awbar = ifu_ace_if.awbar;
-  assign ifu_ace_wdata = ifu_ace_if.wdata;
-  assign ifu_ace_wstrb = ifu_ace_if.wstrb;
-  assign ifu_ace_wlast = ifu_ace_if.wlast;
-  assign ifu_ace_wuser = ifu_ace_if.wuser;
-  assign ifu_ace_wvalid = ifu_ace_if.wvalid;
-  assign ifu_ace_if.wready = ifu_ace_wready;
-  assign ifu_ace_if.bid = ifu_ace_bid;
-  assign ifu_ace_if.bresp = ifu_ace_bresp;
-  assign ifu_ace_if.buser = ifu_ace_buser;
-  assign ifu_ace_if.bvalid = ifu_ace_bvalid;
-  assign ifu_ace_bready = ifu_ace_if.bready;
-  assign ifu_ace_arid = ifu_ace_if.arid;
-  assign ifu_ace_araddr = ifu_ace_if.araddr;
-  assign ifu_ace_arlen = ifu_ace_if.arlen;
-  assign ifu_ace_arsize = ifu_ace_if.arsize;
-  assign ifu_ace_arburst = ifu_ace_if.arburst;
-  assign ifu_ace_arlock = ifu_ace_if.arlock;
-  assign ifu_ace_arcache = ifu_ace_if.arcache;
-  assign ifu_ace_arprot = ifu_ace_if.arprot;
-  assign ifu_ace_arqos = ifu_ace_if.arqos;
-  assign ifu_ace_arregion = ifu_ace_if.arregion;
-  assign ifu_ace_aruser = ifu_ace_if.aruser;
-  assign ifu_ace_arvalid = ifu_ace_if.arvalid;
-  assign ifu_ace_if.arready = ifu_ace_arready;
-  assign ifu_ace_arsnoop = ifu_ace_if.arsnoop;
-  assign ifu_ace_ardomain = ifu_ace_if.ardomain;
-  assign ifu_ace_arbar = ifu_ace_if.arbar;
-  assign ifu_ace_if.rid = ifu_ace_rid;
-  assign ifu_ace_if.rdata = ifu_ace_rdata;
-  assign ifu_ace_if.rresp = ifu_ace_rresp;
-  assign ifu_ace_if.rlast = ifu_ace_rlast;
-  assign ifu_ace_if.ruser = ifu_ace_ruser;
-  assign ifu_ace_if.rvalid = ifu_ace_rvalid;
-  assign ifu_ace_rready = ifu_ace_if.rready;
-  assign ifu_ace_if.acvalid = ifu_ace_acvalid;
-  assign ifu_ace_acready = ifu_ace_if.acready;
-  assign ifu_ace_if.acaddr = ifu_ace_acaddr;
-  assign ifu_ace_if.acsnoop = ifu_ace_acsnoop;
-  assign ifu_ace_if.acprot = ifu_ace_acprot;
-  assign ifu_ace_crvalid = ifu_ace_if.crvalid;
-  assign ifu_ace_if.crready = ifu_ace_crready;
-  assign ifu_ace_crresp = ifu_ace_if.crresp;
-  assign ifu_ace_cdvalid = ifu_ace_if.cdvalid;
-  assign ifu_ace_if.cdready = ifu_ace_cdready;
-  assign ifu_ace_cddata = ifu_ace_if.cddata;
-  assign ifu_ace_cdlast = ifu_ace_if.cdlast;
-  assign ifu_ace_rack = ifu_ace_if.rack;
-  assign ifu_ace_wack = ifu_ace_if.wack;
+  assign core_ace_awid = core_ace_if.awid;
+  assign core_ace_awaddr = core_ace_if.awaddr;
+  assign core_ace_awlen = core_ace_if.awlen;
+  assign core_ace_awsize = core_ace_if.awsize;
+  assign core_ace_awburst = core_ace_if.awburst;
+  assign core_ace_awlock = core_ace_if.awlock;
+  assign core_ace_awcache = core_ace_if.awcache;
+  assign core_ace_awprot = core_ace_if.awprot;
+  assign core_ace_awqos = core_ace_if.awqos;
+  assign core_ace_awregion = core_ace_if.awregion;
+  assign core_ace_awuser = core_ace_if.awuser;
+  assign core_ace_awvalid = core_ace_if.awvalid;
+  assign core_ace_if.awready = core_ace_awready;
+  assign core_ace_awsnoop = core_ace_if.awsnoop;
+  assign core_ace_awdomain = core_ace_if.awdomain;
+  assign core_ace_awbar = core_ace_if.awbar;
+  assign core_ace_wdata = core_ace_if.wdata;
+  assign core_ace_wstrb = core_ace_if.wstrb;
+  assign core_ace_wlast = core_ace_if.wlast;
+  assign core_ace_wuser = core_ace_if.wuser;
+  assign core_ace_wvalid = core_ace_if.wvalid;
+  assign core_ace_if.wready = core_ace_wready;
+  assign core_ace_if.bid = core_ace_bid;
+  assign core_ace_if.bresp = core_ace_bresp;
+  assign core_ace_if.buser = core_ace_buser;
+  assign core_ace_if.bvalid = core_ace_bvalid;
+  assign core_ace_bready = core_ace_if.bready;
+  assign core_ace_arid = core_ace_if.arid;
+  assign core_ace_araddr = core_ace_if.araddr;
+  assign core_ace_arlen = core_ace_if.arlen;
+  assign core_ace_arsize = core_ace_if.arsize;
+  assign core_ace_arburst = core_ace_if.arburst;
+  assign core_ace_arlock = core_ace_if.arlock;
+  assign core_ace_arcache = core_ace_if.arcache;
+  assign core_ace_arprot = core_ace_if.arprot;
+  assign core_ace_arqos = core_ace_if.arqos;
+  assign core_ace_arregion = core_ace_if.arregion;
+  assign core_ace_aruser = core_ace_if.aruser;
+  assign core_ace_arvalid = core_ace_if.arvalid;
+  assign core_ace_if.arready = core_ace_arready;
+  assign core_ace_arsnoop = core_ace_if.arsnoop;
+  assign core_ace_ardomain = core_ace_if.ardomain;
+  assign core_ace_arbar = core_ace_if.arbar;
+  assign core_ace_if.rid = core_ace_rid;
+  assign core_ace_if.rdata = core_ace_rdata;
+  assign core_ace_if.rresp = core_ace_rresp;
+  assign core_ace_if.rlast = core_ace_rlast;
+  assign core_ace_if.ruser = core_ace_ruser;
+  assign core_ace_if.rvalid = core_ace_rvalid;
+  assign core_ace_rready = core_ace_if.rready;
+  assign core_ace_if.acvalid = core_ace_acvalid;
+  assign core_ace_acready = core_ace_if.acready;
+  assign core_ace_if.acaddr = core_ace_acaddr;
+  assign core_ace_if.acsnoop = core_ace_acsnoop;
+  assign core_ace_if.acprot = core_ace_acprot;
+  assign core_ace_crvalid = core_ace_if.crvalid;
+  assign core_ace_if.crready = core_ace_crready;
+  assign core_ace_crresp = core_ace_if.crresp;
+  assign core_ace_cdvalid = core_ace_if.cdvalid;
+  assign core_ace_if.cdready = core_ace_cdready;
+  assign core_ace_cddata = core_ace_if.cddata;
+  assign core_ace_cdlast = core_ace_if.cdlast;
+  assign core_ace_rack = core_ace_if.rack;
+  assign core_ace_wack = core_ace_if.wack;
 
-  assign lsu_ace_awid = lsu_ace_if.awid;
-  assign lsu_ace_awaddr = lsu_ace_if.awaddr;
-  assign lsu_ace_awlen = lsu_ace_if.awlen;
-  assign lsu_ace_awsize = lsu_ace_if.awsize;
-  assign lsu_ace_awburst = lsu_ace_if.awburst;
-  assign lsu_ace_awlock = lsu_ace_if.awlock;
-  assign lsu_ace_awcache = lsu_ace_if.awcache;
-  assign lsu_ace_awprot = lsu_ace_if.awprot;
-  assign lsu_ace_awqos = lsu_ace_if.awqos;
-  assign lsu_ace_awregion = lsu_ace_if.awregion;
-  assign lsu_ace_awuser = lsu_ace_if.awuser;
-  assign lsu_ace_awvalid = lsu_ace_if.awvalid;
-  assign lsu_ace_if.awready = lsu_ace_awready;
-  assign lsu_ace_awsnoop = lsu_ace_if.awsnoop;
-  assign lsu_ace_awdomain = lsu_ace_if.awdomain;
-  assign lsu_ace_awbar = lsu_ace_if.awbar;
-  assign lsu_ace_wdata = lsu_ace_if.wdata;
-  assign lsu_ace_wstrb = lsu_ace_if.wstrb;
-  assign lsu_ace_wlast = lsu_ace_if.wlast;
-  assign lsu_ace_wuser = lsu_ace_if.wuser;
-  assign lsu_ace_wvalid = lsu_ace_if.wvalid;
-  assign lsu_ace_if.wready = lsu_ace_wready;
-  assign lsu_ace_if.bid = lsu_ace_bid;
-  assign lsu_ace_if.bresp = lsu_ace_bresp;
-  assign lsu_ace_if.buser = lsu_ace_buser;
-  assign lsu_ace_if.bvalid = lsu_ace_bvalid;
-  assign lsu_ace_bready = lsu_ace_if.bready;
-  assign lsu_ace_arid = lsu_ace_if.arid;
-  assign lsu_ace_araddr = lsu_ace_if.araddr;
-  assign lsu_ace_arlen = lsu_ace_if.arlen;
-  assign lsu_ace_arsize = lsu_ace_if.arsize;
-  assign lsu_ace_arburst = lsu_ace_if.arburst;
-  assign lsu_ace_arlock = lsu_ace_if.arlock;
-  assign lsu_ace_arcache = lsu_ace_if.arcache;
-  assign lsu_ace_arprot = lsu_ace_if.arprot;
-  assign lsu_ace_arqos = lsu_ace_if.arqos;
-  assign lsu_ace_arregion = lsu_ace_if.arregion;
-  assign lsu_ace_aruser = lsu_ace_if.aruser;
-  assign lsu_ace_arvalid = lsu_ace_if.arvalid;
-  assign lsu_ace_if.arready = lsu_ace_arready;
-  assign lsu_ace_arsnoop = lsu_ace_if.arsnoop;
-  assign lsu_ace_ardomain = lsu_ace_if.ardomain;
-  assign lsu_ace_arbar = lsu_ace_if.arbar;
-  assign lsu_ace_if.rid = lsu_ace_rid;
-  assign lsu_ace_if.rdata = lsu_ace_rdata;
-  assign lsu_ace_if.rresp = lsu_ace_rresp;
-  assign lsu_ace_if.rlast = lsu_ace_rlast;
-  assign lsu_ace_if.ruser = lsu_ace_ruser;
-  assign lsu_ace_if.rvalid = lsu_ace_rvalid;
-  assign lsu_ace_rready = lsu_ace_if.rready;
-  assign lsu_ace_if.acvalid = lsu_ace_acvalid;
-  assign lsu_ace_acready = lsu_ace_if.acready;
-  assign lsu_ace_if.acaddr = lsu_ace_acaddr;
-  assign lsu_ace_if.acsnoop = lsu_ace_acsnoop;
-  assign lsu_ace_if.acprot = lsu_ace_acprot;
-  assign lsu_ace_crvalid = lsu_ace_if.crvalid;
-  assign lsu_ace_if.crready = lsu_ace_crready;
-  assign lsu_ace_crresp = lsu_ace_if.crresp;
-  assign lsu_ace_cdvalid = lsu_ace_if.cdvalid;
-  assign lsu_ace_if.cdready = lsu_ace_cdready;
-  assign lsu_ace_cddata = lsu_ace_if.cddata;
-  assign lsu_ace_cdlast = lsu_ace_if.cdlast;
-  assign lsu_ace_rack = lsu_ace_if.rack;
-  assign lsu_ace_wack = lsu_ace_if.wack;
-
-  offnariscv_core offnariscv_core_inst (
+  offnariscv_core #(
+    .RESET_VECTOR(0)
+  ) offnariscv_core_inst (
     .clk(clk),
-    .rst_n(rst_n),
+    .rst(rst),
     .ifu_ace_if(ifu_ace_if),
     .lsu_ace_if(lsu_ace_if)
   );
+
+  core_arbiter core_arbiter_inst (
+    .clk(clk),
+    .rst(rst),
+    .ifu_ace_if(ifu_ace_if),
+    .lsu_ace_if(lsu_ace_if),
+    .core_ace_if(core_ace_if)
+  );
+
+  logic wbpcg_prev_ack;
+  logic pcgif_prev_ack;
+  logic ifid_prev_ack;
+  logic idrf_prev_ack;
+  logic rfex_prev_ack;
+  logic exwb_prev_ack;
+  logic wbrf_prev_ack;
+  pcgif_tdata_t pcgif_prev_tdata;
+  ifid_tdata_t ifid_prev_tdata;
+  idrf_tdata_t idrf_prev_tdata;
+  rfex_tdata_t rfex_prev_tdata;
+  exwb_tdata_t exwb_prev_tdata;
+  wbrf_tdata_t wbrf_prev_tdata;
+  logic prev_invalidate;
+  always_ff @(posedge clk) begin
+    if (rst) begin
+      wbpcg_prev_ack <= '0;
+      pcgif_prev_ack <= '0;
+      ifid_prev_ack <= '0;
+      idrf_prev_ack <= '0;
+      rfex_prev_ack <= '0;
+      exwb_prev_ack <= '0;
+      wbrf_prev_ack <= '0;
+      pcgif_prev_tdata <= '0;
+      pcgif_prev_tdata <= '0;
+      ifid_prev_tdata <= '0;
+      idrf_prev_tdata <= '0;
+      rfex_prev_tdata <= '0;
+      exwb_prev_tdata <= '0;
+      wbrf_prev_tdata <= '0;
+      prev_invalidate <= '0;
+    end else begin
+      wbpcg_prev_ack <= offnariscv_core_inst.wbpcg_axis_if.ack() || offnariscv_core_inst.pcgif_axis_if.ack();
+      pcgif_prev_ack <= offnariscv_core_inst.pcgif_axis_if.ack();
+      ifid_prev_ack <= offnariscv_core_inst.ifu_inst.ifid_pipe_reg_if.ack();
+      idrf_prev_ack <= offnariscv_core_inst.decoder_inst.idrf_fifo_if.ack();
+      rfex_prev_ack <= offnariscv_core_inst.regfile_inst.rfex_slice_if.ack();
+      exwb_prev_ack <= offnariscv_core_inst.dispatcher_inst.exwb_slice_if.ack();
+      wbrf_prev_ack <= offnariscv_core_inst.wbrf_axis_if.ack();
+      pcgif_prev_tdata <= offnariscv_core_inst.pcgif_axis_if.tdata;
+      ifid_prev_tdata <= offnariscv_core_inst.ifu_inst.ifid_pipe_reg_if.tdata;
+      idrf_prev_tdata <= offnariscv_core_inst.decoder_inst.idrf_fifo_if.tdata;
+      rfex_prev_tdata <= offnariscv_core_inst.regfile_inst.rfex_slice_if.tdata;
+      exwb_prev_tdata <= offnariscv_core_inst.dispatcher_inst.exwb_slice_if.tdata;
+      wbrf_prev_tdata <= offnariscv_core_inst.wbrf_axis_if.tdata;
+      prev_invalidate <= offnariscv_core_inst.invalidate;
+      $write("pcgif:\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.pcgif_axis_if.tvalid,
+             offnariscv_core_inst.pcgif_axis_if.tready,
+             offnariscv_core_inst.pcgif_axis_if.ack(),
+             offnariscv_core_inst.pcgif_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.pcgif_axis_if.tdata[63:0]);
+      $write("if1:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tvalid,
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tready,
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.ack(),
+              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[127 -: XLEN],
+              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[63:0]);
+      $write("ifid:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.ifid_axis_if.tvalid,
+             offnariscv_core_inst.ifid_axis_if.tready,
+             offnariscv_core_inst.ifid_axis_if.ack(),
+             offnariscv_core_inst.ifid_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.ifid_axis_if.tdata[63:0]);
+      $write("idrf:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.idrf_axis_if.tvalid,
+             offnariscv_core_inst.idrf_axis_if.tready,
+             offnariscv_core_inst.idrf_axis_if.ack(),
+             offnariscv_core_inst.idrf_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.idrf_axis_if.tdata[63:0]);
+      $write("rfex:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, alu.op1=%016h, alu.op2=%016h, bru.op1=%016h, bru.op2=%016h, id=%0d\n",
+             offnariscv_core_inst.rfex_axis_if.tvalid,
+             offnariscv_core_inst.rfex_axis_if.tready,
+             offnariscv_core_inst.rfex_axis_if.ack(),
+             offnariscv_core_inst.rfex_axis_if.tdata[127 -: XLEN],
+              offnariscv_core_inst.rfalu_axis_if.tdata,
+              offnariscv_core_inst.rfalu_axis_if.tdata,
+              offnariscv_core_inst.rfbru_axis_if.tdata,
+              offnariscv_core_inst.rfbru_axis_if.tdata,
+             offnariscv_core_inst.rfex_axis_if.tdata[63:0]);
+      $write("exwb:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.exwb_axis_if.tvalid,
+             offnariscv_core_inst.exwb_axis_if.tready,
+             offnariscv_core_inst.exwb_axis_if.ack(),
+             offnariscv_core_inst.exwb_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.exwb_axis_if.tdata[63:0]);
+      if (0)
+      $write("wbrf:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+             offnariscv_core_inst.wbrf_axis_if.tvalid,
+             offnariscv_core_inst.wbrf_axis_if.tready,
+             offnariscv_core_inst.wbrf_axis_if.ack(),
+             offnariscv_core_inst.wbrf_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.wbrf_axis_if.tdata[63:0]);
+      // for (int i = 0; i < 32; i++) begin
+      //   $write("rf[%0d] = %08x\n", i, offnariscv_core_inst.regfile_inst.rf_mem[i]);
+      // end
+      if (offnariscv_core_inst.wbrf_axis_if.ack() || 1) begin
+        wbrf_tdata_t tdata;
+        assign tdata = offnariscv_core_inst.wbrf_axis_if.tdata;
+        $write ("wbrf:\t\tid=%0d, rd=%0d, wdata=%08x, pc=%08x, trap=%0d\n",
+               tdata.ex_data.rf_data.id_data.if_data.pcg_data.id,
+               tdata.ex_data.rf_data.id_data.rd,
+               tdata.wdata,
+               tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
+               offnariscv_core_inst.wbcsr_wif.trap);
+        if (tdata.ex_data.rf_data.id_data.rd != 0)
+        $write("pc=%08x, rd=%0d, wdata=%08x\n",
+               tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
+               tdata.ex_data.rf_data.id_data.rd,
+               tdata.wdata);
+        if (offnariscv_core_inst.wbcsr_wif.valid || offnariscv_core_inst.syswb_axis_if.tvalid)
+        $write("csr_addr=%08x, csr_rdata=%08x, csr_wdata=%08x, pc=%08x, cause=%0d\n",
+               offnariscv_core_inst.wbcsr_wif.addr,
+               tdata.ex_data.rf_data.csr_rdata,
+               offnariscv_core_inst.wbcsr_wif.data,
+               offnariscv_core_inst.wbcsr_wif.pc,
+               offnariscv_core_inst.wbcsr_wif.cause);
+        if (offnariscv_core_inst.wbcsr_wif.trap)
+          $write("trap: %0d\n", offnariscv_core_inst.wbcsr_wif.cause);
+      end
+      if (offnariscv_core_inst.wbpcg_axis_if.ack()) begin
+        $write("new_pc=%08x\n", offnariscv_core_inst.wbpcg_axis_if.tdata);
+      end
+      $write("\n");
+    end
+  end
+
+  int ret_cnt = 0;
+  export "DPI-C" task kanata_log_dut;
+  task kanata_log_dut;
+    output string log_file;
+    string s0, s1, s2, s3, s4, s5, s6, s7;
+    if (wbpcg_prev_ack) begin
+      logic [INST_ID_WIDTH-1:0] id;
+      logic [XLEN-1:0] pc;
+      assign id = offnariscv_core_inst.pcgen_inst.inst_id_q;
+      assign pc = offnariscv_core_inst.pcgen_inst.pc_q;
+      $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tPC\nL\t%0d\t0\t%08x\n", id, id, id, id, pc);
+    end else $sformat(s0, "");
+    if (pcgif_prev_ack) begin // IDLE state
+      $sformat(s1, "S\t%0d\t0\tIF\n", pcgif_prev_tdata.id);
+    end else $sformat(s1, "");
+    if (ifid_prev_ack) begin
+      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t %08x\n", ifid_prev_tdata.pcg_data.id, ifid_prev_tdata.pcg_data.id, ifid_prev_tdata.inst);
+    end else $sformat(s2, "");
+    if (idrf_prev_ack) begin
+      $sformat(s3, "S\t%0d\t0\tRF\n", idrf_prev_tdata.if_data.pcg_data.id);
+    end else $sformat(s3, "");
+    if (rfex_prev_ack) begin
+      $sformat(s4, "S\t%0d\t0\tEX\n", rfex_prev_tdata.id_data.if_data.pcg_data.id);
+    end else $sformat(s4, "");
+    if (exwb_prev_ack) begin
+      $sformat(s5, "S\t%0d\t0\tWB\n", exwb_prev_tdata.rf_data.id_data.if_data.pcg_data.id);
+    end else $sformat(s5, "");
+    if (wbrf_prev_ack) begin
+      $sformat(s6, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id, ret_cnt);
+      ret_cnt++;
+    end else $sformat(s6, "");
+    if (prev_invalidate) begin
+      pcgif_tdata_t tdata;
+      assign tdata = offnariscv_core_inst.pcgif_axis_if.tdata;
+      for (longint i = wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id + 1; i < tdata.id; ++i) begin
+        $sformat(s7, "%sR\t%0d\t-1\t1\n", s7, i);
+      end
+    end else $sformat(s7, "");
+    $sformat(log_file, "%s%s%s%s%s%s%s%s", s0, s1, s2, s3, s4, s5, s6, s7);
+  endtask
 
 endmodule

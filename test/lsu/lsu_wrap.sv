@@ -2,9 +2,12 @@
 
 module lsu_wrap
   import offnariscv_pkg::*;
-(
+# (
+  localparam ACE_XDATA_WIDTH = 256,
+  localparam ACE_AXADDR_WIDTH = 32
+) (
   input clk,
-  input rst_n,
+  input rst,
 
   // AW channel signals
   output [ACE_XID_WIDTH-1:0] lsu_ace_awid,
@@ -69,7 +72,7 @@ module lsu_wrap
   // AC channel signals
   input  lsu_ace_acvalid,
   output lsu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] lsu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] lsu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] lsu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] lsu_ace_acprot,
 
@@ -81,15 +84,20 @@ module lsu_wrap
   // CD channel signals
   output lsu_ace_cdvalid,
   input  lsu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] lsu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] lsu_ace_cddata,
   output lsu_ace_cdlast,
 
   // Additional signals
   output lsu_ace_rack,
-  output lsu_ace_wack
+  output lsu_ace_wack,
+
+  input logic invalidate
 );
 
-  ace_if lsu_ace_if ();
+  ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) lsu_ace_if ();
+
+  axis_if #(.TDATA_WIDTH($bits(rflsu_tdata_t))) rflsu_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(lsuwb_tdata_t))) lsuwb_axis_if ();
 
   // AW channel signals
   assign lsu_ace_awid = lsu_ace_if.awid;
@@ -175,8 +183,11 @@ module lsu_wrap
 
   lsu lsu_inst (
     .clk(clk),
-    .rst_n(rst_n),
-    .lsu_ace_if(lsu_ace_if)
+    .rst(rst),
+    .lsu_ace_if(lsu_ace_if),
+    .rflsu_axis_if(rflsu_axis_if),
+    .lsuwb_axis_if(lsuwb_axis_if),
+    .invalidate(invalidate)
   );
 
 endmodule

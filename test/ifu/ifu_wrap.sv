@@ -2,42 +2,14 @@
 
 module ifu_wrap
   import offnariscv_pkg::*;
-(
+# (
+  localparam ACE_XDATA_WIDTH = 256,
+  localparam ACE_AXADDR_WIDTH = 32,
+  localparam INDEX_WIDTH = 7,
+  localparam TAG_WIDTH = 20
+) (
   input clk,
-  input rst_n,
-
-  // AW channel signals
-  output [ACE_XID_WIDTH-1:0] ifu_ace_awid,
-  output [ACE_AXADDR_WIDTH-1:0] ifu_ace_awaddr,
-  output [ACE_AXLEN_WIDTH-1:0] ifu_ace_awlen,
-  output [ACE_AXSIZE_WIDTH-1:0] ifu_ace_awsize,
-  output [ACE_AXBURST_WIDTH-1:0] ifu_ace_awburst,
-  output ifu_ace_awlock,
-  output [ACE_AXCACHE_WIDTH-1:0] ifu_ace_awcache,
-  output [ACE_AXPROT_WIDTH-1:0] ifu_ace_awprot,
-  output [ACE_AXQOS_WIDTH-1:0] ifu_ace_awqos,
-  output [ACE_AXREGION_WIDTH-1:0] ifu_ace_awregion,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_awuser,
-  output ifu_ace_awvalid,
-  input  ifu_ace_awready,
-  output [ACE_AWSNOOP_WIDTH-1:0] ifu_ace_awsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] ifu_ace_awdomain,
-  output [ACE_BAR_WIDTH-1:0] ifu_ace_awbar,
-
-  // W channel signals
-  output [ACE_XDATA_WIDTH-1:0] ifu_ace_wdata,
-  output [ACE_XDATA_WIDTH/8-1:0] ifu_ace_wstrb,
-  output ifu_ace_wlast,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_wuser,
-  output ifu_ace_wvalid,
-  input  ifu_ace_wready,
-
-  // B channel signals
-  input  [ACE_XID_WIDTH-1:0] ifu_ace_bid,
-  input  [ACE_BRESP_WIDTH-1:0] ifu_ace_bresp,
-  input  [ACE_XUSER_WIDTH-1:0] ifu_ace_buser,
-  input  ifu_ace_bvalid,
-  output ifu_ace_bready,
+  input rst,
 
   // AR channel signals
   output [ACE_XID_WIDTH-1:0] ifu_ace_arid,
@@ -69,7 +41,7 @@ module ifu_wrap
   // AC channel signals
   input  ifu_ace_acvalid,
   output ifu_ace_acready,
-  input  [ACE_ACADDR_WIDTH-1:0] ifu_ace_acaddr,
+  input  [ACE_AXADDR_WIDTH-1:0] ifu_ace_acaddr,
   input  [ACE_ACSNOOP_WIDTH-1:0] ifu_ace_acsnoop,
   input  [ACE_ACPROT_WIDTH-1:0] ifu_ace_acprot,
 
@@ -81,48 +53,37 @@ module ifu_wrap
   // CD channel signals
   output ifu_ace_cdvalid,
   input  ifu_ace_cdready,
-  output [ACE_CDDATA_WIDTH-1:0] ifu_ace_cddata,
+  output [ACE_XDATA_WIDTH-1:0] ifu_ace_cddata,
   output ifu_ace_cdlast,
 
   // Additional signals
   output ifu_ace_rack,
-  output ifu_ace_wack
+
+  // From/To Program Counter Generator
+  input logic [XLEN-1:0] next_pc_tdata,
+  input logic next_pc_tvalid,
+  output logic next_pc_tready,
+
+  // To Decoder
+  output logic [XLEN-1:0] ifid_tdata_inst,
+  output logic inst_tvalid,
+  input logic inst_tready,
+
+  input logic invalidate
 );
 
-  ace_if ifu_ace_if ();
+  ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) ifu_ace_if ();
 
-  // AW channel signals
-  assign ifu_ace_awid = ifu_ace_if.awid;
-  assign ifu_ace_awaddr = ifu_ace_if.awaddr;
-  assign ifu_ace_awlen = ifu_ace_if.awlen;
-  assign ifu_ace_awsize = ifu_ace_if.awsize;
-  assign ifu_ace_awburst = ifu_ace_if.awburst;
-  assign ifu_ace_awlock = ifu_ace_if.awlock;
-  assign ifu_ace_awcache = ifu_ace_if.awcache;
-  assign ifu_ace_awprot = ifu_ace_if.awprot;
-  assign ifu_ace_awqos = ifu_ace_if.awqos;
-  assign ifu_ace_awregion = ifu_ace_if.awregion;
-  assign ifu_ace_awuser = ifu_ace_if.awuser;
-  assign ifu_ace_awvalid = ifu_ace_if.awvalid;
-  assign ifu_ace_if.awready = ifu_ace_awready;
-  assign ifu_ace_awsnoop = ifu_ace_if.awsnoop;
-  assign ifu_ace_awdomain = ifu_ace_if.awdomain;
-  assign ifu_ace_awbar = ifu_ace_if.awbar;
+  axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
+  axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) inst_axis_if ();
 
-  // W channel signals
-  assign ifu_ace_wdata = ifu_ace_if.wdata;
-  assign ifu_ace_wstrb = ifu_ace_if.wstrb;
-  assign ifu_ace_wlast = ifu_ace_if.wlast;
-  assign ifu_ace_wuser = ifu_ace_if.wuser;
-  assign ifu_ace_wvalid = ifu_ace_if.wvalid;
-  assign ifu_ace_if.wready = ifu_ace_wready;
+  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_0 ();
+  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_1 ();
+  cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_0 ();
+  cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_1 ();
 
-  // B channel signals
-  assign ifu_ace_if.bid = ifu_ace_bid;
-  assign ifu_ace_if.bresp = ifu_ace_bresp;
-  assign ifu_ace_if.buser = ifu_ace_buser;
-  assign ifu_ace_if.bvalid = ifu_ace_bvalid;
-  assign ifu_ace_bready = ifu_ace_if.bready;
+  pcgif_tdata_t pcgif_tdata;
+  ifid_tdata_t ifid_tdata;
 
   // AR channel signals
   assign ifu_ace_arid = ifu_ace_if.arid;
@@ -171,12 +132,37 @@ module ifu_wrap
 
   // Additional signals
   assign ifu_ace_rack = ifu_ace_if.rack;
-  assign ifu_ace_wack = ifu_ace_if.wack;
+
+  // From/To Program Counter Generator
+  assign pcgif_tdata.pc = next_pc_tdata;
+
+  assign pcgif_axis_if.tdata = pcgif_tdata;
+  assign pcgif_axis_if.tvalid = next_pc_tvalid;
+  assign next_pc_tready = pcgif_axis_if.tready;
+
+  assign ifid_tdata = inst_axis_if.tdata;
+  assign inst_tvalid = inst_axis_if.tvalid;
+  assign inst_axis_if.tready = inst_tready;
+
+  assign ifid_tdata_inst = ifid_tdata.inst;
 
   ifu ifu_inst (
     .clk(clk),
-    .rst_n(rst_n),
-    .ifu_ace_if(ifu_ace_if)
+    .rst(rst),
+    .ifu_ace_if(ifu_ace_if),
+    .pcgif_axis_if(pcgif_axis_if),
+    .inst_axis_if(inst_axis_if),
+    .l1i_dir_if(l1i_dir_if_0),
+    .l1i_mem_if(l1i_mem_if_0),
+    .invalidate(invalidate)
+  );
+
+  cache_directory l1i_dir_inst (
+    .clk(clk),
+    .rst(rst),
+    .cache_dir_rsp_if_0(l1i_dir_if_0),
+    .cache_dir_rsp_if_1(l1i_dir_if_1),
+    .flush('0) // TODO
   );
 
 endmodule

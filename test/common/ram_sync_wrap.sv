@@ -6,7 +6,7 @@ module ram_sync_wrap # (
   localparam OUTPUT_REG = 0
 ) (
   input logic clk,
-  input logic rst_n,
+  input logic rst,
   
   input logic [DATA_WIDTH-1:0] wdata,
   input logic [ADDR_WIDTH-1:0] waddr,

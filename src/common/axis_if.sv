@@ -13,4 +13,8 @@ interface axis_if # (
   // Subordinate modport
   modport s (input tvalid, tdata, output tready);
 
+  function automatic logic ack();
+    return tvalid && tready;
+  endfunction
+
 endinterface

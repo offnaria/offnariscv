@@ -4,7 +4,6 @@ add_executable(axis_slice_test axis_slice_test.cpp)
 target_include_directories(axis_slice_test PRIVATE ${CMAKE_SOURCE_DIR}/test)
 verilate(axis_slice_test
   SOURCES
-    ../../src/offnariscv_pkg.sv
     ../../src/common/axis_if.sv
     ../../src/common/axis_slice.sv
     axis_slice_wrap.sv
@@ -19,7 +18,6 @@ add_executable(axis_skid_buffer_test axis_skid_buffer_test.cpp)
 target_include_directories(axis_skid_buffer_test PRIVATE ${CMAKE_SOURCE_DIR}/test)
 verilate(axis_skid_buffer_test
   SOURCES
-    ../../src/offnariscv_pkg.sv
     ../../src/common/axis_if.sv
     ../../src/common/axis_skid_buffer.sv
     axis_skid_buffer_wrap.sv
@@ -34,7 +32,6 @@ add_executable(axis_sync_fifo_test axis_sync_fifo_test.cpp)
 target_include_directories(axis_sync_fifo_test PRIVATE ${CMAKE_SOURCE_DIR}/test)
 verilate(axis_sync_fifo_test
   SOURCES
-    ../../src/offnariscv_pkg.sv
     ../../src/common/axis_if.sv
     ../../src/common/axis_sync_fifo.sv
     ../../src/common/ram_async.sv

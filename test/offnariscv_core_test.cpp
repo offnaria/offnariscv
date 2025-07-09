@@ -1,163 +1,261 @@
 // SPDX-License-Identifier: MIT
 
+#include <verilated.h>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <cstdint>
-#include <cstdio>
+#include <elfio/elfio.hpp>
 #include <filesystem>
-#include <format>
-#include <memory>
+#include <fstream>
 #include <print>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-#include "SimSpike.hpp"
-#include "cachesim.h"
-#include "cfg.h"
-#include "config.h"
-#include "extension.h"
-#include "platform.h"
-#include "sim.h"
+#include "Dut.hpp"
+#include "Voffnariscv_core.h"
 
-constexpr int MAX_STEPS = 10000;
+constexpr int PAGE_SIZE = 4096;
+constexpr int PAGE_OFFSET_MASK = PAGE_SIZE - 1;
+constexpr int PAGE_NUMBER_MASK = ~PAGE_OFFSET_MASK;
 
-SimSpike* s;
-std::vector<std::pair<reg_t, abstract_mem_t*>> mems;
+constexpr int BLOCK_BYTES = 32;  // Assuming each block is 32 bytes (256 bits)
+constexpr int BLOCK_MASK = ~(BLOCK_BYTES - 1);
 
-void init_spike(const std::string& test) {
-  bool debug = false;
-  bool halted = false;
-  bool histogram = false;
-  bool log = false;
-  bool UNUSED socket = false;
-  bool dump_dts = false;
-  bool dtb_enabled = true;
-  const char* kernel = NULL;
-  reg_t kernel_offset, kernel_size;
-  std::vector<device_factory_sargs_t> plugin_device_factories;
-  std::unique_ptr<icache_sim_t> ic;
-  std::unique_ptr<dcache_sim_t> dc;
-  std::unique_ptr<cache_sim_t> l2;
-  bool log_cache = false;
-  bool log_commits = true;
-  const char* log_path = "/dev/null";
-  std::vector<std::function<extension_t*()>> extensions;
-  const char* initrd = NULL;
-  const char* dtb_file = NULL;
-  uint16_t rbb_port = 0;
-  bool use_rbb = false;
-  unsigned dmi_rti = 0;
-  reg_t blocksz = 64;
-  std::optional<unsigned long long> instructions;
-  debug_module_config_t dm_config;
-  cfg_arg_t<size_t> nprocs(1);
+class Tester {
+  Dut<Voffnariscv_core> dut;
+  std::unordered_map<std::uint32_t, std::vector<std::uint8_t>> memory;
+  bool kanata_log_enabled;
+  std::ofstream kanata_log;
+  std::uint32_t tohost_addr;
 
-  cfg_t cfg;
-  cfg.isa = "rv32ima_zicsr_zifencei_zicntr";
-  // cfg.misaligned = true;
+  void init_dut();
 
-  FILE* cmd_file = NULL;
+ public:
+  Tester(const std::string& test);
+  void step();
+  bool tohost_written;
+  std::uint32_t tohost_data;
+};
 
+void Tester::init_dut() {
+  dut->core_ace_arready = 0;
+  dut->core_ace_rid = 0;
+  for (int i = 0; i < 8; ++i) {
+    // Assuming the block size is 256 bits (8 * 32 bits)
+    dut->core_ace_rdata[i] = 0;
+  }
+  dut->core_ace_rresp = 0;
+  dut->core_ace_rlast = 0;
+  dut->core_ace_ruser = 0;
+  dut->core_ace_rvalid = 0;
+  dut->core_ace_acvalid = 0;
+  dut->core_ace_acaddr = 0;
+  dut->core_ace_acsnoop = 0;
+  dut->core_ace_acprot = 0;
+  dut->core_ace_crready = 0;
+  dut->core_ace_cdready = 0;
+
+  dut.reset();
+}
+
+Tester::Tester(const std::string& test) {
   auto my_parent_path =
       std::filesystem::read_symlink("/proc/self/exe").parent_path();
   auto test_path = my_parent_path / "../ext/riscv-tests/riscv-tests/isa" / test;
-  std::print("Test path: {}\n", test_path.string());
+  auto test_path_str = test_path.string();
+  std::print("Test path: {}\n", test_path_str);
   REQUIRE(std::filesystem::exists(test_path));
-  std::vector<std::string> htif_args = {test_path};
 
-  mems.reserve(cfg.mem_layout.size());
-  for (const auto& c : cfg.mem_layout) {
-    mems.push_back(std::make_pair(c.get_base(), new mem_t(c.get_size())));
+  ELFIO::elfio reader;
+  REQUIRE(reader.load(test_path_str));
+
+  REQUIRE(reader.get_class() == ELFIO::ELFCLASS32);
+  REQUIRE(reader.get_machine() == ELFIO::EM_RISCV);
+
+  uint32_t text_init;
+  for (const auto& section : reader.sections) {
+    if ((section->get_flags() & ELFIO::SHF_ALLOC) != ELFIO::SHF_ALLOC) continue;
+    auto addr = section->get_address();
+    auto size = section->get_size();
+    if (size == 0) continue;  // Skip empty sections
+    if (section->get_name().find(".text.init") != std::string::npos) {
+      text_init = addr;
+      std::print("Found .text.init section at address: {:#010x}\n", addr);
+    } else if (section->get_name().find(".tohost") != std::string::npos) {
+      tohost_addr = addr;
+      std::print("Found .tohost section at address: {:#010x}\n", addr);
+    }
+    auto data = section->get_data();
+    auto end_data = data + size;
+    for (auto p = data; p < end_data; p += PAGE_SIZE) {
+      // Assuming each section starts at a page-aligned address
+      // and never crosses a page boundary
+      auto ppn = addr & PAGE_NUMBER_MASK;
+      memory.emplace(
+          ppn, std::vector<std::uint8_t>(p, std::min(p + PAGE_SIZE, end_data)));
+      if (p + PAGE_SIZE != end_data) {
+        // Fill the last page with zeros if it is not fully filled
+        memory[ppn].resize(PAGE_SIZE);
+      }
+      addr += PAGE_SIZE;
+    }
+  }
+  REQUIRE(!memory.empty());
+  REQUIRE(!memory.contains(0));
+  REQUIRE(text_init == 0x80000000);  // Assuming text_init is at this address
+
+  memory.emplace(0, std::vector<std::uint8_t>(PAGE_SIZE));
+  auto& init_data = memory[0];
+  // lui x1, 0x80000000
+  init_data[0] = 0xb7;
+  init_data[1] = 0x00;
+  init_data[2] = 0x00;
+  init_data[3] = 0x80;
+  // jalr x0, 0(x1); Jump to text_init
+  init_data[4] = 0x67;
+  init_data[5] = 0x80;
+  init_data[6] = 0x00;
+  init_data[7] = 0x00;
+
+  // // Dump memory
+  // for (const auto& [ppn, data] : memory) {
+  //   std::print("Memory at {:#010x}:\n", ppn);
+  //   for (int i = 0; i < data.size(); i += 4) {
+  //     std::print("{} {:#010x}\n", i,
+  //                *reinterpret_cast<const uint32_t*>(&data[i]));
+  //   }
+  // }
+
+  // Set up Kanata log
+  kanata_log_enabled = true;  // Change this to false to disable Kanata logging
+  if (kanata_log_enabled) {
+    kanata_log.open(test + ".kanata.log");
+    REQUIRE(kanata_log.is_open());
+    std::print(kanata_log,
+               "Kanata\t0004\n"
+               "C=\t0\n"
+               "I\t0\t0\t0\n"
+               "S\t0\t0\tPC\n"
+               "L\t0\t0\t00000000\n");
   }
 
-  s = new SimSpike(&cfg, halted, mems, plugin_device_factories, htif_args,
-                   dm_config, log_path, dtb_enabled, dtb_file, socket, cmd_file,
-                   instructions);
+  tohost_written = false;
 
-  s->set_debug(debug);
-  s->configure_log(log, log_commits);
-  s->set_histogram(histogram);
-
-  s->start_htif();
+  init_dut();
 }
 
-extern const char* csr_name(int which);
-
-int run_spike() {
-  auto core = s->get_core(0);
-  core->reset();
-  auto prev_pc = core->get_state()->pc;
-
-  for (int i = 0; i < MAX_STEPS; ++i) {
-    // if (!offnariscv_commit) continue;
-    auto state = core->get_state();
-    std::print("{:#010x}", (unsigned)prev_pc);
-    for (const auto& item : state->log_reg_write) {
-      if (item.first == 0) continue;
-
-      int rd = item.first >> 4;
-      if ((item.first & 0xf) == 0) {
-        std::print(" x{: <2} {:#010x}", rd, *(uint32_t*)(&item.second.v));
-      } else {
-        std::print(" c{}_{} {:#010x}", rd, csr_name(rd),
-                   *(uint32_t*)(&item.second.v));
+void Tester::step() {
+  // NOTE: This method might not work, if there is a load/store queue
+  auto rready = dut->core_ace_rready;
+  dut->core_ace_arready = 1;
+  if (dut->core_ace_arvalid) {
+    auto araddr = dut->core_ace_araddr;
+    dut->core_ace_rvalid = 1;
+    auto ppn = araddr & PAGE_NUMBER_MASK;
+    if (memory.contains(ppn)) {
+      std::print("araddr: {:#010x}\n", araddr);
+      std::print("rdata:");
+      auto offset =
+          araddr & PAGE_OFFSET_MASK & BLOCK_MASK;  // e.g. araddr[11:6]
+      for (int i = 0; i < BLOCK_BYTES / 4; ++i) {
+        dut->core_ace_rdata[i] =
+            *reinterpret_cast<const uint32_t*>(&memory[ppn][offset + 4 * i]);
+        std::print(" {:#010x}", dut->core_ace_rdata[i]);
       }
+      std::print("\n");
+      dut->core_ace_rresp = 0;  // OKAY
+    } else {
+      std::print("Read from uninitialized memory at {:#010x}\n", araddr);
+      dut->core_ace_rresp = 2;  // SLVERR
     }
-    for (const auto& item : state->log_mem_read) {
-      std::print(" mem {:#010x}", std::get<0>(item));
-    }
-    for (const auto& item : state->log_mem_write) {
-      auto* addr = &std::get<0>(item);
-      auto* value = &std::get<1>(item);
-      auto size = std::get<2>(item);
-      std::print(" mem {:#010x}", *(uint32_t*)(addr));
-      switch (size << 3) {
-        case 8:
-          std::print(" {:#04x}", *(uint8_t*)(value));
-          break;
-        case 16:
-          std::print(" {:#06x}", *(uint16_t*)(value));
-          break;
-        case 32:
-          std::print(" {:#010x}", *(uint32_t*)(value));
-          break;
-        case 64:
-          std::print(" {:#018x}", *(uint64_t*)(value));
-          break;
-        default:
-          std::print(" {:#010x}", *(uint32_t*)(value));
-      }
-      auto tohost_addr = s->get_tohost_addr();
-      if ((tohost_addr != 0) && (*(uint32_t*)(addr) == tohost_addr)) {
-        std::print(" (tohost)\n");
-        return *(uint32_t*)(value);  // Exit on tohost write
-      }
-    }
-    std::print("\n");
-    prev_pc = state->pc;
-    core->step(1);
   }
 
+  auto bready = dut->core_ace_bready;
+  dut->core_ace_awready = 1;
+  dut->core_ace_wready = 1;
+  if (dut->core_ace_awvalid) {
+    auto awaddr = dut->core_ace_awaddr;
+    dut->core_ace_bvalid = 1;
+    auto ppn = awaddr & PAGE_NUMBER_MASK;
+    if (memory.contains(ppn)) {
+      std::print("awaddr: {:#010x}\n", awaddr);
+      std::print("wdata:");
+      auto offset = awaddr & PAGE_OFFSET_MASK & BLOCK_MASK;
+      for (int i = 0; i < BLOCK_BYTES; ++i) {
+        if ((dut->core_ace_wstrb >> i) & 1) {
+          memory[ppn][offset + i] = dut->core_ace_wdata[i / 4] >> (8 * (i % 4));
+        }
+        std::print(" {:#04x}", memory[ppn][offset + i]);
+      }
+      std::print("\n");
+      std::print("wstrb: {:#010x}\n", dut->core_ace_wstrb);
+    }
+    if (awaddr == tohost_addr) {
+      tohost_written = true;
+      tohost_data = dut->core_ace_wdata[0];
+    }
+  }
+
+  dut->clk = 0;
+  dut->eval();
+
+  // To observe the internal state of the DUT, we should do it between
+  // negedge evaluation and posedge evaluation
+
+  //  Update Kanata log
+  if (kanata_log_enabled) {
+    const char* kanata_log_buf;
+    svSetScope(svGetScopeFromName("TOP.offnariscv_core_wrap"));
+    dut->kanata_log_dut(&kanata_log_buf);
+    std::print(kanata_log,
+               "{}"
+               "C\t1\n",
+               kanata_log_buf);
+  }
+
+  dut->clk = 1;
+  dut->eval();
+
+  if (rready) {
+    dut->core_ace_rvalid = 0;
+  }
+
+  if (bready) {
+    dut->core_ace_bvalid = 0;
+  }
+}
+
+static int run_simulation(Tester& tester) {
+  for (int i = 0; i < 3000; ++i) {
+    if (tester.tohost_written) {
+      return tester.tohost_data;
+    }
+    tester.step();
+  }
   return 0;
 }
 
-void cleanup_spike() {
-  mems.clear();
-  delete s;
-}
-
-int runner(const std::string& test) {
+static int runner(const std::string& test) {
   std::print(
       "-----------------------------------------------------------------"
       "--------------\n");
   std::print("{}\n", test);
-  init_spike(test);
-  auto return_code = run_spike();
-  cleanup_spike();
+  std::print(
+      "-----------------------------------------------------------------"
+      "--------------\n");
+  Tester tester(test);
+  auto return_code = run_simulation(tester);
+  if (return_code == 1) {
+    std::print("Test for {} passed!\n", test);
+  } else {
+    std::print("Test for {} failed!\n", test);
+  }
   return return_code;
 }
 
-TEST_CASE("riscv-tests/isa/rv32ui-p") {
+TEST_CASE("offnariscv_core_riscv-tests/isa/rv32ui-p") {
   auto test = GENERATE(
       "rv32ui-p-simple", "rv32ui-p-add", "rv32ui-p-addi", "rv32ui-p-and",
       "rv32ui-p-andi", "rv32ui-p-auipc", "rv32ui-p-beq", "rv32ui-p-bge",
@@ -173,70 +271,3 @@ TEST_CASE("riscv-tests/isa/rv32ui-p") {
   );
   REQUIRE(runner(test) == 1);
 }
-
-/*
-TEST_CASE("riscv-tests/isa/rv32um-p") {
-  auto test = GENERATE("rv32um-p-div", "rv32um-p-divu", "rv32um-p-mul",
-                       "rv32um-p-mulh", "rv32um-p-mulhsu", "rv32um-p-mulhu",
-                       "rv32um-p-rem", "rv32um-p-remu");
-  REQUIRE(runner(test) == 1);
-}
-
-TEST_CASE("riscv-tests/isa/rv32ua-p") {
-  auto test =
-      GENERATE("rv32ua-p-amoadd_w", "rv32ua-p-amoand_w", "rv32ua-p-amomax_w",
-               "rv32ua-p-amomaxu_w", "rv32ua-p-amomin_w", "rv32ua-p-amominu_w",
-               "rv32ua-p-amoor_w", "rv32ua-p-amoswap_w", "rv32ua-p-amoxor_w",
-               "rv32ua-p-lrsc");
-  REQUIRE(runner(test) == 1);
-}
-
-TEST_CASE("riscv-tests/isa/rv32mi-p") {
-  auto test =
-      GENERATE("rv32mi-p-breakpoint", "rv32mi-p-csr", "rv32mi-p-illegal",
-               "rv32mi-p-instret_overflow", "rv32mi-p-lh-misaligned",
-               "rv32mi-p-lw-misaligned", "rv32mi-p-ma_addr",
-               "rv32mi-p-ma_fetch", "rv32mi-p-mcsr", "rv32mi-p-pmpaddr",
-               "rv32mi-p-sbreak", "rv32mi-p-scall", "rv32mi-p-sh-misaligned",
-               "rv32mi-p-shamt", "rv32mi-p-sw-misaligned", "rv32mi-p-zicntr");
-  REQUIRE(runner(test) == 1);
-}
-
-TEST_CASE("riscv-tests/isa/rv32si-p") {
-  auto test = GENERATE("rv32si-p-csr", "rv32si-p-dirty", "rv32si-p-ma_fetch",
-                       "rv32si-p-sbreak", "rv32si-p-scall", "rv32si-p-wfi");
-  REQUIRE(runner(test) == 1);
-}
-
-TEST_CASE("riscv-tests/isa/rv32ui-v") {
-  auto test = GENERATE(
-      "rv32ui-v-simple", "rv32ui-v-add", "rv32ui-v-addi", "rv32ui-v-and",
-      "rv32ui-v-andi", "rv32ui-v-auipc", "rv32ui-v-beq", "rv32ui-v-bge",
-      "rv32ui-v-bgeu", "rv32ui-v-blt", "rv32ui-v-bltu", "rv32ui-v-bne",
-      "rv32ui-v-fence_i", "rv32ui-v-jal", "rv32ui-v-jalr", "rv32ui-v-lb",
-      "rv32ui-v-lbu", "rv32ui-v-ld_st", "rv32ui-v-lh", "rv32ui-v-lhu",
-      "rv32ui-v-lui", "rv32ui-v-lw", "rv32ui-v-ma_data", "rv32ui-v-or",
-      "rv32ui-v-ori", "rv32ui-v-sb", "rv32ui-v-sh", "rv32ui-v-sll",
-      "rv32ui-v-slli", "rv32ui-v-slt", "rv32ui-v-slti", "rv32ui-v-sltiu",
-      "rv32ui-v-sltu", "rv32ui-v-sra", "rv32ui-v-srai", "rv32ui-v-srl",
-      "rv32ui-v-srli", "rv32ui-v-st_ld", "rv32ui-v-sub", "rv32ui-v-sw",
-      "rv32ui-v-xor", "rv32ui-v-xori");
-  REQUIRE(runner(test) == 1);
-}
-
-TEST_CASE("riscv-tests/isa/rv32um-v") {
-  auto test = GENERATE("rv32um-v-div", "rv32um-v-divu", "rv32um-v-mul",
-                       "rv32um-v-mulh", "rv32um-v-mulhsu", "rv32um-v-mulhu",
-                       "rv32um-v-rem", "rv32um-v-remu");
-  REQUIRE(runner(test) == 1);
-}
-
-TEST_CASE("riscv-tests/isa/rv32ua-v") {
-  auto test =
-      GENERATE("rv32ua-v-amoadd_w", "rv32ua-v-amoand_w", "rv32ua-v-amomax_w",
-               "rv32ua-v-amomaxu_w", "rv32ua-v-amomin_w", "rv32ua-v-amominu_w",
-               "rv32ua-v-amoor_w", "rv32ua-v-amoswap_w", "rv32ua-v-amoxor_w",
-               "rv32ua-v-lrsc");
-  REQUIRE(runner(test) == 1);
-}
-*/

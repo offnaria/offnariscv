@@ -3,7 +3,7 @@
 // Skid buffer for AXI Stream interface
 module axis_skid_buffer (
   input logic clk,
-  input logic rst_n,
+  input logic rst,
   
   axis_if.m axis_mif, // Manager
   axis_if.s axis_sif, // Subordinate
@@ -39,13 +39,17 @@ module axis_skid_buffer (
   assign axis_sif.tready = tready;
 
   // Update registers
-  always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
+  always_ff @(posedge clk) begin
+    if (rst) begin
       tvalid <= '0;
-      tready <= '0;
+      tready <= '1;
       tdata <= '0;
       skid_tvalid <= '0;
       skid_tdata <= '0;
+    end else if (invalidate) begin
+      tvalid <= '0;
+      tready <= '1;
+      skid_tvalid <= '0;
     end else begin
       if (!tvalid || axis_mif.tready) begin
         tvalid <= skid_tvalid || s_handshake;

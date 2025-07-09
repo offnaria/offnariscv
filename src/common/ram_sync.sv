@@ -7,8 +7,8 @@ module ram_sync # (
   parameter OUTPUT_REG = 0 // 0: no output register, 1: output register
 ) (
   input logic clk,
-  input logic rst_n,
-  
+  input logic rst,
+
   input logic [DATA_WIDTH-1:0] wdata,
   input logic [ADDR_WIDTH-1:0] waddr,
   input logic wvalid,
@@ -57,7 +57,7 @@ module ram_sync # (
       logic [DATA_WIDTH-1:0] rdata_reg;
 
       always_ff @(posedge clk) begin
-        if (!rst_n) begin
+        if (rst) begin
           rdata_reg <= '0;
         end else if (oreg_cen) begin
           rdata <= rdata_reg; // Registered output

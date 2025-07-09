@@ -6,7 +6,7 @@ module ram_async # (
   parameter ADDR_WIDTH = 8
 ) (
   input logic clk,
-  input logic rst_n, // Unused
+  input logic rst, // Unused
   
   input logic [DATA_WIDTH-1:0] wdata,
   input logic [ADDR_WIDTH-1:0] waddr,

@@ -3,12 +3,12 @@
 // Register slice for AXI Stream interface
 module axis_slice (
   input logic clk,
-  input logic rst_n,
+  input logic rst,
   
   axis_if.m axis_mif, // Manager
   axis_if.s axis_sif, // Subordinate
 
-  input logic invalidate // TODO
+  input logic invalidate
 );
 
   // Define local parameters
@@ -30,10 +30,12 @@ module axis_slice (
   assign axis_sif.tready = !tvalid || axis_mif.tready;
 
   // Update registers
-  always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
+  always_ff @(posedge clk) begin
+    if (rst) begin
       tvalid <= '0;
       tdata <= '0;
+    end else if (invalidate) begin
+      tvalid <= '0;
     end else begin
       if (axis_sif.tready) begin
         tvalid <= axis_sif.tvalid;

@@ -5,17 +5,17 @@ This is the ~~n-th~~ first RISC-V processor designed and implemented by offNaria
 ## Features
 
 - CPU core
-    - [ ] RV32I Base Integer Instruction Set, Version 2.1
+    - [x] RV32I Base Integer Instruction Set, Version 2.1
     - [ ] "M" Standard Extension for Integer Multiplication and Division, Version 2.0
     - [ ] "A" Standard Extension for Atomic Instructions, Version 2.1
-    - [ ] "Zicsr", Control and Status Register (CSR) Instructions, Version 2.0
-    - [ ] "Zifencei" Instruction-Fetch Fence, Version 2.0
+    - [x] "Zicsr", Control and Status Register (CSR) Instructions, Version 2.0
+    - [x] "Zifencei" Instruction-Fetch Fence, Version 2.0
     - [ ] "Zicntr" Standard Extension for Base Counters and Timers
     - [ ] "Zihpm" Standard Extension for Hardware Performance Counters
 - Memory system
     - Cache
         - Basics
-            - [ ] L1 Instruction cache
+            - [x] L1 Instruction cache
             - [ ] L1 Data cache
             - [ ] L2
         - Coherency
@@ -37,7 +37,7 @@ This is the ~~n-th~~ first RISC-V processor designed and implemented by offNaria
     - [x] Verilator
         - [x] CMake
     - [x] [Spike](https://github.com/riscv-software-src/riscv-isa-sim)
-    - [ ] [Konata](https://github.com/shioyadan/Konata)
+    - [x] [Konata](https://github.com/shioyadan/Konata)
     - [ ] GitHub Actions
 
 ## Prerequisites
