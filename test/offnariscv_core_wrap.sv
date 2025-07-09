@@ -168,6 +168,11 @@ module offnariscv_core_wrap
   logic rfex_prev_ack;
   logic exwb_prev_ack;
   logic wbrf_prev_ack;
+  pcgif_tdata_t pcgif_prev_tdata;
+  ifid_tdata_t ifid_prev_tdata;
+  idrf_tdata_t idrf_prev_tdata;
+  rfex_tdata_t rfex_prev_tdata;
+  exwb_tdata_t exwb_prev_tdata;
   wbrf_tdata_t wbrf_prev_tdata;
   logic prev_invalidate;
   always_ff @(posedge clk) begin
@@ -179,6 +184,12 @@ module offnariscv_core_wrap
       rfex_prev_ack <= '0;
       exwb_prev_ack <= '0;
       wbrf_prev_ack <= '0;
+      pcgif_prev_tdata <= '0;
+      pcgif_prev_tdata <= '0;
+      ifid_prev_tdata <= '0;
+      idrf_prev_tdata <= '0;
+      rfex_prev_tdata <= '0;
+      exwb_prev_tdata <= '0;
       wbrf_prev_tdata <= '0;
       prev_invalidate <= '0;
     end else begin
@@ -189,6 +200,11 @@ module offnariscv_core_wrap
       rfex_prev_ack <= offnariscv_core_inst.regfile_inst.rfex_slice_if.ack();
       exwb_prev_ack <= offnariscv_core_inst.dispatcher_inst.exwb_slice_if.ack();
       wbrf_prev_ack <= offnariscv_core_inst.wbrf_axis_if.ack();
+      pcgif_prev_tdata <= offnariscv_core_inst.pcgif_axis_if.tdata;
+      ifid_prev_tdata <= offnariscv_core_inst.ifu_inst.ifid_pipe_reg_if.tdata;
+      idrf_prev_tdata <= offnariscv_core_inst.decoder_inst.idrf_fifo_if.tdata;
+      rfex_prev_tdata <= offnariscv_core_inst.regfile_inst.rfex_slice_if.tdata;
+      exwb_prev_tdata <= offnariscv_core_inst.dispatcher_inst.exwb_slice_if.tdata;
       wbrf_prev_tdata <= offnariscv_core_inst.wbrf_axis_if.tdata;
       prev_invalidate <= offnariscv_core_inst.invalidate;
       $write("pcgif:\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
@@ -285,29 +301,19 @@ module offnariscv_core_wrap
       $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tPC\nL\t%0d\t0\t%08x\n", id, id, id, id, pc);
     end else $sformat(s0, "");
     if (pcgif_prev_ack) begin // IDLE state
-      pcgif_tdata_t tdata;
-      assign tdata = offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata;
-      $sformat(s1, "S\t%0d\t0\tIF\n", tdata.id);
+      $sformat(s1, "S\t%0d\t0\tIF\n", pcgif_prev_tdata.id);
     end else $sformat(s1, "");
     if (ifid_prev_ack) begin
-      ifid_tdata_t tdata;
-      assign tdata = offnariscv_core_inst.ifid_axis_if.tdata;
-      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t %08x\n", tdata.pcg_data.id, tdata.pcg_data.id, tdata.inst);
+      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t %08x\n", ifid_prev_tdata.pcg_data.id, ifid_prev_tdata.pcg_data.id, ifid_prev_tdata.inst);
     end else $sformat(s2, "");
     if (idrf_prev_ack) begin
-      idrf_tdata_t tdata;
-      assign tdata = offnariscv_core_inst.idrf_axis_if.tdata;
-      $sformat(s3, "S\t%0d\t0\tRF\n", tdata.if_data.pcg_data.id);
+      $sformat(s3, "S\t%0d\t0\tRF\n", idrf_prev_tdata.if_data.pcg_data.id);
     end else $sformat(s3, "");
     if (rfex_prev_ack) begin
-      rfex_tdata_t tdata;
-      assign tdata = offnariscv_core_inst.rfex_axis_if.tdata;
-      $sformat(s4, "S\t%0d\t0\tEX\n", tdata.id_data.if_data.pcg_data.id);
+      $sformat(s4, "S\t%0d\t0\tEX\n", rfex_prev_tdata.id_data.if_data.pcg_data.id);
     end else $sformat(s4, "");
     if (exwb_prev_ack) begin
-      exwb_tdata_t tdata;
-      assign tdata = offnariscv_core_inst.exwb_axis_if.tdata;
-      $sformat(s5, "S\t%0d\t0\tWB\n", tdata.rf_data.id_data.if_data.pcg_data.id);
+      $sformat(s5, "S\t%0d\t0\tWB\n", exwb_prev_tdata.rf_data.id_data.if_data.pcg_data.id);
     end else $sformat(s5, "");
     if (wbrf_prev_ack) begin
       $sformat(s6, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id, ret_cnt);
