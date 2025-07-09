@@ -61,8 +61,7 @@ void Tester::init_dut() {
 }
 
 Tester::Tester(const std::string& test) {
-  auto my_parent_path =
-      std::filesystem::read_symlink("/proc/self/exe").parent_path();
+  auto my_parent_path = std::filesystem::read_symlink("/proc/self/exe").parent_path();
   auto test_path = my_parent_path / "../ext/riscv-tests/riscv-tests/isa" / test;
   auto test_path_str = test_path.string();
   std::print("Test path: {}\n", test_path_str);
@@ -93,8 +92,7 @@ Tester::Tester(const std::string& test) {
       // Assuming each section starts at a page-aligned address
       // and never crosses a page boundary
       auto ppn = addr & PAGE_NUMBER_MASK;
-      memory.emplace(
-          ppn, std::vector<std::uint8_t>(p, std::min(p + PAGE_SIZE, end_data)));
+      memory.emplace(ppn, std::vector<std::uint8_t>(p, std::min(p + PAGE_SIZE, end_data)));
       if (p + PAGE_SIZE != end_data) {
         // Fill the last page with zeros if it is not fully filled
         memory[ppn].resize(PAGE_SIZE);
@@ -157,11 +155,9 @@ void Tester::step() {
     if (memory.contains(ppn)) {
       std::print("araddr: {:#010x}\n", araddr);
       std::print("rdata:");
-      auto offset =
-          araddr & PAGE_OFFSET_MASK & BLOCK_MASK;  // e.g. araddr[11:6]
+      auto offset = araddr & PAGE_OFFSET_MASK & BLOCK_MASK;  // e.g. araddr[11:6]
       for (int i = 0; i < BLOCK_BYTES / 4; ++i) {
-        dut->core_ace_rdata[i] =
-            *reinterpret_cast<const uint32_t*>(&memory[ppn][offset + 4 * i]);
+        dut->core_ace_rdata[i] = *reinterpret_cast<const uint32_t*>(&memory[ppn][offset + 4 * i]);
         std::print(" {:#010x}", dut->core_ace_rdata[i]);
       }
       std::print("\n");
@@ -239,12 +235,10 @@ static int run_simulation(Tester& tester) {
 
 static int runner(const std::string& test) {
   std::print(
-      "-----------------------------------------------------------------"
-      "--------------\n");
+      "-------------------------------------------------------------------------------\n");
   std::print("{}\n", test);
   std::print(
-      "-----------------------------------------------------------------"
-      "--------------\n");
+      "-------------------------------------------------------------------------------\n");
   Tester tester(test);
   auto return_code = run_simulation(tester);
   if (return_code == 1) {
