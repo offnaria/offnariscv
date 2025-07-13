@@ -136,6 +136,8 @@ module decoder
         idrf_tdata.rd = inst.j.rd;
         idrf_tdata.immediate = {{12{inst.j.imm_20}}, inst.j.imm_19_12, inst.j.imm_11, inst.j.imm_10_1, 1'b0};
       end
+      default: begin
+      end
     endcase
 
     // Prepare commands
@@ -271,6 +273,8 @@ module decoder
             // Invalid instruction, raise an exception
           end
         endcase
+      end
+      default: begin
       end
     endcase
     idrf_tdata.csr_addr = inst[31:20];

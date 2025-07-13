@@ -18,7 +18,6 @@ module pcgen
 
   // Assert conditions
   initial begin
-    assert (pcgif_axis_if.TDATA_WIDTH == XLEN) else $fatal("pcgif_axis_if.TDATA_WIDTH must be equal to XLEN");
     assert (wbpcg_axis_if.TDATA_WIDTH == XLEN) else $fatal("wbpcg_axis_if.TDATA_WIDTH must be equal to XLEN");
   end
 

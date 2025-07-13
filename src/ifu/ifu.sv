@@ -38,7 +38,7 @@ module ifu
   initial begin
     assert (ADDR_WIDTH == XLEN) else $fatal("ifu_ace_if.ADDR_WIDTH must be equal to XLEN for now");
     assert (inst_axis_if.TDATA_WIDTH == $bits(ifid_tdata_t)) else $fatal("inst_axis_if.TDATA_WIDTH must match ifid_tdata_t");
-    assert (TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) == ADDR_WIDTH) else $fatal("TAG_WIDTH + INDEX_WIDTH + $clog2(BLOCK_SIZE) must equal ADDR_WIDTH");
+    assert (TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH == ADDR_WIDTH) else $fatal("TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH must equal ADDR_WIDTH");
     assert (l1i_mem_if.BLOCK_SIZE == BLOCK_SIZE) else $fatal("l1i_mem_if.BLOCK_SIZE must match BLOCK_SIZE");
     assert (l1i_mem_if.INDEX_WIDTH == INDEX_WIDTH) else $fatal("l1i_mem_if.INDEX_WIDTH must match INDEX_WIDTH");
   end
