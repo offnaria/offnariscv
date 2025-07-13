@@ -12,6 +12,10 @@ module lsu
   axis_if.s rflsu_axis_if, // From Dispatcher
   axis_if.m lsuwb_axis_if, // To Write Back
 
+  // To L1 D-Cache
+  cache_dir_if.req l1d_dir_if,
+  cache_mem_if.req l1d_mem_if,
+
   input logic invalidate
 );
 

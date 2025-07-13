@@ -6,9 +6,12 @@ verilate(lsu_test
   SOURCES
     ../../src/riscv_pkg.sv
     ../../src/offnariscv_pkg.sv
+    ../../src/cache/cache_pkg.sv
     ../../src/ace_if.sv
     ../../src/common/axis_if.sv
     ../../src/common/axis_slice.sv
+    ../../src/cache/cache_if.sv
+    ../../src/cache/cache_directory.sv
     ../../src/lsu/lsu.sv
     lsu_wrap.sv
   TOP_MODULE
