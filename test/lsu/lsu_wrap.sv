@@ -2,96 +2,96 @@
 
 module lsu_wrap
   import offnariscv_pkg::*;
-# (
-  localparam ACE_XDATA_WIDTH = 256,
-  localparam ACE_AXADDR_WIDTH = 32
+#(
+    localparam ACE_XDATA_WIDTH  = 256,
+    localparam ACE_AXADDR_WIDTH = 32
 ) (
-  input clk,
-  input rst,
+    input clk,
+    input rst,
 
-  // AW channel signals
-  output [ACE_XID_WIDTH-1:0] lsu_ace_awid,
-  output [ACE_AXADDR_WIDTH-1:0] lsu_ace_awaddr,
-  output [ACE_AXLEN_WIDTH-1:0] lsu_ace_awlen,
-  output [ACE_AXSIZE_WIDTH-1:0] lsu_ace_awsize,
-  output [ACE_AXBURST_WIDTH-1:0] lsu_ace_awburst,
-  output lsu_ace_awlock,
-  output [ACE_AXCACHE_WIDTH-1:0] lsu_ace_awcache,
-  output [ACE_AXPROT_WIDTH-1:0] lsu_ace_awprot,
-  output [ACE_AXQOS_WIDTH-1:0] lsu_ace_awqos,
-  output [ACE_AXREGION_WIDTH-1:0] lsu_ace_awregion,
-  output [ACE_XUSER_WIDTH-1:0] lsu_ace_awuser,
-  output lsu_ace_awvalid,
-  input  lsu_ace_awready,
-  output [ACE_AWSNOOP_WIDTH-1:0] lsu_ace_awsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] lsu_ace_awdomain,
-  output [ACE_BAR_WIDTH-1:0] lsu_ace_awbar,
+    // AW channel signals
+    output [ACE_XID_WIDTH-1:0] lsu_ace_awid,
+    output [ACE_AXADDR_WIDTH-1:0] lsu_ace_awaddr,
+    output [ACE_AXLEN_WIDTH-1:0] lsu_ace_awlen,
+    output [ACE_AXSIZE_WIDTH-1:0] lsu_ace_awsize,
+    output [ACE_AXBURST_WIDTH-1:0] lsu_ace_awburst,
+    output lsu_ace_awlock,
+    output [ACE_AXCACHE_WIDTH-1:0] lsu_ace_awcache,
+    output [ACE_AXPROT_WIDTH-1:0] lsu_ace_awprot,
+    output [ACE_AXQOS_WIDTH-1:0] lsu_ace_awqos,
+    output [ACE_AXREGION_WIDTH-1:0] lsu_ace_awregion,
+    output [ACE_XUSER_WIDTH-1:0] lsu_ace_awuser,
+    output lsu_ace_awvalid,
+    input lsu_ace_awready,
+    output [ACE_AWSNOOP_WIDTH-1:0] lsu_ace_awsnoop,
+    output [ACE_DOMAIN_WIDTH-1:0] lsu_ace_awdomain,
+    output [ACE_BAR_WIDTH-1:0] lsu_ace_awbar,
 
-  // W channel signals
-  output [ACE_XDATA_WIDTH-1:0] lsu_ace_wdata,
-  output [ACE_XDATA_WIDTH/8-1:0] lsu_ace_wstrb,
-  output lsu_ace_wlast,
-  output [ACE_XUSER_WIDTH-1:0] lsu_ace_wuser,
-  output lsu_ace_wvalid,
-  input  lsu_ace_wready,
+    // W channel signals
+    output [ACE_XDATA_WIDTH-1:0] lsu_ace_wdata,
+    output [ACE_XDATA_WIDTH/8-1:0] lsu_ace_wstrb,
+    output lsu_ace_wlast,
+    output [ACE_XUSER_WIDTH-1:0] lsu_ace_wuser,
+    output lsu_ace_wvalid,
+    input lsu_ace_wready,
 
-  // B channel signals
-  input  [ACE_XID_WIDTH-1:0] lsu_ace_bid,
-  input  [ACE_BRESP_WIDTH-1:0] lsu_ace_bresp,
-  input  [ACE_XUSER_WIDTH-1:0] lsu_ace_buser,
-  input  lsu_ace_bvalid,
-  output lsu_ace_bready,
+    // B channel signals
+    input [ACE_XID_WIDTH-1:0] lsu_ace_bid,
+    input [ACE_BRESP_WIDTH-1:0] lsu_ace_bresp,
+    input [ACE_XUSER_WIDTH-1:0] lsu_ace_buser,
+    input lsu_ace_bvalid,
+    output lsu_ace_bready,
 
-  // AR channel signals
-  output [ACE_XID_WIDTH-1:0] lsu_ace_arid,
-  output [ACE_AXADDR_WIDTH-1:0] lsu_ace_araddr,
-  output [ACE_AXLEN_WIDTH-1:0] lsu_ace_arlen,
-  output [ACE_AXSIZE_WIDTH-1:0] lsu_ace_arsize,
-  output [ACE_AXBURST_WIDTH-1:0] lsu_ace_arburst,
-  output lsu_ace_arlock,
-  output [ACE_AXCACHE_WIDTH-1:0] lsu_ace_arcache,
-  output [ACE_AXPROT_WIDTH-1:0] lsu_ace_arprot,
-  output [ACE_AXQOS_WIDTH-1:0] lsu_ace_arqos,
-  output [ACE_AXREGION_WIDTH-1:0] lsu_ace_arregion,
-  output [ACE_XUSER_WIDTH-1:0] lsu_ace_aruser,
-  output lsu_ace_arvalid,
-  input  lsu_ace_arready,
-  output [ACE_ARSNOOP_WIDTH-1:0] lsu_ace_arsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] lsu_ace_ardomain,
-  output [ACE_BAR_WIDTH-1:0] lsu_ace_arbar,
+    // AR channel signals
+    output [ACE_XID_WIDTH-1:0] lsu_ace_arid,
+    output [ACE_AXADDR_WIDTH-1:0] lsu_ace_araddr,
+    output [ACE_AXLEN_WIDTH-1:0] lsu_ace_arlen,
+    output [ACE_AXSIZE_WIDTH-1:0] lsu_ace_arsize,
+    output [ACE_AXBURST_WIDTH-1:0] lsu_ace_arburst,
+    output lsu_ace_arlock,
+    output [ACE_AXCACHE_WIDTH-1:0] lsu_ace_arcache,
+    output [ACE_AXPROT_WIDTH-1:0] lsu_ace_arprot,
+    output [ACE_AXQOS_WIDTH-1:0] lsu_ace_arqos,
+    output [ACE_AXREGION_WIDTH-1:0] lsu_ace_arregion,
+    output [ACE_XUSER_WIDTH-1:0] lsu_ace_aruser,
+    output lsu_ace_arvalid,
+    input lsu_ace_arready,
+    output [ACE_ARSNOOP_WIDTH-1:0] lsu_ace_arsnoop,
+    output [ACE_DOMAIN_WIDTH-1:0] lsu_ace_ardomain,
+    output [ACE_BAR_WIDTH-1:0] lsu_ace_arbar,
 
-  // R channel signals
-  input  [ACE_XID_WIDTH-1:0] lsu_ace_rid,
-  input  [ACE_XDATA_WIDTH-1:0] lsu_ace_rdata,
-  input  [ACE_RRESP_WIDTH-1:0] lsu_ace_rresp,
-  input  lsu_ace_rlast,
-  input  [ACE_XUSER_WIDTH-1:0] lsu_ace_ruser,
-  input  lsu_ace_rvalid,
-  output lsu_ace_rready,
+    // R channel signals
+    input [ACE_XID_WIDTH-1:0] lsu_ace_rid,
+    input [ACE_XDATA_WIDTH-1:0] lsu_ace_rdata,
+    input [ACE_RRESP_WIDTH-1:0] lsu_ace_rresp,
+    input lsu_ace_rlast,
+    input [ACE_XUSER_WIDTH-1:0] lsu_ace_ruser,
+    input lsu_ace_rvalid,
+    output lsu_ace_rready,
 
-  // AC channel signals
-  input  lsu_ace_acvalid,
-  output lsu_ace_acready,
-  input  [ACE_AXADDR_WIDTH-1:0] lsu_ace_acaddr,
-  input  [ACE_ACSNOOP_WIDTH-1:0] lsu_ace_acsnoop,
-  input  [ACE_ACPROT_WIDTH-1:0] lsu_ace_acprot,
+    // AC channel signals
+    input lsu_ace_acvalid,
+    output lsu_ace_acready,
+    input [ACE_AXADDR_WIDTH-1:0] lsu_ace_acaddr,
+    input [ACE_ACSNOOP_WIDTH-1:0] lsu_ace_acsnoop,
+    input [ACE_ACPROT_WIDTH-1:0] lsu_ace_acprot,
 
-  // CR channel signals
-  output lsu_ace_crvalid,
-  input  lsu_ace_crready,
-  output [ACE_CRRESP_WIDTH-1:0] lsu_ace_crresp,
+    // CR channel signals
+    output lsu_ace_crvalid,
+    input lsu_ace_crready,
+    output [ACE_CRRESP_WIDTH-1:0] lsu_ace_crresp,
 
-  // CD channel signals
-  output lsu_ace_cdvalid,
-  input  lsu_ace_cdready,
-  output [ACE_XDATA_WIDTH-1:0] lsu_ace_cddata,
-  output lsu_ace_cdlast,
+    // CD channel signals
+    output lsu_ace_cdvalid,
+    input lsu_ace_cdready,
+    output [ACE_XDATA_WIDTH-1:0] lsu_ace_cddata,
+    output lsu_ace_cdlast,
 
-  // Additional signals
-  output lsu_ace_rack,
-  output lsu_ace_wack,
+    // Additional signals
+    output lsu_ace_rack,
+    output lsu_ace_wack,
 
-  input logic invalidate
+    input logic invalidate
 );
 
   ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) lsu_ace_if ();
@@ -182,12 +182,12 @@ module lsu_wrap
   assign lsu_ace_wack = lsu_ace_if.wack;
 
   lsu lsu_inst (
-    .clk(clk),
-    .rst(rst),
-    .lsu_ace_if(lsu_ace_if),
-    .rflsu_axis_if(rflsu_axis_if),
-    .lsuwb_axis_if(lsuwb_axis_if),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .lsu_ace_if(lsu_ace_if),
+      .rflsu_axis_if(rflsu_axis_if),
+      .lsuwb_axis_if(lsuwb_axis_if),
+      .invalidate(invalidate)
   );
 
 endmodule

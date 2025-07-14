@@ -4,18 +4,18 @@
 module committer
   import riscv_pkg::*, offnariscv_pkg::*;
 (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  axis_if.s exwb_axis_if, // From EX FIFO (Dispatcher)
-  axis_if.s aluwb_axis_if, // From ALU
-  axis_if.s bruwb_axis_if, // From BRU
-  axis_if.s syswb_axis_if, // From System Unit
-  axis_if.s lsuwb_axis_if, // From LSU
-  axis_if.m wbrf_axis_if, // To Register File
-  axis_if.m wbpcg_axis_if, // To Program Counter Generator
+    axis_if.s exwb_axis_if,   // From EX FIFO (Dispatcher)
+    axis_if.s aluwb_axis_if,  // From ALU
+    axis_if.s bruwb_axis_if,  // From BRU
+    axis_if.s syswb_axis_if,  // From System Unit
+    axis_if.s lsuwb_axis_if,  // From LSU
+    axis_if.m wbrf_axis_if,   // To Register File
+    axis_if.m wbpcg_axis_if,  // To Program Counter Generator
 
-  csr_wif.req wbcsr_wif // For CSR write interface
+    csr_wif.req wbcsr_wif  // For CSR write interface
 );
 
   exwb_tdata_t exwb_tdata;
@@ -38,8 +38,8 @@ module committer
     // NOTE: Handling traps and interrupts in the system unit may not be enough,
     //       because an execution unit, such as LSU, can generate an exception.
     //       Therefore, handle them in this module.
-    trap_cause = syswb_tdata.trap_cause; // TODO: Check the result of LSU
-    trap = syswb_tdata.trap; // TODO
+    trap_cause = syswb_tdata.trap_cause;  // TODO: Check the result of LSU
+    trap = syswb_tdata.trap;  // TODO
 
     // wbrf_tdata.wdata = aluwb_tdata.result;
     unique case (1'b1)
@@ -70,7 +70,8 @@ module committer
     syswb_axis_if.tready = wbrf_axis_if.tready && (!syswb_tdata.use_new_pc || wbpcg_axis_if.tready);
     lsuwb_axis_if.tready = wbrf_axis_if.tready && (!lsuwb_tdata.trap || wbpcg_axis_if.tready);
 
-    if (exwb_tdata.rf_data.id_data.sys_cmd_vld && trap) wbrf_tdata.ex_data.rf_data.id_data.rd = '0; // If a trap occurs, the destination register is not written
+    if (exwb_tdata.rf_data.id_data.sys_cmd_vld && trap)
+      wbrf_tdata.ex_data.rf_data.id_data.rd = '0; // If a trap occurs, the destination register is not written
     wbrf_axis_if.tdata = wbrf_tdata;
     wbrf_axis_if.tvalid = exwb_axis_if.tvalid && exwb_axis_if.tready;
 
@@ -78,14 +79,15 @@ module committer
     wbcsr_wif.addr = exwb_tdata.rf_data.id_data.csr_addr;
     wbcsr_wif.data = syswb_tdata.csr_wdata;
     wbcsr_wif.pc = exwb_tdata.rf_data.id_data.if_data.pcg_data.pc;
-    wbcsr_wif.cause = XLEN'(transform_cause(trap_cause)); // TODO: Support interrupts
+    wbcsr_wif.cause = XLEN'(transform_cause(trap_cause));  // TODO: Support interrupts
     wbcsr_wif.trap = trap;
-    wbcsr_wif.valid = syswb_axis_if.tvalid && (syswb_tdata.csr_update || trap); // TODO
+    wbcsr_wif.valid = syswb_axis_if.tvalid && (syswb_tdata.csr_update || trap);  // TODO
 
     // Program Counter Generator
     wbpcg_axis_if.tdata = '0;
     case (1'b1)
-      exwb_tdata.rf_data.id_data.fence_i: wbpcg_axis_if.tdata = exwb_tdata.rf_data.id_data.if_data.pcg_data.pc + 'd4;
+      exwb_tdata.rf_data.id_data.fence_i:
+      wbpcg_axis_if.tdata = exwb_tdata.rf_data.id_data.if_data.pcg_data.pc + 'd4;
       syswb_axis_if.tvalid && syswb_tdata.use_new_pc: wbpcg_axis_if.tdata = syswb_tdata.new_pc;
       bruwb_tdata.taken: wbpcg_axis_if.tdata = bruwb_tdata.new_pc;
       default: begin

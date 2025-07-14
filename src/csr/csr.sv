@@ -3,14 +3,14 @@
 // Control and Status Register
 module csr
   import offnariscv_pkg::*;
-# (
-  parameter MHARTID = 0
+#(
+    parameter MHARTID = 0
 ) (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  csr_rif.rsp csr_rif_rsp,
-  csr_wif.rsp csr_wif_rsp
+    csr_rif.rsp csr_rif_rsp,
+    csr_wif.rsp csr_wif_rsp
 );
 
   // Declare registers and their next states
@@ -57,7 +57,7 @@ module csr
       12'h305: csr_rif_rsp.rdata = mtvec_q;
       // 12'h310: csr_rif_rsp.rdata = mstatush_q; // TODO
       // 12'h312: csr_rif_rsp.rdata = medelegh_q; // TODO
-      12'h341: csr_rif_rsp.rdata = {mepc_q[XLEN-1:2], 2'b00}; // IALIGN = 32
+      12'h341: csr_rif_rsp.rdata = {mepc_q[XLEN-1:2], 2'b00};  // IALIGN = 32
       12'h342: csr_rif_rsp.rdata = mcause_q;
       default: begin
       end
@@ -66,11 +66,11 @@ module csr
     // Write CSR
     if (csr_wif_rsp.valid) begin
       if (csr_wif_rsp.trap) begin
-        mepc_d = csr_wif_rsp.pc;
+        mepc_d   = csr_wif_rsp.pc;
         mcause_d = csr_wif_rsp.cause;
       end else begin
         unique case (csr_wif_rsp.addr)
-          12'h305: mtvec_d[XLEN-1:2] = csr_wif_rsp.data[XLEN-1:2]; // Direct mode
+          12'h305: mtvec_d[XLEN-1:2] = csr_wif_rsp.data[XLEN-1:2];  // Direct mode
           12'h341: mepc_d = csr_wif_rsp.data;
           12'h342: mcause_d = csr_wif_rsp.data;
           default: begin
@@ -83,13 +83,13 @@ module csr
 
   always_ff @(posedge clk) begin
     if (rst) begin
-      misa_q <= {2'd2, (XLEN-28)'(0), 26'(2**8)}; // RV32I
-      mvendorid_q <= '0; // Non-commercial implementation
-      marchid_q <= '0; // Not assigned yet
+      misa_q <= {2'd2, (XLEN - 28)'(0), 26'(2 ** 8)};  // RV32I
+      mvendorid_q <= '0;  // Non-commercial implementation
+      marchid_q <= '0;  // Not assigned yet
       mhartid_q <= MHARTID;
       // mstatus_q <= '0; // TODO
       // mstatush_q <= '0; // TODO
-      mtvec_q <= '0; // Direct mode
+      mtvec_q <= '0;  // Direct mode
       mepc_q <= '0;
       mcause_q <= '0;
     end else begin

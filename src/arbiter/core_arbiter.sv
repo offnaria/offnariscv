@@ -3,13 +3,13 @@
 module core_arbiter
   import offnariscv_pkg::*;
 (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  ace_if.s ifu_ace_if, // From IFU
-  ace_if.s lsu_ace_if, // From LSU
+    ace_if.s ifu_ace_if,  // From IFU
+    ace_if.s lsu_ace_if,  // From LSU
 
-  ace_if.m core_ace_if
+    ace_if.m core_ace_if
 );
 
   // Define local parameters
@@ -18,10 +18,14 @@ module core_arbiter
 
   // Assert conditions
   initial begin
-    assert (ACE_XDATA_WIDTH == lsu_ace_if.ACE_XDATA_WIDTH) else $fatal("ACE_XDATA_WIDTH must match between core_ace_if and lsu_ace_if");
-    assert (ACE_AXADDR_WIDTH == lsu_ace_if.ACE_AXADDR_WIDTH) else $fatal("ACE_AXADDR_WIDTH must match between core_ace_if and lsu_ace_if");
-    assert (ACE_XDATA_WIDTH == ifu_ace_if.ACE_XDATA_WIDTH) else $fatal("ACE_XDATA_WIDTH must match between core_ace_if and ifu_ace_if");
-    assert (ACE_AXADDR_WIDTH == ifu_ace_if.ACE_AXADDR_WIDTH) else $fatal("ACE_AXADDR_WIDTH must match between core_ace_if and ifu_ace_if");
+    assert (ACE_XDATA_WIDTH == lsu_ace_if.ACE_XDATA_WIDTH)
+    else $fatal("ACE_XDATA_WIDTH must match between core_ace_if and lsu_ace_if");
+    assert (ACE_AXADDR_WIDTH == lsu_ace_if.ACE_AXADDR_WIDTH)
+    else $fatal("ACE_AXADDR_WIDTH must match between core_ace_if and lsu_ace_if");
+    assert (ACE_XDATA_WIDTH == ifu_ace_if.ACE_XDATA_WIDTH)
+    else $fatal("ACE_XDATA_WIDTH must match between core_ace_if and ifu_ace_if");
+    assert (ACE_AXADDR_WIDTH == ifu_ace_if.ACE_AXADDR_WIDTH)
+    else $fatal("ACE_AXADDR_WIDTH must match between core_ace_if and ifu_ace_if");
   end
 
   // Define types
@@ -55,7 +59,7 @@ module core_arbiter
   logic [ACE_ARSNOOP_WIDTH-1:0] arsnoop_q, arsnoop_d;
   logic [ACE_DOMAIN_WIDTH-1:0] ardomain_q, ardomain_d;
   logic [ACE_BAR_WIDTH-1:0] arbar_q, arbar_d;
-  
+
   logic [ACE_XID_WIDTH-1:0] rid_q, rid_d;
   logic [ACE_XDATA_WIDTH-1:0] rdata_q, rdata_d;
   logic [ACE_RRESP_WIDTH-1:0] rresp_q, rresp_d;
@@ -240,7 +244,7 @@ module core_arbiter
     lsu_ace_if.bvalid = core_ace_if.bvalid;
     core_ace_if.bready = lsu_ace_if.bready;
 
-    core_ace_if.rack = ifu_ace_if.rack || lsu_ace_if.rack; // TODO
+    core_ace_if.rack = ifu_ace_if.rack || lsu_ace_if.rack;  // TODO
     core_ace_if.wack = lsu_ace_if.wack;
   end
 

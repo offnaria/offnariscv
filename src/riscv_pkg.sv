@@ -6,41 +6,41 @@
 package riscv_pkg;
   localparam INT_CODES_WIDTH = 5;
   typedef enum logic [INT_CODES_WIDTH-1:0] {
-    INT_SSI = 1, // Supervisor software interrupt
-    INT_MSI = 3, // Machine software interrupt
-    INT_STI = 5, // Supervisor timer interrupt
-    INT_MTI = 7, // Machine timer interrupt
-    INT_SEI = 9, // Supervisor external interrupt
-    INT_MEI = 11, // Machine external interrupt
-    INT_COI = 13 // Counter overflow interrupt
+    INT_SSI = 1,   // Supervisor software interrupt
+    INT_MSI = 3,   // Machine software interrupt
+    INT_STI = 5,   // Supervisor timer interrupt
+    INT_MTI = 7,   // Machine timer interrupt
+    INT_SEI = 9,   // Supervisor external interrupt
+    INT_MEI = 11,  // Machine external interrupt
+    INT_COI = 13   // Counter overflow interrupt
   } interrupt_codes_e;
 
   localparam EXC_CODES_WIDTH = INT_CODES_WIDTH;
   typedef enum logic [EXC_CODES_WIDTH-1:0] {
-    EXC_IAM = 0, // Instruction address misaligned
-    EXC_IAF = 1, // Instruction access fault
-    EXC_II = 2, // Illegal instruction
-    EXC_BP = 3, // Breakpoint
-    EXC_LAM = 4, // Load address misaligned
-    EXC_LAF = 5, // Load access fault
-    EXC_SAM = 6, // Store/AMO address misaligned
-    EXC_SAF = 7, // Store/AMO access fault
-    EXC_ECU = 8, // Environment call from U-mode
-    EXC_ECS = 9, // Environment call from S-mode
-    EXC_ECM = 11, // Environment call from M-mode
-    EXC_IPF = 12, // Instruction page fault
-    EXC_LPF = 13, // Load page fault
-    EXC_SPF = 15, // Store/AMO page fault
-    EXC_DT = 16, // Double trap
-    EXC_SC = 18, // Software check
-    EXC_HE = 19 // Hardware error
+    EXC_IAM = 0,   // Instruction address misaligned
+    EXC_IAF = 1,   // Instruction access fault
+    EXC_II  = 2,   // Illegal instruction
+    EXC_BP  = 3,   // Breakpoint
+    EXC_LAM = 4,   // Load address misaligned
+    EXC_LAF = 5,   // Load access fault
+    EXC_SAM = 6,   // Store/AMO address misaligned
+    EXC_SAF = 7,   // Store/AMO access fault
+    EXC_ECU = 8,   // Environment call from U-mode
+    EXC_ECS = 9,   // Environment call from S-mode
+    EXC_ECM = 11,  // Environment call from M-mode
+    EXC_IPF = 12,  // Instruction page fault
+    EXC_LPF = 13,  // Load page fault
+    EXC_SPF = 15,  // Store/AMO page fault
+    EXC_DT  = 16,  // Double trap
+    EXC_SC  = 18,  // Software check
+    EXC_HE  = 19   // Hardware error
   } exception_codes_e;
 
   typedef logic [19:0] trap_cause_t;
 
   function logic [EXC_CODES_WIDTH-1:0] transform_cause(input trap_cause_t cause);
     // Based on the priority of synchronous exceptions in RISC-V
-    if (cause[EXC_BP]) return EXC_BP; // NOTE: This is for instruction address breakpoint
+    if (cause[EXC_BP]) return EXC_BP;  // NOTE: This is for instruction address breakpoint
     else if (cause[EXC_IPF]) return EXC_IPF;
     else if (cause[EXC_IAF]) return EXC_IAF;
     else if (cause[EXC_II]) return EXC_II;
@@ -48,14 +48,14 @@ package riscv_pkg;
     else if (cause[EXC_ECU]) return EXC_ECU;
     else if (cause[EXC_ECS]) return EXC_ECS;
     else if (cause[EXC_ECM]) return EXC_ECM;
-    else if (cause[EXC_BP]) return EXC_BP; // NOTE: This is for load/store/AMO address breakpoint
-    else if (cause[EXC_LAM]) return EXC_LAM; // Option
-    else if (cause[EXC_SAM]) return EXC_SAM; // Option
+    else if (cause[EXC_BP]) return EXC_BP;  // NOTE: This is for load/store/AMO address breakpoint
+    else if (cause[EXC_LAM]) return EXC_LAM;  // Option
+    else if (cause[EXC_SAM]) return EXC_SAM;  // Option
     else if (cause[EXC_LPF]) return EXC_LPF;
     else if (cause[EXC_SPF]) return EXC_SPF;
     else if (cause[EXC_LAF]) return EXC_LAF;
     else if (cause[EXC_SAF]) return EXC_SAF;
-    else return '0; // TODO: Handle other exceptions
+    else return '0;  // TODO: Handle other exceptions
   endfunction
 
   typedef enum logic [4:0] {
@@ -105,7 +105,8 @@ package riscv_pkg;
     logic [1:0] mpp;
     logic [1:0] vs;
     logic spp;
-    logic mpie;logic ube;
+    logic mpie;
+    logic ube;
     logic spie;
     logic wpri1;
     logic mie;

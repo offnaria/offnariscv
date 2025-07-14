@@ -17,7 +17,7 @@ package offnariscv_pkg;
   localparam ACE_AXREGION_WIDTH = 4;
   localparam ACE_XUSER_WIDTH = 1;
   localparam ACE_BRESP_WIDTH = 2;
-  localparam ACE_RRESP_WIDTH = 4; // ACE_BRESP_WIDTH + 2 (IsShared, PassDirty)
+  localparam ACE_RRESP_WIDTH = 4;  // ACE_BRESP_WIDTH + 2 (IsShared, PassDirty)
   localparam ACE_ARSNOOP_WIDTH = 4;
   localparam ACE_AWSNOOP_WIDTH = 3;
   localparam ACE_DOMAIN_WIDTH = 2;
@@ -27,7 +27,7 @@ package offnariscv_pkg;
   localparam ACE_CRRESP_WIDTH = 5;
 
   typedef enum logic [ACE_BRESP_WIDTH-1:0] {
-    ACE_RESP_OKAY = 2'b00,
+    ACE_RESP_OKAY   = 2'b00,
     ACE_RESP_EXOKAY = 2'b01,
     ACE_RESP_SLVERR = 2'b10,
     ACE_RESP_DECERR = 2'b11
@@ -42,7 +42,7 @@ package offnariscv_pkg;
 
   typedef struct packed {
     logic [XLEN-1:0] pc;
-    logic [XLEN-1:0] untaken_pc; // For branch prediction
+    logic [XLEN-1:0] untaken_pc;  // For branch prediction
 `ifndef SYNTHESIS
     logic [INST_ID_WIDTH-1:0] id;
 `endif
@@ -104,11 +104,11 @@ package offnariscv_pkg;
     LSU_SW,
     LSU_SH,
     LSU_SB
-  } lsu_cmd_e; // TODO: AMO and LR/SC
+  } lsu_cmd_e;  // TODO: AMO and LR/SC
 
   typedef struct packed {
-    logic rf; // Forwarding is needed at RF stage
-    logic ex; // Forwarding is needed at EX stage
+    logic rf;  // Forwarding is needed at RF stage
+    logic ex;  // Forwarding is needed at EX stage
   } fwd_t;
 
   typedef struct packed {
@@ -116,7 +116,7 @@ package offnariscv_pkg;
     logic [4:0] rs2;
     logic [4:0] rd;
     logic [XLEN-1:0] immediate;
-    logic [XLEN-1:0] auipc; // PC value used by AUIPC instruction
+    logic [XLEN-1:0] auipc;  // PC value used by AUIPC instruction
     logic [11:0] csr_addr;
     fwd_t fwd_rs1;
     fwd_t fwd_rs2;
@@ -139,7 +139,7 @@ package offnariscv_pkg;
 
   typedef struct packed {
     operands_t operands;
-    logic [XLEN-1:0] rs2_data; // For store
+    logic [XLEN-1:0] rs2_data;  // For store
     logic [XLEN-1:0] csr_rdata;
     logic [XLEN-1:0] mtvec;
     logic [XLEN-1:0] mepc;
@@ -148,7 +148,7 @@ package offnariscv_pkg;
 
   typedef struct packed {
     operands_t operands;
-    alu_cmd_e cmd;
+    alu_cmd_e  cmd;
   } rfalu_tdata_t;
 
   typedef struct packed {
@@ -174,18 +174,14 @@ package offnariscv_pkg;
     lsu_cmd_e cmd;
   } rflsu_tdata_t;
 
-  typedef struct packed {
-    rfex_tdata_t rf_data;
-  } exwb_tdata_t;
+  typedef struct packed {rfex_tdata_t rf_data;} exwb_tdata_t;
 
   typedef struct packed {
     logic [XLEN-1:0] wdata;
     exwb_tdata_t ex_data;
   } wbrf_tdata_t;
 
-  typedef struct packed {
-    logic [XLEN-1:0] result;
-  } aluwb_tdata_t;
+  typedef struct packed {logic [XLEN-1:0] result;} aluwb_tdata_t;
 
   typedef struct packed {
     logic [XLEN-1:0] result;

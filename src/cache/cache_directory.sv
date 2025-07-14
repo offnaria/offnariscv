@@ -4,13 +4,13 @@
 module cache_directory
   import cache_pkg::*;
 (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  cache_dir_if.rsp cache_dir_rsp_if_0,
-  cache_dir_if.rsp cache_dir_rsp_if_1,
+    cache_dir_if.rsp cache_dir_rsp_if_0,
+    cache_dir_if.rsp cache_dir_rsp_if_1,
 
-  input logic flush
+    input logic flush
 );
 
   // Define local parameters
@@ -19,10 +19,14 @@ module cache_directory
 
   // Assert conditions
   initial begin
-    assert (INDEX_WIDTH == cache_dir_rsp_if_1.INDEX_WIDTH) else $fatal("INDEX_WIDTH must match between interfaces");
-    assert (TAG_WIDTH == cache_dir_rsp_if_1.TAG_WIDTH) else $fatal("TAG_WIDTH must match between interfaces");
-    assert (INDEX_WIDTH > 0) else $fatal("INDEX_WIDTH must be greater than 0 for now"); // TODO: Support 1 entry cache
-    assert (TAG_WIDTH >= 0) else $fatal("TAG_WIDTH must be greater than or equal to 0"); // NOTE: 0 means no tag...
+    assert (INDEX_WIDTH == cache_dir_rsp_if_1.INDEX_WIDTH)
+    else $fatal("INDEX_WIDTH must match between interfaces");
+    assert (TAG_WIDTH == cache_dir_rsp_if_1.TAG_WIDTH)
+    else $fatal("TAG_WIDTH must match between interfaces");
+    assert (INDEX_WIDTH > 0)
+    else $fatal("INDEX_WIDTH must be greater than 0 for now");  // TODO: Support 1 entry cache
+    assert (TAG_WIDTH >= 0)
+    else $fatal("TAG_WIDTH must be greater than or equal to 0");  // NOTE: 0 means no tag...
   end
 
   // Define types
@@ -32,9 +36,9 @@ module cache_directory
   } directory_t;
 
   // Declare memory array
-  directory_t directory [2**INDEX_WIDTH];
+  directory_t directory[2**INDEX_WIDTH];
   initial begin
-    for (int i = 0; i < 2**INDEX_WIDTH; ++i) begin
+    for (int i = 0; i < 2 ** INDEX_WIDTH; ++i) begin
       directory[i] = '0;
     end
   end
@@ -42,8 +46,8 @@ module cache_directory
   // Declare wires
   logic [INDEX_WIDTH-1:0] if0_index;
   logic [INDEX_WIDTH-1:0] if1_index;
-  logic [TAG_WIDTH-1:0] if0_tag;
-  logic [TAG_WIDTH-1:0] if1_tag;
+  logic [  TAG_WIDTH-1:0] if0_tag;
+  logic [  TAG_WIDTH-1:0] if1_tag;
 
   always_comb begin
     // if0
@@ -65,17 +69,19 @@ module cache_directory
   always_ff @(posedge clk) begin
     // For valid bit, reset is needed
     if (rst) begin
-      for (int i = 0; i < 2**INDEX_WIDTH; ++i) begin
+      for (int i = 0; i < 2 ** INDEX_WIDTH; ++i) begin
         directory[i].state.v <= '0;
       end
     end else begin
       if (flush) begin
-        for (int i = 0; i < 2**INDEX_WIDTH; ++i) begin
+        for (int i = 0; i < 2 ** INDEX_WIDTH; ++i) begin
           directory[i].state.v <= '0;
         end
       end else begin
-        if (cache_dir_rsp_if_0.write) directory[if0_index].state.v <= cache_dir_rsp_if_0.next_state.v;
-        if (cache_dir_rsp_if_1.write) directory[if1_index].state.v <= cache_dir_rsp_if_1.next_state.v;
+        if (cache_dir_rsp_if_0.write)
+          directory[if0_index].state.v <= cache_dir_rsp_if_0.next_state.v;
+        if (cache_dir_rsp_if_1.write)
+          directory[if1_index].state.v <= cache_dir_rsp_if_1.next_state.v;
       end
     end
   end

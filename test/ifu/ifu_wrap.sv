@@ -2,74 +2,74 @@
 
 module ifu_wrap
   import offnariscv_pkg::*;
-# (
-  localparam ACE_XDATA_WIDTH = 256,
-  localparam ACE_AXADDR_WIDTH = 32,
-  localparam INDEX_WIDTH = 7,
-  localparam TAG_WIDTH = 20
+#(
+    localparam ACE_XDATA_WIDTH = 256,
+    localparam ACE_AXADDR_WIDTH = 32,
+    localparam INDEX_WIDTH = 7,
+    localparam TAG_WIDTH = 20
 ) (
-  input clk,
-  input rst,
+    input clk,
+    input rst,
 
-  // AR channel signals
-  output [ACE_XID_WIDTH-1:0] ifu_ace_arid,
-  output [ACE_AXADDR_WIDTH-1:0] ifu_ace_araddr,
-  output [ACE_AXLEN_WIDTH-1:0] ifu_ace_arlen,
-  output [ACE_AXSIZE_WIDTH-1:0] ifu_ace_arsize,
-  output [ACE_AXBURST_WIDTH-1:0] ifu_ace_arburst,
-  output ifu_ace_arlock,
-  output [ACE_AXCACHE_WIDTH-1:0] ifu_ace_arcache,
-  output [ACE_AXPROT_WIDTH-1:0] ifu_ace_arprot,
-  output [ACE_AXQOS_WIDTH-1:0] ifu_ace_arqos,
-  output [ACE_AXREGION_WIDTH-1:0] ifu_ace_arregion,
-  output [ACE_XUSER_WIDTH-1:0] ifu_ace_aruser,
-  output ifu_ace_arvalid,
-  input  ifu_ace_arready,
-  output [ACE_ARSNOOP_WIDTH-1:0] ifu_ace_arsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] ifu_ace_ardomain,
-  output [ACE_BAR_WIDTH-1:0] ifu_ace_arbar,
+    // AR channel signals
+    output [ACE_XID_WIDTH-1:0] ifu_ace_arid,
+    output [ACE_AXADDR_WIDTH-1:0] ifu_ace_araddr,
+    output [ACE_AXLEN_WIDTH-1:0] ifu_ace_arlen,
+    output [ACE_AXSIZE_WIDTH-1:0] ifu_ace_arsize,
+    output [ACE_AXBURST_WIDTH-1:0] ifu_ace_arburst,
+    output ifu_ace_arlock,
+    output [ACE_AXCACHE_WIDTH-1:0] ifu_ace_arcache,
+    output [ACE_AXPROT_WIDTH-1:0] ifu_ace_arprot,
+    output [ACE_AXQOS_WIDTH-1:0] ifu_ace_arqos,
+    output [ACE_AXREGION_WIDTH-1:0] ifu_ace_arregion,
+    output [ACE_XUSER_WIDTH-1:0] ifu_ace_aruser,
+    output ifu_ace_arvalid,
+    input ifu_ace_arready,
+    output [ACE_ARSNOOP_WIDTH-1:0] ifu_ace_arsnoop,
+    output [ACE_DOMAIN_WIDTH-1:0] ifu_ace_ardomain,
+    output [ACE_BAR_WIDTH-1:0] ifu_ace_arbar,
 
-  // R channel signals
-  input  [ACE_XID_WIDTH-1:0] ifu_ace_rid,
-  input  [ACE_XDATA_WIDTH-1:0] ifu_ace_rdata,
-  input  [ACE_RRESP_WIDTH-1:0] ifu_ace_rresp,
-  input  ifu_ace_rlast,
-  input  [ACE_XUSER_WIDTH-1:0] ifu_ace_ruser,
-  input  ifu_ace_rvalid,
-  output ifu_ace_rready,
+    // R channel signals
+    input [ACE_XID_WIDTH-1:0] ifu_ace_rid,
+    input [ACE_XDATA_WIDTH-1:0] ifu_ace_rdata,
+    input [ACE_RRESP_WIDTH-1:0] ifu_ace_rresp,
+    input ifu_ace_rlast,
+    input [ACE_XUSER_WIDTH-1:0] ifu_ace_ruser,
+    input ifu_ace_rvalid,
+    output ifu_ace_rready,
 
-  // AC channel signals
-  input  ifu_ace_acvalid,
-  output ifu_ace_acready,
-  input  [ACE_AXADDR_WIDTH-1:0] ifu_ace_acaddr,
-  input  [ACE_ACSNOOP_WIDTH-1:0] ifu_ace_acsnoop,
-  input  [ACE_ACPROT_WIDTH-1:0] ifu_ace_acprot,
+    // AC channel signals
+    input ifu_ace_acvalid,
+    output ifu_ace_acready,
+    input [ACE_AXADDR_WIDTH-1:0] ifu_ace_acaddr,
+    input [ACE_ACSNOOP_WIDTH-1:0] ifu_ace_acsnoop,
+    input [ACE_ACPROT_WIDTH-1:0] ifu_ace_acprot,
 
-  // CR channel signals
-  output ifu_ace_crvalid,
-  input  ifu_ace_crready,
-  output [ACE_CRRESP_WIDTH-1:0] ifu_ace_crresp,
+    // CR channel signals
+    output ifu_ace_crvalid,
+    input ifu_ace_crready,
+    output [ACE_CRRESP_WIDTH-1:0] ifu_ace_crresp,
 
-  // CD channel signals
-  output ifu_ace_cdvalid,
-  input  ifu_ace_cdready,
-  output [ACE_XDATA_WIDTH-1:0] ifu_ace_cddata,
-  output ifu_ace_cdlast,
+    // CD channel signals
+    output ifu_ace_cdvalid,
+    input ifu_ace_cdready,
+    output [ACE_XDATA_WIDTH-1:0] ifu_ace_cddata,
+    output ifu_ace_cdlast,
 
-  // Additional signals
-  output ifu_ace_rack,
+    // Additional signals
+    output ifu_ace_rack,
 
-  // From/To Program Counter Generator
-  input logic [XLEN-1:0] next_pc_tdata,
-  input logic next_pc_tvalid,
-  output logic next_pc_tready,
+    // From/To Program Counter Generator
+    input logic [XLEN-1:0] next_pc_tdata,
+    input logic next_pc_tvalid,
+    output logic next_pc_tready,
 
-  // To Decoder
-  output logic [XLEN-1:0] ifid_tdata_inst,
-  output logic inst_tvalid,
-  input logic inst_tready,
+    // To Decoder
+    output logic [XLEN-1:0] ifid_tdata_inst,
+    output logic inst_tvalid,
+    input logic inst_tready,
 
-  input logic invalidate
+    input logic invalidate
 );
 
   ace_if #(.ACE_XDATA_WIDTH(ACE_XDATA_WIDTH)) ifu_ace_if ();
@@ -77,13 +77,25 @@ module ifu_wrap
   axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(ifid_tdata_t))) inst_axis_if ();
 
-  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_0 ();
-  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) l1i_dir_if_1 ();
-  cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_0 ();
-  cache_mem_if # (.BLOCK_SIZE(ACE_XDATA_WIDTH), .INDEX_WIDTH(INDEX_WIDTH)) l1i_mem_if_1 ();
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) l1i_dir_if_0 ();
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) l1i_dir_if_1 ();
+  cache_mem_if #(
+      .BLOCK_SIZE (ACE_XDATA_WIDTH),
+      .INDEX_WIDTH(INDEX_WIDTH)
+  ) l1i_mem_if_0 ();
+  cache_mem_if #(
+      .BLOCK_SIZE (ACE_XDATA_WIDTH),
+      .INDEX_WIDTH(INDEX_WIDTH)
+  ) l1i_mem_if_1 ();
 
   pcgif_tdata_t pcgif_tdata;
-  ifid_tdata_t ifid_tdata;
+  ifid_tdata_t  ifid_tdata;
 
   // AR channel signals
   assign ifu_ace_arid = ifu_ace_if.arid;
@@ -147,22 +159,22 @@ module ifu_wrap
   assign ifid_tdata_inst = ifid_tdata.inst;
 
   ifu ifu_inst (
-    .clk(clk),
-    .rst(rst),
-    .ifu_ace_if(ifu_ace_if),
-    .pcgif_axis_if(pcgif_axis_if),
-    .inst_axis_if(inst_axis_if),
-    .l1i_dir_if(l1i_dir_if_0),
-    .l1i_mem_if(l1i_mem_if_0),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .ifu_ace_if(ifu_ace_if),
+      .pcgif_axis_if(pcgif_axis_if),
+      .inst_axis_if(inst_axis_if),
+      .l1i_dir_if(l1i_dir_if_0),
+      .l1i_mem_if(l1i_mem_if_0),
+      .invalidate(invalidate)
   );
 
   cache_directory l1i_dir_inst (
-    .clk(clk),
-    .rst(rst),
-    .cache_dir_rsp_if_0(l1i_dir_if_0),
-    .cache_dir_rsp_if_1(l1i_dir_if_1),
-    .flush('0) // TODO
+      .clk(clk),
+      .rst(rst),
+      .cache_dir_rsp_if_0(l1i_dir_if_0),
+      .cache_dir_rsp_if_1(l1i_dir_if_1),
+      .flush('0)  // TODO
   );
 
 endmodule

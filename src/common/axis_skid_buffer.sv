@@ -2,13 +2,13 @@
 
 // Skid buffer for AXI Stream interface
 module axis_skid_buffer (
-  input logic clk,
-  input logic rst,
-  
-  axis_if.m axis_mif, // Manager
-  axis_if.s axis_sif, // Subordinate
+    input logic clk,
+    input logic rst,
 
-  input logic invalidate // TODO
+    axis_if.m axis_mif,  // Manager
+    axis_if.s axis_sif,  // Subordinate
+
+    input logic invalidate  // TODO
 );
 
   // Define local parameters
@@ -16,8 +16,10 @@ module axis_skid_buffer (
 
   // Assert conditions
   initial begin
-    assert (TDATA_WIDTH > 0) else $fatal("TDATA_WIDTH must be greater than 0");
-    assert (TDATA_WIDTH == axis_sif.TDATA_WIDTH) else $fatal("TDATA_WIDTH must match between manager and subordinate interfaces");
+    assert (TDATA_WIDTH > 0)
+    else $fatal("TDATA_WIDTH must be greater than 0");
+    assert (TDATA_WIDTH == axis_sif.TDATA_WIDTH)
+    else $fatal("TDATA_WIDTH must match between manager and subordinate interfaces");
   end
 
   // Declare registers
@@ -65,7 +67,7 @@ module axis_skid_buffer (
       end else begin
         if (tvalid && !axis_mif.tready && s_handshake) begin
           skid_tvalid <= 1'b1;
-          skid_tdata <= axis_sif.tdata;
+          skid_tdata  <= axis_sif.tdata;
         end
       end
 
@@ -74,7 +76,7 @@ module axis_skid_buffer (
           tready <= 1'b0;
         end
       end else begin
-        if (axis_mif.tready || !skid_tvalid) begin // The latter condition is to recover from reset
+        if (axis_mif.tready || !skid_tvalid) begin  // The latter condition is to recover from reset
           tready <= 1'b1;
         end
       end
