@@ -3,27 +3,27 @@
 // Instruction Fetch Unit
 module ifu
   import offnariscv_pkg::*, cache_pkg::*;
-# (
-  parameter RESET_VECTOR = 0,
-  parameter CACHE_SIZE = 4096 // 4 KiB
+#(
+    parameter RESET_VECTOR = 0,
+    parameter CACHE_SIZE   = 4096  // 4 KiB
 ) (
-  input clk,
-  input rst,
+    input clk,
+    input rst,
 
-  // To lower level memory
-  ace_if.m ifu_ace_if,
+    // To lower level memory
+    ace_if.m ifu_ace_if,
 
-  // From Program Counter Generator
-  axis_if.s pcgif_axis_if,
+    // From Program Counter Generator
+    axis_if.s pcgif_axis_if,
 
-  // To Decoder
-  axis_if.m inst_axis_if,
+    // To Decoder
+    axis_if.m inst_axis_if,
 
-  // To L1 I-Cache
-  cache_dir_if.req l1i_dir_if,
-  cache_mem_if.req l1i_mem_if,
+    // To L1 I-Cache
+    cache_dir_if.req l1i_dir_if,
+    cache_mem_if.req l1i_mem_if,
 
-  input logic invalidate
+    input logic invalidate
 );
 
   // Define local parameters
@@ -36,11 +36,16 @@ module ifu
 
   // Assert conditions
   initial begin
-    assert (ADDR_WIDTH == XLEN) else $fatal("ifu_ace_if.ADDR_WIDTH must be equal to XLEN for now");
-    assert (inst_axis_if.TDATA_WIDTH == $bits(ifid_tdata_t)) else $fatal("inst_axis_if.TDATA_WIDTH must match ifid_tdata_t");
-    assert (TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH == ADDR_WIDTH) else $fatal("TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH must equal ADDR_WIDTH");
-    assert (l1i_mem_if.BLOCK_SIZE == BLOCK_SIZE) else $fatal("l1i_mem_if.BLOCK_SIZE must match BLOCK_SIZE");
-    assert (l1i_mem_if.INDEX_WIDTH == INDEX_WIDTH) else $fatal("l1i_mem_if.INDEX_WIDTH must match INDEX_WIDTH");
+    assert (ADDR_WIDTH == XLEN)
+    else $fatal("ifu_ace_if.ADDR_WIDTH must be equal to XLEN for now");
+    assert (inst_axis_if.TDATA_WIDTH == $bits(ifid_tdata_t))
+    else $fatal("inst_axis_if.TDATA_WIDTH must match ifid_tdata_t");
+    assert (TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH == ADDR_WIDTH)
+    else $fatal("TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH must equal ADDR_WIDTH");
+    assert (l1i_mem_if.BLOCK_SIZE == BLOCK_SIZE)
+    else $fatal("l1i_mem_if.BLOCK_SIZE must match BLOCK_SIZE");
+    assert (l1i_mem_if.INDEX_WIDTH == INDEX_WIDTH)
+    else $fatal("l1i_mem_if.INDEX_WIDTH must match INDEX_WIDTH");
   end
 
   // Define types
@@ -73,7 +78,7 @@ module ifu
   logic pcgif_ack;
   logic l1itlb_hit;
   logic [TAG_WIDTH-1:0] tag;
-  logic [((BLOCK_SEL_WIDTH>0)?BLOCK_SEL_WIDTH:1)-1:0] block_sel;
+  logic [((BLOCK_SEL_WIDTH>0)?BLOCK_SEL_WIDTH : 1)-1:0] block_sel;
 
   ifid_tdata_t ifid_tdata;
 
@@ -81,7 +86,7 @@ module ifu
   assign pcgif_tdata = pcgif_axis_if.tdata;
   assign pcgif_pipe_tdata = pcgif_pipe_reg_if.tdata;
   assign pcgif_ack = pcgif_axis_if.tvalid && pcgif_axis_if.tready;
-  assign l1itlb_hit = 1'b1; // TODO
+  assign l1itlb_hit = 1'b1;  // TODO
 
   assign l1i_dir_if.index = l1ic_dir_index_q;
   assign l1i_mem_if.index = l1ic_mem_index_q;
@@ -102,8 +107,8 @@ module ifu
     tag = pcgif_pipe_tdata.pc[ADDR_WIDTH-1 -: TAG_WIDTH]; // TODO: The tag will be obtained from TLB when implemented
     block_sel = (BLOCK_SEL_WIDTH==0) ? '0 : pcgif_pipe_tdata.pc[BLOCK_OFFSET_WIDTH-1 -: BLOCK_SEL_WIDTH];
 
-    ifid_tdata.inst = l1i_mem_if.rdata[block_sel * XLEN +: XLEN];
-    ifid_tdata.trap_cause = '0; // TODO
+    ifid_tdata.inst = l1i_mem_if.rdata[block_sel*XLEN+:XLEN];
+    ifid_tdata.trap_cause = '0;  // TODO
     ifid_tdata.pcg_data = pcgif_pipe_tdata;
 
     l1i_dir_if.next_tag = tag;
@@ -142,14 +147,14 @@ module ifu
         end
         if (ifu_ace_if.rvalid) begin
           rready_d = '0;
-          rresp_d = ifu_ace_if.rresp;
-          rdata_d = ifu_ace_if.rdata;
+          rresp_d  = ifu_ace_if.rresp;
+          rdata_d  = ifu_ace_if.rdata;
         end
         if (!rready_d) begin
-          ifid_tdata.inst = rdata_d[block_sel * XLEN +: XLEN];
+          ifid_tdata.inst = rdata_d[block_sel*XLEN+:XLEN];
           if (!invalidate_q) begin
             ifid_pipe_reg_if.tvalid = 1'b1;
-            l1i_dir_if.write = 1'b1; // TODO: Update the cache with appropriate index
+            l1i_dir_if.write = 1'b1;  // TODO: Update the cache with appropriate index
             l1i_mem_if.wstrb = '1;
           end
           if (ifid_pipe_reg_if.tready) begin
@@ -202,32 +207,32 @@ module ifu
     end
   end
 
-  always_ff @(posedge clk) begin // Expecting to be synthesized to dedicated RAM elements
+  always_ff @(posedge clk) begin  // Expecting to be synthesized to dedicated RAM elements
     if (pcgif_ack) begin
-      l1ic_dir_index_q <= pcgif_tdata.pc[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH];
-      l1ic_mem_index_q <= pcgif_tdata.pc[BLOCK_OFFSET_WIDTH +: INDEX_WIDTH];
+      l1ic_dir_index_q <= pcgif_tdata.pc[BLOCK_OFFSET_WIDTH+:INDEX_WIDTH];
+      l1ic_mem_index_q <= pcgif_tdata.pc[BLOCK_OFFSET_WIDTH+:INDEX_WIDTH];
     end
   end
 
   axis_slice pcgif_slice (
-    .clk(clk),
-    .rst(rst),
-    .axis_mif(pcgif_pipe_reg_if),
-    .axis_sif(pcgif_axis_if),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .axis_mif(pcgif_pipe_reg_if),
+      .axis_sif(pcgif_axis_if),
+      .invalidate(invalidate)
   );
 
   axis_skid_buffer ifid_pipe_reg (
-    .clk(clk),
-    .rst(rst),
-    .axis_mif(inst_axis_if),
-    .axis_sif(ifid_pipe_reg_if),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .axis_mif(inst_axis_if),
+      .axis_sif(ifid_pipe_reg_if),
+      .invalidate(invalidate)
   );
 
   // External wire assignments
   //// AW channel signals
-  assign ifu_ace_if.awvalid = 1'b0; // Don't activate AW channel
+  assign ifu_ace_if.awvalid = 1'b0;  // Don't activate AW channel
   assign {ifu_ace_if.awid,
           ifu_ace_if.awaddr,
           ifu_ace_if.awlen,
@@ -244,49 +249,46 @@ module ifu
           ifu_ace_if.awbar} = '0; // Unused
 
   //// W channel signals
-  assign ifu_ace_if.wvalid = '0; // Don't activate W channel
-  assign {ifu_ace_if.wdata,
-          ifu_ace_if.wstrb,
-          ifu_ace_if.wlast,
-          ifu_ace_if.wuser} = '0; // Unused
+  assign ifu_ace_if.wvalid = '0;  // Don't activate W channel
+  assign {ifu_ace_if.wdata, ifu_ace_if.wstrb, ifu_ace_if.wlast, ifu_ace_if.wuser} = '0;  // Unused
 
   //// B channel signals
-  assign ifu_ace_if.bready = '0; // Don't allow B channel
+  assign ifu_ace_if.bready = '0;  // Don't allow B channel
 
   //// AR channel signals
-  assign ifu_ace_if.arid = '0; // TODO
+  assign ifu_ace_if.arid = '0;  // TODO
   assign ifu_ace_if.araddr = pcgif_pipe_tdata.pc;
-  assign ifu_ace_if.arlen = '0; // TODO
-  assign ifu_ace_if.arsize = '0; // TODO
-  assign ifu_ace_if.arburst = '0; // TODO
-  assign ifu_ace_if.arlock = '0; // TODO
-  assign ifu_ace_if.arcache = '0; // TODO
-  assign ifu_ace_if.arprot = '0; // TODO
-  assign ifu_ace_if.arqos = '0; // TODO
-  assign ifu_ace_if.arregion = '0; // TODO
-  assign ifu_ace_if.aruser = '0; // TODO
+  assign ifu_ace_if.arlen = '0;  // TODO
+  assign ifu_ace_if.arsize = '0;  // TODO
+  assign ifu_ace_if.arburst = '0;  // TODO
+  assign ifu_ace_if.arlock = '0;  // TODO
+  assign ifu_ace_if.arcache = '0;  // TODO
+  assign ifu_ace_if.arprot = '0;  // TODO
+  assign ifu_ace_if.arqos = '0;  // TODO
+  assign ifu_ace_if.arregion = '0;  // TODO
+  assign ifu_ace_if.aruser = '0;  // TODO
   assign ifu_ace_if.arvalid = arvalid_q;
-  assign ifu_ace_if.arsnoop = '0; // TODO
-  assign ifu_ace_if.ardomain = '0; // TODO
-  assign ifu_ace_if.arbar = '0; // TODO
+  assign ifu_ace_if.arsnoop = '0;  // TODO
+  assign ifu_ace_if.ardomain = '0;  // TODO
+  assign ifu_ace_if.arbar = '0;  // TODO
 
   //// R channel signals
   assign ifu_ace_if.rready = rready_q;
 
   //// AC channel signals
-  assign ifu_ace_if.acready = '0; // TODO
+  assign ifu_ace_if.acready = '0;  // TODO
 
   //// CR channel signals
-  assign ifu_ace_if.crvalid = '0; // TODO
-  assign ifu_ace_if.crresp = '0; // TODO
+  assign ifu_ace_if.crvalid = '0;  // TODO
+  assign ifu_ace_if.crresp = '0;  // TODO
 
   //// CD channel signals
-  assign ifu_ace_if.cdvalid = '0; // TODO
-  assign ifu_ace_if.cddata = '0; // TODO
-  assign ifu_ace_if.cdlast = '0; // TODO
+  assign ifu_ace_if.cdvalid = '0;  // TODO
+  assign ifu_ace_if.cddata = '0;  // TODO
+  assign ifu_ace_if.cdlast = '0;  // TODO
 
   //// Acknowledgment signals
   assign ifu_ace_if.rack = rready_q && ifu_ace_if.rvalid; // NOTE: This might have to be delayed until the cache state is successfully updated
-  assign ifu_ace_if.wack = '0; // Unused
+  assign ifu_ace_if.wack = '0;  // Unused
 
 endmodule

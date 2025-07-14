@@ -3,22 +3,22 @@
 // Instruction Dispatcher
 module dispatcher
   import offnariscv_pkg::*;
-# (
-  parameter FIFO_DEPTH = 1
+#(
+    parameter FIFO_DEPTH = 1
 ) (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  axis_if.s rfex_axis_if, // From Register File
-  axis_if.m rfalu_axis_if, // To ALU
-  axis_if.m rfbru_axis_if, // To Branch Resolution Unit
-  axis_if.m rfsys_axis_if, // To System Unit
-  axis_if.m rflsu_axis_if, // To Load/Store Unit
-  axis_if.m exwb_axis_if, // To Write Back
+    axis_if.s rfex_axis_if,   // From Register File
+    axis_if.m rfalu_axis_if,  // To ALU
+    axis_if.m rfbru_axis_if,  // To Branch Resolution Unit
+    axis_if.m rfsys_axis_if,  // To System Unit
+    axis_if.m rflsu_axis_if,  // To Load/Store Unit
+    axis_if.m exwb_axis_if,   // To Write Back
 
-  axis_if.s wbrf_axis_if, // For forwarding
+    axis_if.s wbrf_axis_if,  // For forwarding
 
-  input logic invalidate
+    input logic invalidate
 );
 
   // Declare interfaces
@@ -83,14 +83,14 @@ module dispatcher
     exwb_slice_if.tdata = exwb_tdata;
   end
 
-  axis_sync_fifo # (
-    .DEPTH(FIFO_DEPTH)
+  axis_sync_fifo #(
+      .DEPTH(FIFO_DEPTH)
   ) exwb_fifo (
-    .clk(clk),
-    .rst(rst),
-    .axis_mif(exwb_axis_if),
-    .axis_sif(exwb_slice_if),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .axis_mif(exwb_axis_if),
+      .axis_sif(exwb_slice_if),
+      .invalidate(invalidate)
   );
 
 endmodule

@@ -3,20 +3,20 @@
 module pcgen_wrap
   import offnariscv_pkg::*;
 (
-  input clk,
-  input rst,
+    input clk,
+    input rst,
 
-  output logic [$bits(pcgif_tdata_t)-1:0] next_pc_tdata,
-  output logic next_pc_tvalid,
-  input logic next_pc_tready,
+    output logic [$bits(pcgif_tdata_t)-1:0] next_pc_tdata,
+    output logic next_pc_tvalid,
+    input logic next_pc_tready,
 
-  input logic [XLEN-1:0] current_pc_tdata,
-  input logic current_pc_tvalid,
-  output logic current_pc_tready,
+    input logic [XLEN-1:0] current_pc_tdata,
+    input logic current_pc_tvalid,
+    output logic current_pc_tready,
 
-  input logic [XLEN-1:0] bru_tdata,
-  input logic bru_tvalid,
-  output logic bru_tready
+    input logic [XLEN-1:0] bru_tdata,
+    input logic bru_tvalid,
+    output logic bru_tready
 );
 
   axis_if #(.TDATA_WIDTH($bits(pcgif_tdata_t))) pcgif_axis_if ();

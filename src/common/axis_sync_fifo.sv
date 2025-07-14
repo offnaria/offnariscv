@@ -2,15 +2,15 @@
 
 // Synchronous FIFO for AXI Stream interface
 module axis_sync_fifo #(
-  parameter DEPTH = 4
+    parameter DEPTH = 4
 ) (
-  input logic clk,
-  input logic rst,
-  
-  axis_if.m axis_mif, // Manager
-  axis_if.s axis_sif, // Subordinate
+    input logic clk,
+    input logic rst,
 
-  input logic invalidate
+    axis_if.m axis_mif,  // Manager
+    axis_if.s axis_sif,  // Subordinate
+
+    input logic invalidate
 );
 
   // Define local parameters
@@ -18,8 +18,10 @@ module axis_sync_fifo #(
 
   // Assert conditions
   initial begin
-    assert (TDATA_WIDTH > 0) else $fatal("TDATA_WIDTH must be greater than 0");
-    assert (TDATA_WIDTH == axis_sif.TDATA_WIDTH) else $fatal("TDATA_WIDTH must match between manager and subordinate interfaces");
+    assert (TDATA_WIDTH > 0)
+    else $fatal("TDATA_WIDTH must be greater than 0");
+    assert (TDATA_WIDTH == axis_sif.TDATA_WIDTH)
+    else $fatal("TDATA_WIDTH must match between manager and subordinate interfaces");
   end
 
   // Depth dependent logic
@@ -36,26 +38,29 @@ module axis_sync_fifo #(
 endmodule
 
 module axis_sync_fifo_core #(
-  parameter DEPTH = 5 // 2**n + 1
+    parameter DEPTH = 5  // 2**n + 1
 ) (
-  input logic clk,
-  input logic rst,
-  
-  axis_if.m axis_mif, // Manager
-  axis_if.s axis_sif, // Subordinate
+    input logic clk,
+    input logic rst,
 
-  input logic invalidate // TODO
+    axis_if.m axis_mif,  // Manager
+    axis_if.s axis_sif,  // Subordinate
+
+    input logic invalidate  // TODO
 );
 
   // Define local parameters
   localparam TDATA_WIDTH = axis_mif.TDATA_WIDTH;
-  localparam ADDR_WIDTH = $clog2(DEPTH-1);
+  localparam ADDR_WIDTH = $clog2(DEPTH - 1);
 
   // Assert conditions
   initial begin
-    assert (DEPTH >= 3) else $fatal("DEPTH must be greater than or equal to 3");
-    assert (DEPTH == 2**$clog2(DEPTH-1) + 1) else $fatal("DEPTH must be a power of 2 plus 1");
-    assert (TDATA_WIDTH == axis_sif.TDATA_WIDTH) else $fatal("TDATA_WIDTH must match between manager and subordinate interfaces");
+    assert (DEPTH >= 3)
+    else $fatal("DEPTH must be greater than or equal to 3");
+    assert (DEPTH == 2 ** $clog2(DEPTH - 1) + 1)
+    else $fatal("DEPTH must be a power of 2 plus 1");
+    assert (TDATA_WIDTH == axis_sif.TDATA_WIDTH)
+    else $fatal("TDATA_WIDTH must match between manager and subordinate interfaces");
   end
 
   // Declare registers and their next states
@@ -101,15 +106,15 @@ module axis_sync_fifo_core #(
     rptr_d = rptr_q;
     wvalid_ram = 1'b0;
 
-    if (tvalid_q) begin 
+    if (tvalid_q) begin
       if (mif_tready) begin
         if (empty_q) begin
           tvalid_d = axis_sif.tvalid;
-          tdata_d = axis_sif.tdata;
+          tdata_d  = axis_sif.tdata;
         end else begin
           tvalid_d = 1'b1;
-          tdata_d = rdata_ram;
-          rptr_d = rptr_q + ADDR_WIDTH'(1);
+          tdata_d  = rdata_ram;
+          rptr_d   = rptr_q + ADDR_WIDTH'(1);
         end
       end
       if ((!mif_tready || !empty_q) && s_handshake) begin // If empty, incoming data will be stored in tvalid_q
@@ -119,7 +124,7 @@ module axis_sync_fifo_core #(
     end else begin
       if (s_handshake) begin
         tvalid_d = 1'b1;
-        tdata_d = axis_sif.tdata;
+        tdata_d  = axis_sif.tdata;
       end
     end
   end
@@ -127,38 +132,38 @@ module axis_sync_fifo_core #(
   // Update registers
   always_ff @(posedge clk) begin
     if (rst) begin
-      wptr_q <= '0;
-      rptr_q <= '0;
+      wptr_q   <= '0;
+      rptr_q   <= '0;
       tvalid_q <= '0;
-      tdata_q <= '0;
+      tdata_q  <= '0;
       tready_q <= '1;
-      empty_q <= '0;
+      empty_q  <= '0;
     end else if (invalidate) begin
-      wptr_q <= '0;
-      rptr_q <= '0;
+      wptr_q   <= '0;
+      rptr_q   <= '0;
       tvalid_q <= '0;
       tready_q <= '1;
     end else begin
-      wptr_q <= wptr_d;
-      rptr_q <= rptr_d;
+      wptr_q   <= wptr_d;
+      rptr_q   <= rptr_d;
       tvalid_q <= tvalid_d;
-      tdata_q <= tdata_d;
+      tdata_q  <= tdata_d;
       tready_q <= tready_d;
-      empty_q <= empty_d;
+      empty_q  <= empty_d;
     end
   end
 
   ram_async #(
-    .DATA_WIDTH(TDATA_WIDTH),
-    .ADDR_WIDTH(ADDR_WIDTH)
+      .DATA_WIDTH(TDATA_WIDTH),
+      .ADDR_WIDTH(ADDR_WIDTH)
   ) ram_async_inst (
-    .clk(clk),
-    .rst(rst),
-    .wdata(wdata_ram),
-    .waddr(waddr_ram),
-    .wvalid(wvalid_ram),
-    .rdata(rdata_ram),
-    .raddr(raddr_ram)
+      .clk(clk),
+      .rst(rst),
+      .wdata(wdata_ram),
+      .waddr(waddr_ram),
+      .wvalid(wvalid_ram),
+      .rdata(rdata_ram),
+      .raddr(raddr_ram)
   );
 
 endmodule

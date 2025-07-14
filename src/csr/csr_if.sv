@@ -8,14 +8,14 @@ interface csr_rif;
   logic [XLEN-1:0] rdata;
   logic [XLEN-1:0] mtvec;
   logic [XLEN-1:0] mepc;
-  logic ro; // Read-only flag
+  logic ro;  // Read-only flag
   logic exception;
 
   // Request modport
-  modport req (output addr, input rdata, mtvec, mepc, ro, exception);
+  modport req(output addr, input rdata, mtvec, mepc, ro, exception);
 
   // Response modport
-  modport rsp (input addr, output rdata, mtvec, mepc, ro, exception);
+  modport rsp(input addr, output rdata, mtvec, mepc, ro, exception);
 
 endinterface
 
@@ -31,10 +31,10 @@ interface csr_wif;
   logic valid;
 
   // Request modport
-  modport req (output addr, data, pc, cause, trap, valid);
+  modport req(output addr, data, pc, cause, trap, valid);
 
   // Response modport
-  modport rsp (input addr, data, pc, cause, trap, valid);
+  modport rsp(input addr, data, pc, cause, trap, valid);
 
 endinterface
 

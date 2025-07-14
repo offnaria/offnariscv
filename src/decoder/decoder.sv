@@ -3,16 +3,16 @@
 // Instruction decoder module for RV32I
 module decoder
   import riscv_pkg::*, offnariscv_pkg::*;
-# (
-  parameter FIFO_DEPTH = 9 // Greater than the block size should be better, because IFU can continue fetching instructions
+#(
+    parameter FIFO_DEPTH = 9 // Greater than the block size should be better, because IFU can continue fetching instructions
 ) (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  axis_if.s ifid_axis_if, // From IFU
-  axis_if.m idrf_axis_if, // To Register File
+    axis_if.s ifid_axis_if,  // From IFU
+    axis_if.m idrf_axis_if,  // To Register File
 
-  input logic invalidate
+    input logic invalidate
 );
 
   // Define types
@@ -27,10 +27,10 @@ module decoder
 
   typedef struct packed {
     logic [11:0] imm_11_0;
-    logic [4:0] rs1;
-    logic [2:0] funct3;
-    logic [4:0] rd;
-    logic [6:0] opcode;
+    logic [4:0]  rs1;
+    logic [2:0]  funct3;
+    logic [4:0]  rd;
+    logic [6:0]  opcode;
   } i_type_t;
 
   typedef struct packed {
@@ -55,8 +55,8 @@ module decoder
 
   typedef struct packed {
     logic [19:0] imm_31_12;
-    logic [4:0] rd;
-    logic [6:0] opcode;
+    logic [4:0]  rd;
+    logic [6:0]  opcode;
   } u_type_t;
 
   typedef struct packed {
@@ -93,7 +93,7 @@ module decoder
     ifid_tdata = ifid_axis_if.tdata;
 
     inst = ifid_tdata.inst;
-    opcode = opcode_e'(inst[6:2]); // TODO: Check if inst[1:0]==2'b11
+    opcode = opcode_e'(inst[6:2]);  // TODO: Check if inst[1:0]==2'b11
     rtype = opcode inside {AMO, OP};
     itype = opcode inside {LOAD, OP_IMM, JALR};
     stype = opcode inside {STORE};
@@ -111,7 +111,7 @@ module decoder
       rtype: begin
         idrf_tdata.rs1 = inst.r.rs1;
         idrf_tdata.rs2 = inst.r.rs2;
-        idrf_tdata.rd = inst.r.rd;
+        idrf_tdata.rd  = inst.r.rd;
       end
       itype: begin
         idrf_tdata.rs1 = inst.i.rs1;
@@ -126,7 +126,9 @@ module decoder
       btype: begin
         idrf_tdata.rs1 = inst.b.rs1;
         idrf_tdata.rs2 = inst.b.rs2;
-        idrf_tdata.immediate = {{20{inst.b.imm_12}}, inst.b.imm_11, inst.b.imm_10_5, inst.b.imm_4_1, 1'b0};
+        idrf_tdata.immediate = {
+          {20{inst.b.imm_12}}, inst.b.imm_11, inst.b.imm_10_5, inst.b.imm_4_1, 1'b0
+        };
       end
       utype: begin
         idrf_tdata.rd = inst.u.rd;
@@ -134,7 +136,9 @@ module decoder
       end
       jtype: begin
         idrf_tdata.rd = inst.j.rd;
-        idrf_tdata.immediate = {{12{inst.j.imm_20}}, inst.j.imm_19_12, inst.j.imm_11, inst.j.imm_10_1, 1'b0};
+        idrf_tdata.immediate = {
+          {12{inst.j.imm_20}}, inst.j.imm_19_12, inst.j.imm_11, inst.j.imm_10_1, 1'b0
+        };
       end
       default: begin
       end
@@ -144,11 +148,11 @@ module decoder
     idrf_tdata.alu_cmd_vld = opcode inside {OP_IMM, AUIPC, OP, LUI};
     idrf_tdata.bru_cmd_vld = opcode inside {BRANCH, JAL, JALR};
     idrf_tdata.sys_cmd_vld = opcode inside {SYSTEM};
-    idrf_tdata.lsu_cmd_vld = opcode inside {LOAD, STORE}; // TODO: AMO
-    idrf_tdata.alu_cmd = ADD; // TODO
-    idrf_tdata.bru_cmd = BRU_JAL; // TODO
-    idrf_tdata.sys_cmd = CSRRW; // TODO
-    idrf_tdata.lsu_cmd = LSU_LW; // TODO
+    idrf_tdata.lsu_cmd_vld = opcode inside {LOAD, STORE};  // TODO: AMO
+    idrf_tdata.alu_cmd = ADD;  // TODO
+    idrf_tdata.bru_cmd = BRU_JAL;  // TODO
+    idrf_tdata.sys_cmd = CSRRW;  // TODO
+    idrf_tdata.lsu_cmd = LSU_LW;  // TODO
     unique case (1'b1)
       idrf_tdata.alu_cmd_vld: begin
         if (opcode inside {AUIPC, LUI}) begin
@@ -171,7 +175,8 @@ module decoder
       end
       idrf_tdata.bru_cmd_vld: begin
         unique case (opcode)
-          BRANCH: unique case (inst.b.funct3)
+          BRANCH:
+          unique case (inst.b.funct3)
             3'b000: idrf_tdata.bru_cmd = BRU_BEQ;
             3'b001: idrf_tdata.bru_cmd = BRU_BNE;
             3'b100: idrf_tdata.bru_cmd = BRU_BLT;
@@ -182,7 +187,7 @@ module decoder
               // Invalid instruction, raise an exception
             end
           endcase
-          JAL: idrf_tdata.bru_cmd = BRU_JAL;
+          JAL:  idrf_tdata.bru_cmd = BRU_JAL;
           JALR: idrf_tdata.bru_cmd = BRU_JALR;
           default: begin
             // Invalid instruction, raise an exception
@@ -255,7 +260,7 @@ module decoder
               end
             endcase
             idrf_tdata.rs1 = inst.i.rs1;
-            idrf_tdata.rd = inst.i.rd;
+            idrf_tdata.rd  = inst.i.rd;
           end
           STORE: begin
             unique case (inst.s.funct3)
@@ -301,22 +306,22 @@ module decoder
   end
 
   // Instantiate FIFO
-  axis_sync_fifo # (
-    .DEPTH(FIFO_DEPTH)
+  axis_sync_fifo #(
+      .DEPTH(FIFO_DEPTH)
   ) idrf_fifo (
-    .clk(clk),
-    .rst(rst),
-    .axis_mif(idrf_axis_if),
-    .axis_sif(idrf_fifo_if),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .axis_mif(idrf_axis_if),
+      .axis_sif(idrf_fifo_if),
+      .invalidate(invalidate)
   );
 
   axis_slice prev_rd_slice (
-    .clk(clk),
-    .rst(rst),
-    .axis_mif(prev_rd_mif),
-    .axis_sif(prev_rd_sif),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .axis_mif(prev_rd_mif),
+      .axis_sif(prev_rd_sif),
+      .invalidate(invalidate)
   );
 
 endmodule

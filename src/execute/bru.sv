@@ -4,13 +4,13 @@
 module bru
   import offnariscv_pkg::*;
 (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  axis_if.s rfbru_axis_if, // From Dispatcher
-  axis_if.m bruwb_axis_if, // To Write Back
+    axis_if.s rfbru_axis_if,  // From Dispatcher
+    axis_if.m bruwb_axis_if,  // To Write Back
 
-  input logic invalidate
+    input logic invalidate
 );
 
   // Declare interfaces
@@ -33,7 +33,7 @@ module bru
       end
       BRU_JALR: begin
         bruwb_tdata.new_pc = rfbru_tdata.operands.op1 + rfbru_tdata.offset;
-        bruwb_tdata.taken = 1'b1;
+        bruwb_tdata.taken  = 1'b1;
       end
       BRU_BEQ: begin
         if (rfbru_tdata.operands.op1 == rfbru_tdata.operands.op2) begin
@@ -68,20 +68,22 @@ module bru
     endcase
 
     // Slice connection
-    bruwb_slice_if.tdata = bruwb_tdata;
+    bruwb_slice_if.tdata  = bruwb_tdata;
     bruwb_slice_if.tvalid = rfbru_axis_if.tvalid;
-    rfbru_axis_if.tready = bruwb_slice_if.tready;
+    rfbru_axis_if.tready  = bruwb_slice_if.tready;
   end
 
-  always_ff @(posedge clk) if (rfbru_axis_if.tvalid && bruwb_tdata.taken) $write("BRU: New PC = %08h, cmd=%s\n", bruwb_tdata.new_pc, rfbru_tdata.cmd.name());
+  always_ff @(posedge clk)
+    if (rfbru_axis_if.tvalid && bruwb_tdata.taken)
+      $write("BRU: New PC = %08h, cmd=%s\n", bruwb_tdata.new_pc, rfbru_tdata.cmd.name());
 
   // Instantiate slice
   axis_slice bruwb_slice (
-    .clk(clk),
-    .rst(rst),
-    .axis_mif(bruwb_axis_if),
-    .axis_sif(bruwb_slice_if),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .axis_mif(bruwb_axis_if),
+      .axis_sif(bruwb_slice_if),
+      .invalidate(invalidate)
   );
 
 endmodule

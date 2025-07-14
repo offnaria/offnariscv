@@ -2,77 +2,77 @@
 
 module offnariscv_core_wrap
   import offnariscv_pkg::*;
-# (
-  localparam ACE_XDATA_WIDTH = 256,
-  localparam ACE_AXADDR_WIDTH = 32
+#(
+    localparam ACE_XDATA_WIDTH  = 256,
+    localparam ACE_AXADDR_WIDTH = 32
 ) (
-  input clk,
-  input rst,
+    input clk,
+    input rst,
 
-  output [ACE_XID_WIDTH-1:0] core_ace_awid,
-  output [ACE_AXADDR_WIDTH-1:0] core_ace_awaddr,
-  output [ACE_AXLEN_WIDTH-1:0] core_ace_awlen,
-  output [ACE_AXSIZE_WIDTH-1:0] core_ace_awsize,
-  output [ACE_AXBURST_WIDTH-1:0] core_ace_awburst,
-  output core_ace_awlock,
-  output [ACE_AXCACHE_WIDTH-1:0] core_ace_awcache,
-  output [ACE_AXPROT_WIDTH-1:0] core_ace_awprot,
-  output [ACE_AXQOS_WIDTH-1:0] core_ace_awqos,
-  output [ACE_AXREGION_WIDTH-1:0] core_ace_awregion,
-  output [ACE_XUSER_WIDTH-1:0] core_ace_awuser,
-  output core_ace_awvalid,
-  input  core_ace_awready,
-  output [ACE_AWSNOOP_WIDTH-1:0] core_ace_awsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] core_ace_awdomain,
-  output [ACE_BAR_WIDTH-1:0] core_ace_awbar,
-  output [ACE_XDATA_WIDTH-1:0] core_ace_wdata,
-  output [ACE_XDATA_WIDTH/8-1:0] core_ace_wstrb,
-  output core_ace_wlast,
-  output [ACE_XUSER_WIDTH-1:0] core_ace_wuser,
-  output core_ace_wvalid,
-  input  core_ace_wready,
-  input  [ACE_XID_WIDTH-1:0] core_ace_bid,
-  input  [ACE_BRESP_WIDTH-1:0] core_ace_bresp,
-  input  [ACE_XUSER_WIDTH-1:0] core_ace_buser,
-  input  core_ace_bvalid,
-  output core_ace_bready,
-  output [ACE_XID_WIDTH-1:0] core_ace_arid,
-  output [ACE_AXADDR_WIDTH-1:0] core_ace_araddr,
-  output [ACE_AXLEN_WIDTH-1:0] core_ace_arlen,
-  output [ACE_AXSIZE_WIDTH-1:0] core_ace_arsize,
-  output [ACE_AXBURST_WIDTH-1:0] core_ace_arburst,
-  output core_ace_arlock,
-  output [ACE_AXCACHE_WIDTH-1:0] core_ace_arcache,
-  output [ACE_AXPROT_WIDTH-1:0] core_ace_arprot,
-  output [ACE_AXQOS_WIDTH-1:0] core_ace_arqos,
-  output [ACE_AXREGION_WIDTH-1:0] core_ace_arregion,
-  output [ACE_XUSER_WIDTH-1:0] core_ace_aruser,
-  output core_ace_arvalid,
-  input  core_ace_arready,
-  output [ACE_ARSNOOP_WIDTH-1:0] core_ace_arsnoop,
-  output [ACE_DOMAIN_WIDTH-1:0] core_ace_ardomain,
-  output [ACE_BAR_WIDTH-1:0] core_ace_arbar,
-  input  [ACE_XID_WIDTH-1:0] core_ace_rid,
-  input  [ACE_XDATA_WIDTH-1:0] core_ace_rdata,
-  input  [ACE_RRESP_WIDTH-1:0] core_ace_rresp,
-  input  core_ace_rlast,
-  input  [ACE_XUSER_WIDTH-1:0] core_ace_ruser,
-  input  core_ace_rvalid,
-  output core_ace_rready,
-  input  core_ace_acvalid,
-  output core_ace_acready,
-  input  [ACE_AXADDR_WIDTH-1:0] core_ace_acaddr,
-  input  [ACE_ACSNOOP_WIDTH-1:0] core_ace_acsnoop,
-  input  [ACE_ACPROT_WIDTH-1:0] core_ace_acprot,
-  output core_ace_crvalid,
-  input  core_ace_crready,
-  output [ACE_CRRESP_WIDTH-1:0] core_ace_crresp,
-  output core_ace_cdvalid,
-  input  core_ace_cdready,
-  output [ACE_XDATA_WIDTH-1:0] core_ace_cddata,
-  output core_ace_cdlast,
-  output core_ace_rack,
-  output core_ace_wack
+    output [ACE_XID_WIDTH-1:0] core_ace_awid,
+    output [ACE_AXADDR_WIDTH-1:0] core_ace_awaddr,
+    output [ACE_AXLEN_WIDTH-1:0] core_ace_awlen,
+    output [ACE_AXSIZE_WIDTH-1:0] core_ace_awsize,
+    output [ACE_AXBURST_WIDTH-1:0] core_ace_awburst,
+    output core_ace_awlock,
+    output [ACE_AXCACHE_WIDTH-1:0] core_ace_awcache,
+    output [ACE_AXPROT_WIDTH-1:0] core_ace_awprot,
+    output [ACE_AXQOS_WIDTH-1:0] core_ace_awqos,
+    output [ACE_AXREGION_WIDTH-1:0] core_ace_awregion,
+    output [ACE_XUSER_WIDTH-1:0] core_ace_awuser,
+    output core_ace_awvalid,
+    input core_ace_awready,
+    output [ACE_AWSNOOP_WIDTH-1:0] core_ace_awsnoop,
+    output [ACE_DOMAIN_WIDTH-1:0] core_ace_awdomain,
+    output [ACE_BAR_WIDTH-1:0] core_ace_awbar,
+    output [ACE_XDATA_WIDTH-1:0] core_ace_wdata,
+    output [ACE_XDATA_WIDTH/8-1:0] core_ace_wstrb,
+    output core_ace_wlast,
+    output [ACE_XUSER_WIDTH-1:0] core_ace_wuser,
+    output core_ace_wvalid,
+    input core_ace_wready,
+    input [ACE_XID_WIDTH-1:0] core_ace_bid,
+    input [ACE_BRESP_WIDTH-1:0] core_ace_bresp,
+    input [ACE_XUSER_WIDTH-1:0] core_ace_buser,
+    input core_ace_bvalid,
+    output core_ace_bready,
+    output [ACE_XID_WIDTH-1:0] core_ace_arid,
+    output [ACE_AXADDR_WIDTH-1:0] core_ace_araddr,
+    output [ACE_AXLEN_WIDTH-1:0] core_ace_arlen,
+    output [ACE_AXSIZE_WIDTH-1:0] core_ace_arsize,
+    output [ACE_AXBURST_WIDTH-1:0] core_ace_arburst,
+    output core_ace_arlock,
+    output [ACE_AXCACHE_WIDTH-1:0] core_ace_arcache,
+    output [ACE_AXPROT_WIDTH-1:0] core_ace_arprot,
+    output [ACE_AXQOS_WIDTH-1:0] core_ace_arqos,
+    output [ACE_AXREGION_WIDTH-1:0] core_ace_arregion,
+    output [ACE_XUSER_WIDTH-1:0] core_ace_aruser,
+    output core_ace_arvalid,
+    input core_ace_arready,
+    output [ACE_ARSNOOP_WIDTH-1:0] core_ace_arsnoop,
+    output [ACE_DOMAIN_WIDTH-1:0] core_ace_ardomain,
+    output [ACE_BAR_WIDTH-1:0] core_ace_arbar,
+    input [ACE_XID_WIDTH-1:0] core_ace_rid,
+    input [ACE_XDATA_WIDTH-1:0] core_ace_rdata,
+    input [ACE_RRESP_WIDTH-1:0] core_ace_rresp,
+    input core_ace_rlast,
+    input [ACE_XUSER_WIDTH-1:0] core_ace_ruser,
+    input core_ace_rvalid,
+    output core_ace_rready,
+    input core_ace_acvalid,
+    output core_ace_acready,
+    input [ACE_AXADDR_WIDTH-1:0] core_ace_acaddr,
+    input [ACE_ACSNOOP_WIDTH-1:0] core_ace_acsnoop,
+    input [ACE_ACPROT_WIDTH-1:0] core_ace_acprot,
+    output core_ace_crvalid,
+    input core_ace_crready,
+    output [ACE_CRRESP_WIDTH-1:0] core_ace_crresp,
+    output core_ace_cdvalid,
+    input core_ace_cdready,
+    output [ACE_XDATA_WIDTH-1:0] core_ace_cddata,
+    output core_ace_cdlast,
+    output core_ace_rack,
+    output core_ace_wack
 );
 
   ace_if core_ace_if ();
@@ -145,20 +145,20 @@ module offnariscv_core_wrap
   assign core_ace_wack = core_ace_if.wack;
 
   offnariscv_core #(
-    .RESET_VECTOR(0)
+      .RESET_VECTOR(0)
   ) offnariscv_core_inst (
-    .clk(clk),
-    .rst(rst),
-    .ifu_ace_if(ifu_ace_if),
-    .lsu_ace_if(lsu_ace_if)
+      .clk(clk),
+      .rst(rst),
+      .ifu_ace_if(ifu_ace_if),
+      .lsu_ace_if(lsu_ace_if)
   );
 
   core_arbiter core_arbiter_inst (
-    .clk(clk),
-    .rst(rst),
-    .ifu_ace_if(ifu_ace_if),
-    .lsu_ace_if(lsu_ace_if),
-    .core_ace_if(core_ace_if)
+      .clk(clk),
+      .rst(rst),
+      .ifu_ace_if(ifu_ace_if),
+      .lsu_ace_if(lsu_ace_if),
+      .core_ace_if(core_ace_if)
   );
 
   logic wbpcg_prev_ack;
@@ -208,76 +208,74 @@ module offnariscv_core_wrap
       wbrf_prev_tdata <= offnariscv_core_inst.wbrf_axis_if.tdata;
       prev_invalidate <= offnariscv_core_inst.invalidate;
       $write("pcgif:\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
-             offnariscv_core_inst.pcgif_axis_if.tvalid,
-             offnariscv_core_inst.pcgif_axis_if.tready,
+             offnariscv_core_inst.pcgif_axis_if.tvalid, offnariscv_core_inst.pcgif_axis_if.tready,
              offnariscv_core_inst.pcgif_axis_if.ack(),
-             offnariscv_core_inst.pcgif_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.pcgif_axis_if.tdata[127-:XLEN],
              offnariscv_core_inst.pcgif_axis_if.tdata[63:0]);
       $write("if1:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tvalid,
              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tready,
              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.ack(),
-              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[127 -: XLEN],
-              offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[63:0]);
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[127-:XLEN],
+             offnariscv_core_inst.ifu_inst.pcgif_pipe_reg_if.tdata[63:0]);
       $write("ifid:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
-             offnariscv_core_inst.ifid_axis_if.tvalid,
-             offnariscv_core_inst.ifid_axis_if.tready,
+             offnariscv_core_inst.ifid_axis_if.tvalid, offnariscv_core_inst.ifid_axis_if.tready,
              offnariscv_core_inst.ifid_axis_if.ack(),
-             offnariscv_core_inst.ifid_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.ifid_axis_if.tdata[127-:XLEN],
              offnariscv_core_inst.ifid_axis_if.tdata[63:0]);
       $write("idrf:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
-             offnariscv_core_inst.idrf_axis_if.tvalid,
-             offnariscv_core_inst.idrf_axis_if.tready,
+             offnariscv_core_inst.idrf_axis_if.tvalid, offnariscv_core_inst.idrf_axis_if.tready,
              offnariscv_core_inst.idrf_axis_if.ack(),
-             offnariscv_core_inst.idrf_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.idrf_axis_if.tdata[127-:XLEN],
              offnariscv_core_inst.idrf_axis_if.tdata[63:0]);
-      $write("rfex:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, alu.op1=%016h, alu.op2=%016h, bru.op1=%016h, bru.op2=%016h, id=%0d\n",
-             offnariscv_core_inst.rfex_axis_if.tvalid,
-             offnariscv_core_inst.rfex_axis_if.tready,
-             offnariscv_core_inst.rfex_axis_if.ack(),
-             offnariscv_core_inst.rfex_axis_if.tdata[127 -: XLEN],
-              offnariscv_core_inst.rfalu_axis_if.tdata,
-              offnariscv_core_inst.rfalu_axis_if.tdata,
-              offnariscv_core_inst.rfbru_axis_if.tdata,
-              offnariscv_core_inst.rfbru_axis_if.tdata,
-             offnariscv_core_inst.rfex_axis_if.tdata[63:0]);
+      $write(
+          "rfex:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, alu.op1=%016h, alu.op2=%016h, bru.op1=%016h, bru.op2=%016h, id=%0d\n",
+          offnariscv_core_inst.rfex_axis_if.tvalid, offnariscv_core_inst.rfex_axis_if.tready,
+          offnariscv_core_inst.rfex_axis_if.ack(),
+          offnariscv_core_inst.rfex_axis_if.tdata[127-:XLEN],
+          offnariscv_core_inst.rfalu_axis_if.tdata, offnariscv_core_inst.rfalu_axis_if.tdata,
+          offnariscv_core_inst.rfbru_axis_if.tdata, offnariscv_core_inst.rfbru_axis_if.tdata,
+          offnariscv_core_inst.rfex_axis_if.tdata[63:0]);
       $write("exwb:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
-             offnariscv_core_inst.exwb_axis_if.tvalid,
-             offnariscv_core_inst.exwb_axis_if.tready,
+             offnariscv_core_inst.exwb_axis_if.tvalid, offnariscv_core_inst.exwb_axis_if.tready,
              offnariscv_core_inst.exwb_axis_if.ack(),
-             offnariscv_core_inst.exwb_axis_if.tdata[127 -: XLEN],
+             offnariscv_core_inst.exwb_axis_if.tdata[127-:XLEN],
              offnariscv_core_inst.exwb_axis_if.tdata[63:0]);
       if (0)
-      $write("wbrf:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
-             offnariscv_core_inst.wbrf_axis_if.tvalid,
-             offnariscv_core_inst.wbrf_axis_if.tready,
-             offnariscv_core_inst.wbrf_axis_if.ack(),
-             offnariscv_core_inst.wbrf_axis_if.tdata[127 -: XLEN],
-             offnariscv_core_inst.wbrf_axis_if.tdata[63:0]);
+        $write(
+            "wbrf:\t\ttvalid=%0d, tready=%0d, ack=%0d, pc=%08h, id=%0d\n",
+            offnariscv_core_inst.wbrf_axis_if.tvalid,
+            offnariscv_core_inst.wbrf_axis_if.tready,
+            offnariscv_core_inst.wbrf_axis_if.ack(),
+            offnariscv_core_inst.wbrf_axis_if.tdata[127-:XLEN],
+            offnariscv_core_inst.wbrf_axis_if.tdata[63:0]
+        );
       // for (int i = 0; i < 32; i++) begin
       //   $write("rf[%0d] = %08x\n", i, offnariscv_core_inst.regfile_inst.rf_mem[i]);
       // end
       if (offnariscv_core_inst.wbrf_axis_if.ack() || 1) begin
         wbrf_tdata_t tdata;
         assign tdata = offnariscv_core_inst.wbrf_axis_if.tdata;
-        $write ("wbrf:\t\tid=%0d, rd=%0d, wdata=%08x, pc=%08x, trap=%0d\n",
-               tdata.ex_data.rf_data.id_data.if_data.pcg_data.id,
-               tdata.ex_data.rf_data.id_data.rd,
-               tdata.wdata,
-               tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
+        $write("wbrf:\t\tid=%0d, rd=%0d, wdata=%08x, pc=%08x, trap=%0d\n",
+               tdata.ex_data.rf_data.id_data.if_data.pcg_data.id, tdata.ex_data.rf_data.id_data.rd,
+               tdata.wdata, tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
                offnariscv_core_inst.wbcsr_wif.trap);
         if (tdata.ex_data.rf_data.id_data.rd != 0)
-        $write("pc=%08x, rd=%0d, wdata=%08x\n",
-               tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
-               tdata.ex_data.rf_data.id_data.rd,
-               tdata.wdata);
+          $write(
+              "pc=%08x, rd=%0d, wdata=%08x\n",
+              tdata.ex_data.rf_data.id_data.if_data.pcg_data.pc,
+              tdata.ex_data.rf_data.id_data.rd,
+              tdata.wdata
+          );
         if (offnariscv_core_inst.wbcsr_wif.valid || offnariscv_core_inst.syswb_axis_if.tvalid)
-        $write("csr_addr=%08x, csr_rdata=%08x, csr_wdata=%08x, pc=%08x, cause=%0d\n",
-               offnariscv_core_inst.wbcsr_wif.addr,
-               tdata.ex_data.rf_data.csr_rdata,
-               offnariscv_core_inst.wbcsr_wif.data,
-               offnariscv_core_inst.wbcsr_wif.pc,
-               offnariscv_core_inst.wbcsr_wif.cause);
+          $write(
+              "csr_addr=%08x, csr_rdata=%08x, csr_wdata=%08x, pc=%08x, cause=%0d\n",
+              offnariscv_core_inst.wbcsr_wif.addr,
+              tdata.ex_data.rf_data.csr_rdata,
+              offnariscv_core_inst.wbcsr_wif.data,
+              offnariscv_core_inst.wbcsr_wif.pc,
+              offnariscv_core_inst.wbcsr_wif.cause
+          );
         if (offnariscv_core_inst.wbcsr_wif.trap)
           $write("trap: %0d\n", offnariscv_core_inst.wbcsr_wif.cause);
       end
@@ -300,11 +298,12 @@ module offnariscv_core_wrap
       assign pc = offnariscv_core_inst.pcgen_inst.pc_q;
       $sformat(s0, "I\t%0d\t%0d\t0\nS\t%0d\t0\tPC\nL\t%0d\t0\t%08x\n", id, id, id, id, pc);
     end else $sformat(s0, "");
-    if (pcgif_prev_ack) begin // IDLE state
+    if (pcgif_prev_ack) begin  // IDLE state
       $sformat(s1, "S\t%0d\t0\tIF\n", pcgif_prev_tdata.id);
     end else $sformat(s1, "");
     if (ifid_prev_ack) begin
-      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t %08x\n", ifid_prev_tdata.pcg_data.id, ifid_prev_tdata.pcg_data.id, ifid_prev_tdata.inst);
+      $sformat(s2, "S\t%0d\t0\tID\nL\t%0d\t0\t %08x\n", ifid_prev_tdata.pcg_data.id,
+               ifid_prev_tdata.pcg_data.id, ifid_prev_tdata.inst);
     end else $sformat(s2, "");
     if (idrf_prev_ack) begin
       $sformat(s3, "S\t%0d\t0\tRF\n", idrf_prev_tdata.if_data.pcg_data.id);
@@ -316,13 +315,18 @@ module offnariscv_core_wrap
       $sformat(s5, "S\t%0d\t0\tWB\n", exwb_prev_tdata.rf_data.id_data.if_data.pcg_data.id);
     end else $sformat(s5, "");
     if (wbrf_prev_ack) begin
-      $sformat(s6, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id, ret_cnt);
+      $sformat(s6, "R\t%0d\t%0d\t0\n", wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id,
+               ret_cnt);
       ret_cnt++;
     end else $sformat(s6, "");
     if (prev_invalidate) begin
       pcgif_tdata_t tdata;
       assign tdata = offnariscv_core_inst.pcgif_axis_if.tdata;
-      for (longint i = wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id + 1; i < tdata.id; ++i) begin
+      for (
+          longint i = wbrf_prev_tdata.ex_data.rf_data.id_data.if_data.pcg_data.id + 1;
+          i < tdata.id;
+          ++i
+      ) begin
         $sformat(s7, "%sR\t%0d\t-1\t1\n", s7, i);
       end
     end else $sformat(s7, "");

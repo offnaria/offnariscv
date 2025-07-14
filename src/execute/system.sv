@@ -4,13 +4,13 @@
 module system
   import riscv_pkg::*, offnariscv_pkg::*;
 (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  axis_if.s rfsys_axis_if, // From Dispatcher
-  axis_if.m syswb_axis_if, // To Write Back
+    axis_if.s rfsys_axis_if,  // From Dispatcher
+    axis_if.m syswb_axis_if,  // To Write Back
 
-  input logic invalidate
+    input logic invalidate
 );
 
   // Declare interfaces
@@ -34,7 +34,8 @@ module system
       CSRRW, CSRRWI: syswb_tdata.csr_wdata = operand;
       CSRRS, CSRRSI: syswb_tdata.csr_wdata = (rfsys_tdata.csr_rdata | operand);
       CSRRC, CSRRCI: syswb_tdata.csr_wdata = (rfsys_tdata.csr_rdata & ~operand);
-      ECALL: syswb_tdata.trap_cause[EXC_ECM] = 1'b1; // TODO: Support other privilege levels (currently only M-mode is supported)
+      ECALL:
+      syswb_tdata.trap_cause[EXC_ECM] = 1'b1; // TODO: Support other privilege levels (currently only M-mode is supported)
       MRET, SRET: new_pc = rfsys_tdata.mepc;
       default: begin
         // TODO: Handle other system commands
@@ -53,11 +54,11 @@ module system
 
   // Instantiate slice
   axis_slice syswb_slice (
-    .clk(clk),
-    .rst(rst),
-    .axis_mif(syswb_axis_if),
-    .axis_sif(syswb_slice_if),
-    .invalidate(invalidate)
+      .clk(clk),
+      .rst(rst),
+      .axis_mif(syswb_axis_if),
+      .axis_sif(syswb_slice_if),
+      .invalidate(invalidate)
   );
 
 endmodule

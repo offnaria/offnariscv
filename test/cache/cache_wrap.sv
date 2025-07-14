@@ -2,31 +2,37 @@
 
 module cache_wrap
   import cache_pkg::*;
-# (
-  // localparam ADDR_WIDTH = 32,
-  parameter INDEX_WIDTH = 7,
-  parameter TAG_WIDTH = 20
+#(
+    // localparam ADDR_WIDTH = 32,
+    parameter INDEX_WIDTH = 7,
+    parameter TAG_WIDTH   = 20
 ) (
-  input logic clk,
-  input logic rst,
+    input logic clk,
+    input logic rst,
 
-  input logic [INDEX_WIDTH-1:0] if0_index,
-  input logic [TAG_WIDTH-1:0] if0_next_tag,
-  input logic [$bits(line_state_t)-1:0] if0_next_state,
-  input logic if0_write,
-  output logic [TAG_WIDTH-1:0] if0_current_tag,
-  output logic [$bits(line_state_t)-1:0] if0_current_state,
+    input logic [INDEX_WIDTH-1:0] if0_index,
+    input logic [TAG_WIDTH-1:0] if0_next_tag,
+    input logic [$bits(line_state_t)-1:0] if0_next_state,
+    input logic if0_write,
+    output logic [TAG_WIDTH-1:0] if0_current_tag,
+    output logic [$bits(line_state_t)-1:0] if0_current_state,
 
-  input logic [INDEX_WIDTH-1:0] if1_index,
-  input logic [TAG_WIDTH-1:0] if1_next_tag,
-  input logic [$bits(line_state_t)-1:0] if1_next_state,
-  input logic if1_write,
-  output logic [TAG_WIDTH-1:0] if1_current_tag,
-  output logic [$bits(line_state_t)-1:0] if1_current_state
+    input logic [INDEX_WIDTH-1:0] if1_index,
+    input logic [TAG_WIDTH-1:0] if1_next_tag,
+    input logic [$bits(line_state_t)-1:0] if1_next_state,
+    input logic if1_write,
+    output logic [TAG_WIDTH-1:0] if1_current_tag,
+    output logic [$bits(line_state_t)-1:0] if1_current_state
 );
 
-  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) if0 ();
-  cache_dir_if # (.INDEX_WIDTH(INDEX_WIDTH), .TAG_WIDTH(TAG_WIDTH)) if1 ();
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) if0 ();
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) if1 ();
 
   always_comb begin
     // if0
@@ -47,11 +53,11 @@ module cache_wrap
   end
 
   cache_directory directory_inst (
-    .clk(clk),
-    .rst(rst),
-    .cache_dir_rsp_if_0(if0),
-    .cache_dir_rsp_if_1(if1),
-    .flush('0) // TODO
+      .clk(clk),
+      .rst(rst),
+      .cache_dir_rsp_if_0(if0),
+      .cache_dir_rsp_if_1(if1),
+      .flush('0)  // TODO
   );
 
 endmodule
