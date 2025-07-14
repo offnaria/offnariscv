@@ -24,11 +24,19 @@ module lsu
   localparam BLOCK_SIZE = lsu_ace_if.ACE_XDATA_WIDTH;
   localparam BLOCK_OFFSET_WIDTH = $clog2(BLOCK_SIZE / 8);
   localparam BLOCK_SEL_WIDTH = $clog2(BLOCK_SIZE / XLEN);
+  localparam INDEX_WIDTH = l1d_dir_if.INDEX_WIDTH;
+  localparam TAG_WIDTH = l1d_dir_if.TAG_WIDTH;
 
   // Assert conditions
   initial begin
     assert (ADDR_WIDTH == XLEN)
     else $fatal("lsu_ace_if.ADDR_WIDTH must be equal to XLEN for now");
+    assert (TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH == ADDR_WIDTH)
+    else $fatal("TAG_WIDTH + INDEX_WIDTH + BLOCK_OFFSET_WIDTH must equal ADDR_WIDTH");
+    assert (l1d_mem_if.BLOCK_SIZE == BLOCK_SIZE)
+    else $fatal("l1d_mem_if.BLOCK_SIZE must match BLOCK_SIZE");
+    assert (l1d_mem_if.INDEX_WIDTH == INDEX_WIDTH)
+    else $fatal("l1d_mem_if.INDEX_WIDTH must match INDEX_WIDTH");
   end
 
   // Define types
@@ -57,6 +65,10 @@ module lsu
   logic bready_q, bready_d;
   logic [$bits(lsu_ace_if.bresp)-1:0] bresp_q, bresp_d;
   logic [ADDR_WIDTH-1:0] addr_q, addr_d;
+  logic l1dc_hit_q, l1dc_hit_d;
+
+  logic [INDEX_WIDTH-1:0] l1dc_dir_index_q, l1dc_dir_index_d;
+  logic [INDEX_WIDTH-1:0] l1dc_mem_index_q, l1dc_mem_index_d;
 
   // Declare wires
   logic rflsu_ack;
@@ -64,8 +76,7 @@ module lsu
   lsuwb_tdata_t lsuwb_tdata;
   logic [XLEN-1:0] effective_addr;
   logic l1dtlb_hit;
-  logic l1dc_hit;
-  // logic [TAG_WIDTH-1:0] tag;
+  logic [TAG_WIDTH-1:0] tag;
   logic [((BLOCK_SEL_WIDTH>0)?BLOCK_SEL_WIDTH : 1)-1:0] block_sel;
 
   assign rflsu_ack = rflsu_axis_if.tvalid && rflsu_axis_if.tready;
@@ -83,6 +94,7 @@ module lsu
     bready_d = bready_q;
     bresp_d = bresp_q;
     addr_d = addr_q;
+    l1dc_hit_d = l1dc_hit_q;
 
     rflsu_if_tdata = rflsu_axis_if.tdata;
     rflsu_slice_tdata = rflsu_slice_if.tdata;
@@ -93,24 +105,35 @@ module lsu
 
     effective_addr = rflsu_if_tdata.operands.op1 + rflsu_if_tdata.offset;
     l1dtlb_hit = 1'b1;  // TODO
-    l1dc_hit = 1'b0;  // TODO
 
     if (rflsu_ack) begin
       addr_d = effective_addr;
     end
 
+    tag = addr_q[ADDR_WIDTH-1:ADDR_WIDTH-TAG_WIDTH];
     block_sel = addr_q[BLOCK_OFFSET_WIDTH-1-:BLOCK_SEL_WIDTH];
+
+    l1d_dir_if.index = l1dc_dir_index_q;
+    l1d_mem_if.index = l1dc_mem_index_q;
+    l1d_dir_if.next_tag = tag;
+    l1d_dir_if.next_state = '{default: '0, v: 1'b1};
+    l1d_dir_if.write = '0;
+    l1d_mem_if.wstrb = '0;
 
     unique case (state_q)
       IDLE: begin
         if (rflsu_slice_if.tvalid && !invalidate) begin
           if (l1dtlb_hit) begin
-            if (l1dc_hit) begin
-              lsuwb_slice_if.tvalid = 1'b1;
-              if (lsuwb_slice_if.tready) begin
-                rflsu_slice_if.tready = 1'b1;
+            if (l1d_dir_if.current_state.v) begin
+              if (l1d_dir_if.current_tag == tag) begin  // Hit
+                lsuwb_slice_if.tvalid = 1'b1;
+                if (lsuwb_slice_if.tready) begin
+                  rflsu_slice_if.tready = 1'b1;
+                end
+              end else begin  // Miss but not empty
+                // TODO: Evict the block
               end
-            end else begin
+            end else begin  // Miss and empty
               if (rflsu_slice_tdata.cmd inside {LSU_LW, LSU_LH, LSU_LB, LSU_LHU, LSU_LBU}) begin
                 arvalid_d = 1'b1;
                 rready_d  = 1'b1;
@@ -221,6 +244,7 @@ module lsu
       bready_q <= 0;
       bresp_q <= '0;
       addr_q <= '0;
+      l1dc_hit_q <= 0;
     end else begin
       state_q <= state_d;
       arvalid_q <= arvalid_d;
@@ -234,10 +258,18 @@ module lsu
       bready_q <= bready_d;
       bresp_q <= bresp_d;
       addr_q <= addr_d;
+      l1dc_hit_q <= l1dc_hit_d;
       $write(
           "LSU: state=%s, arvalid=%b, rready=%b, awvalid=%b, wvalid=%b, wdata=0x%h, wstrb=0x%h, bready=%b, bresp=0x%h, addr=0x%h\n",
           state_q.name(), arvalid_q, rready_q, awvalid_q, wvalid_q, wdata_q, wstrb_q, bready_q,
           bresp_q, addr_q);
+    end
+  end
+
+  always_ff @(posedge clk) begin
+    if (rflsu_ack) begin
+      l1dc_dir_index_q <= effective_addr[BLOCK_OFFSET_WIDTH+:INDEX_WIDTH];
+      l1dc_mem_index_q <= effective_addr[BLOCK_OFFSET_WIDTH+:INDEX_WIDTH];
     end
   end
 
