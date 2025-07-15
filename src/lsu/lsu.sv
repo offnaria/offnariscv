@@ -64,7 +64,8 @@ module lsu
   logic [BLOCK_SIZE/8-1:0] wstrb_q, wstrb_d;
   logic bready_q, bready_d;
   logic [$bits(lsu_ace_if.bresp)-1:0] bresp_q, bresp_d;
-  logic [ADDR_WIDTH-1:0] addr_q, addr_d;
+  logic [ADDR_WIDTH-1:0] araddr_q, araddr_d;
+  logic [ADDR_WIDTH-1:0] awaddr_q, awaddr_d;
   logic l1dc_hit_q, l1dc_hit_d;
 
   logic [INDEX_WIDTH-1:0] l1dc_dir_index_q, l1dc_dir_index_d;
@@ -93,7 +94,8 @@ module lsu
     wstrb_d = wstrb_q;
     bready_d = bready_q;
     bresp_d = bresp_q;
-    addr_d = addr_q;
+    araddr_d = araddr_q;
+    awaddr_d = awaddr_q;
     l1dc_hit_d = l1dc_hit_q;
 
     rflsu_if_tdata = rflsu_axis_if.tdata;
@@ -107,11 +109,12 @@ module lsu
     l1dtlb_hit = 1'b1;  // TODO
 
     if (rflsu_ack) begin
-      addr_d = effective_addr;
+      araddr_d = effective_addr;
+      awaddr_d = effective_addr;
     end
 
-    tag = addr_q[ADDR_WIDTH-1:ADDR_WIDTH-TAG_WIDTH];
-    block_sel = addr_q[BLOCK_OFFSET_WIDTH-1-:BLOCK_SEL_WIDTH];
+    tag = araddr_q[ADDR_WIDTH-1:ADDR_WIDTH-TAG_WIDTH];
+    block_sel = araddr_q[BLOCK_OFFSET_WIDTH-1-:BLOCK_SEL_WIDTH];
 
     l1d_dir_if.index = l1dc_dir_index_q;
     l1d_mem_if.index = l1dc_mem_index_q;
@@ -154,10 +157,11 @@ module lsu
                   unique case (rflsu_slice_tdata.cmd)
                     LSU_SW: if (block_sel == BLOCK_SEL_WIDTH'(i / 4)) wstrb_d[i] = 1'b1;
                     LSU_SH:
-                    if (addr_q[BLOCK_OFFSET_WIDTH-1:1] == (BLOCK_OFFSET_WIDTH - 1)'(i / 2))
+                    if (awaddr_q[BLOCK_OFFSET_WIDTH-1:1] == (BLOCK_OFFSET_WIDTH - 1)'(i / 2))
                       wstrb_d[i] = 1'b1;
                     LSU_SB:
-                    if (addr_q[BLOCK_OFFSET_WIDTH-1:0] == BLOCK_OFFSET_WIDTH'(i)) wstrb_d[i] = 1'b1;
+                    if (awaddr_q[BLOCK_OFFSET_WIDTH-1:0] == BLOCK_OFFSET_WIDTH'(i))
+                      wstrb_d[i] = 1'b1;
                     default: begin
                     end
                   endcase
@@ -186,13 +190,13 @@ module lsu
           unique case (rflsu_slice_tdata.cmd)
             LSU_LW: lsuwb_tdata.result = rdata_d[block_sel*XLEN+:XLEN];
             LSU_LH:
-            lsuwb_tdata.result = XLEN'(signed'(rdata_d[16*addr_q[BLOCK_OFFSET_WIDTH-1:1]+:16]));
+            lsuwb_tdata.result = XLEN'(signed'(rdata_d[16*araddr_q[BLOCK_OFFSET_WIDTH-1:1]+:16]));
             LSU_LHU:
-            lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[16*addr_q[BLOCK_OFFSET_WIDTH-1:1]+:16]));
+            lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[16*araddr_q[BLOCK_OFFSET_WIDTH-1:1]+:16]));
             LSU_LB:
-            lsuwb_tdata.result = XLEN'(signed'(rdata_d[8*addr_q[BLOCK_OFFSET_WIDTH-1:0]+:8]));
+            lsuwb_tdata.result = XLEN'(signed'(rdata_d[8*araddr_q[BLOCK_OFFSET_WIDTH-1:0]+:8]));
             LSU_LBU:
-            lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[8*addr_q[BLOCK_OFFSET_WIDTH-1:0]+:8]));
+            lsuwb_tdata.result = XLEN'(unsigned'(rdata_d[8*araddr_q[BLOCK_OFFSET_WIDTH-1:0]+:8]));
             default: begin
             end
           endcase
@@ -227,7 +231,7 @@ module lsu
     endcase
 
 `ifndef SYNTHESIS
-    lsuwb_tdata.addr  = addr_q;
+    lsuwb_tdata.addr  = araddr_q;
     lsuwb_tdata.wdata = rflsu_slice_tdata.operands.op2;
     lsuwb_tdata.store = (rflsu_slice_tdata.cmd == LSU_SW);
 `endif
@@ -249,7 +253,8 @@ module lsu
       wstrb_q <= '0;
       bready_q <= 0;
       bresp_q <= '0;
-      addr_q <= '0;
+      araddr_q <= '0;
+      awaddr_q <= '0;
       l1dc_hit_q <= 0;
     end else begin
       state_q <= state_d;
@@ -263,12 +268,13 @@ module lsu
       wstrb_q <= wstrb_d;
       bready_q <= bready_d;
       bresp_q <= bresp_d;
-      addr_q <= addr_d;
+      araddr_q <= araddr_d;
+      awaddr_q <= awaddr_d;
       l1dc_hit_q <= l1dc_hit_d;
       $write(
           "LSU: state=%s, arvalid=%b, rready=%b, awvalid=%b, wvalid=%b, wdata=0x%h, wstrb=0x%h, bready=%b, bresp=0x%h, addr=0x%h\n",
           state_q.name(), arvalid_q, rready_q, awvalid_q, wvalid_q, wdata_q, wstrb_q, bready_q,
-          bresp_q, addr_q);
+          bresp_q, araddr_q);
     end
   end
 
@@ -299,7 +305,7 @@ module lsu
   //// AW channel signals
   assign lsu_ace_if.awvalid = awvalid_q;
   assign lsu_ace_if.awid = '0;  // TODO
-  assign lsu_ace_if.awaddr = addr_q;
+  assign lsu_ace_if.awaddr = awaddr_q;
   assign lsu_ace_if.awlen = '0;  // TODO
   assign lsu_ace_if.awsize = '0;  // TODO
   assign lsu_ace_if.awburst = '0;  // TODO
@@ -325,7 +331,7 @@ module lsu
 
   //// AR channel signals
   assign lsu_ace_if.arid = '0;  // TODO
-  assign lsu_ace_if.araddr = addr_q;
+  assign lsu_ace_if.araddr = araddr_q;
   assign lsu_ace_if.arlen = '0;  // TODO
   assign lsu_ace_if.arsize = '0;  // TODO
   assign lsu_ace_if.arburst = '0;  // TODO
