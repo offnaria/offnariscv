@@ -188,10 +188,12 @@ void Tester::step() {
       std::print("\n");
       std::print("wstrb: {:#010x}\n", dut->core_ace_wstrb);
     }
-    if (awaddr == tohost_addr) {
-      tohost_written = true;
-      tohost_data = dut->core_ace_wdata[0];
-    }
+  }
+
+  if (dut->core_lsu_store && (dut->core_lsu_addr == tohost_addr)) {
+    tohost_written = true;
+    tohost_data = dut->core_lsu_wdata;
+    std::print("tohost written: {:#010x}\n", tohost_data);
   }
 
   dut->clk = 0;

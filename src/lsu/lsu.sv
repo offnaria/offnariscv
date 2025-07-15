@@ -226,6 +226,12 @@ module lsu
       end
     endcase
 
+`ifndef SYNTHESIS
+    lsuwb_tdata.addr  = addr_q;
+    lsuwb_tdata.wdata = rflsu_slice_tdata.operands.op2;
+    lsuwb_tdata.store = (rflsu_slice_tdata.cmd == LSU_SW);
+`endif
+
     lsuwb_slice_if.tdata = lsuwb_tdata;
 
   end
