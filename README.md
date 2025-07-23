@@ -16,7 +16,7 @@ This is the ~~n-th~~ first RISC-V processor designed and implemented by offNaria
     - Cache
         - Basics
             - [x] L1 Instruction cache
-            - [ ] L1 Data cache
+            - [x] L1 Data cache
             - [ ] L2
         - Coherency
             - [ ] SI protocol
