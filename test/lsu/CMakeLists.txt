@@ -9,7 +9,7 @@ verilate(lsu_test
     ../../src/cache/cache_pkg.sv
     ../../src/ace_if.sv
     ../../src/common/axis_if.sv
-    ../../src/common/axis_slice.sv
+    ../../src/common/axis_skid_buffer.sv
     ../../src/cache/cache_if.sv
     ../../src/cache/cache_directory.sv
     ../../src/lsu/lsu.sv
