@@ -203,6 +203,11 @@ package offnariscv_pkg;
     logic [XLEN-1:0] result;
     trap_cause_t trap_cause;
     logic trap;
+`ifndef SYNTHESIS
+    logic [XLEN-1:0] addr;
+    logic [XLEN-1:0] wdata;
+    logic store;
+`endif
   } lsuwb_tdata_t;
 
 endpackage

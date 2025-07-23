@@ -3,8 +3,10 @@
 module lsu_wrap
   import offnariscv_pkg::*;
 #(
-    localparam ACE_XDATA_WIDTH  = 256,
-    localparam ACE_AXADDR_WIDTH = 32
+    localparam ACE_XDATA_WIDTH = 256,
+    localparam ACE_AXADDR_WIDTH = 32,
+    localparam INDEX_WIDTH = 7,
+    localparam TAG_WIDTH = 20
 ) (
     input clk,
     input rst,
@@ -99,6 +101,23 @@ module lsu_wrap
   axis_if #(.TDATA_WIDTH($bits(rflsu_tdata_t))) rflsu_axis_if ();
   axis_if #(.TDATA_WIDTH($bits(lsuwb_tdata_t))) lsuwb_axis_if ();
 
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) l1d_dir_if_0 ();
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) l1d_dir_if_1 ();
+  cache_mem_if #(
+      .BLOCK_SIZE (ACE_XDATA_WIDTH),
+      .INDEX_WIDTH(INDEX_WIDTH)
+  ) l1d_mem_if_0 ();
+  cache_mem_if #(
+      .BLOCK_SIZE (ACE_XDATA_WIDTH),
+      .INDEX_WIDTH(INDEX_WIDTH)
+  ) l1d_mem_if_1 ();
+
   // AW channel signals
   assign lsu_ace_awid = lsu_ace_if.awid;
   assign lsu_ace_awaddr = lsu_ace_if.awaddr;
@@ -187,7 +206,17 @@ module lsu_wrap
       .lsu_ace_if(lsu_ace_if),
       .rflsu_axis_if(rflsu_axis_if),
       .lsuwb_axis_if(lsuwb_axis_if),
+      .l1d_dir_if(l1d_dir_if_0),
+      .l1d_mem_if(l1d_mem_if_0),
       .invalidate(invalidate)
+  );
+
+  cache_directory l1d_dir_inst (
+      .clk(clk),
+      .rst(rst),
+      .cache_dir_rsp_if_0(l1d_dir_if_0),
+      .cache_dir_rsp_if_1(l1d_dir_if_1),
+      .flush('0)  // TODO
   );
 
 endmodule

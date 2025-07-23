@@ -59,6 +59,23 @@ module offnariscv_core
       .INDEX_WIDTH(INDEX_WIDTH)
   ) l1i_mem_if_1 ();
 
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) l1d_dir_if_0 ();
+  cache_dir_if #(
+      .INDEX_WIDTH(INDEX_WIDTH),
+      .TAG_WIDTH  (TAG_WIDTH)
+  ) l1d_dir_if_1 ();
+  cache_mem_if #(
+      .BLOCK_SIZE (BLOCK_SIZE),
+      .INDEX_WIDTH(INDEX_WIDTH)
+  ) l1d_mem_if_0 ();
+  cache_mem_if #(
+      .BLOCK_SIZE (BLOCK_SIZE),
+      .INDEX_WIDTH(INDEX_WIDTH)
+  ) l1d_mem_if_1 ();
+
   logic invalidate;
   logic flush;
 
@@ -184,7 +201,24 @@ module offnariscv_core
       .lsu_ace_if(lsu_ace_if),
       .rflsu_axis_if(rflsu_axis_if),
       .lsuwb_axis_if(lsuwb_axis_if),
+      .l1d_dir_if(l1d_dir_if_0),
+      .l1d_mem_if(l1d_mem_if_0),
       .invalidate(invalidate)
+  );
+
+  cache_directory l1d_dir_inst (
+      .clk(clk),
+      .rst(rst),
+      .cache_dir_rsp_if_0(l1d_dir_if_0),
+      .cache_dir_rsp_if_1(l1d_dir_if_1),
+      .flush('0)
+  );
+
+  cache_memory l1d_mem_inst (
+      .clk(clk),
+      .rst(rst),
+      .cache_mem_rsp_if_0(l1d_mem_if_0),
+      .cache_mem_rsp_if_1(l1d_mem_if_1)
   );
 
 endmodule

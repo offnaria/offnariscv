@@ -72,7 +72,11 @@ module offnariscv_core_wrap
     output [ACE_XDATA_WIDTH-1:0] core_ace_cddata,
     output core_ace_cdlast,
     output core_ace_rack,
-    output core_ace_wack
+    output core_ace_wack,
+
+    output [XLEN-1:0] core_lsu_addr,
+    output [XLEN-1:0] core_lsu_wdata,
+    output core_lsu_store
 );
 
   ace_if core_ace_if ();
@@ -143,6 +147,12 @@ module offnariscv_core_wrap
   assign core_ace_cdlast = core_ace_if.cdlast;
   assign core_ace_rack = core_ace_if.rack;
   assign core_ace_wack = core_ace_if.wack;
+
+  lsuwb_tdata_t lsuwb_tdata;
+  assign lsuwb_tdata = offnariscv_core_inst.lsuwb_axis_if.tdata;
+  assign core_lsu_addr = lsuwb_tdata.addr;
+  assign core_lsu_wdata = lsuwb_tdata.wdata;
+  assign core_lsu_store = lsuwb_tdata.store && offnariscv_core_inst.lsuwb_axis_if.tvalid;
 
   offnariscv_core #(
       .RESET_VECTOR(0)
